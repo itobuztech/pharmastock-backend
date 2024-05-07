@@ -28,7 +28,9 @@ export class PermissionsGuardAND implements CanActivate {
             }
         });
 
+
         const privileges = (role.privileges as Prisma.JsonArray);
+        console.log(privileges, requiredRoles);
         return requiredRoles.every(role => privileges.includes(role));
     }
 }
