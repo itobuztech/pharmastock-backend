@@ -1,15 +1,13 @@
-import { Resolver, Query, Context } from '@nestjs/graphql';
+import { Resolver, Query, Context, Args, Mutation } from '@nestjs/graphql';
 import { AccountService } from './account.service';
 import { User } from '../users/entities/user.entity';
 import { UseGuards } from '@nestjs/common';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
 //import { PermissionsGuardAND } from '../auth/guards/permissions-and.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
+import { ResetPasswordInput } from './dto/reset-password.input';
 
 @Resolver()
 export class AccountResolver {
@@ -20,5 +18,12 @@ export class AccountResolver {
   @Permissions([PrivilegesList.PROFILE.CAPABILITIES.VIEW])
   findOne(@Context() ctx: any): Promise<User> {
     return this.accountService.findOne();
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.PROFILE.CAPABILITIES.EDIT])
+  resetPassword(@Context() ctx: any, @Args('resetPasswordInput') resetPasswordInput: ResetPasswordInput): Promise<Boolean> {
+    return this.accountService.resetPassword(ctx, resetPasswordInput);
   }
 }

@@ -26,6 +26,7 @@ input LoginUserInput {
 type Mutation {
   create(createUserInput: CreateUserInput!): User!
   login(loginUserInput: LoginUserInput!): LoginResponse!
+  resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): User!
 }
 
@@ -33,6 +34,11 @@ type Query {
   account: User!
   user(email: String!): User!
   users: [User!]
+}
+
+input ResetPasswordInput {
+  newPassword: String!
+  oldPassword: String!
 }
 
 type User {
