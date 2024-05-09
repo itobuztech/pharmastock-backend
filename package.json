@@ -1,6 +1,6 @@
 {
   "name": "auth-rabc-template",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "This boilerplate serves as a solid starting point for building modern backend applications with NestJS, Prisma, and GraphQL",
   "author": "Palash Chanda",
   "private": true,
