@@ -15,8 +15,8 @@ model User {
   username  String?
   createdAt DateTime  @default(now())
   updatedAt DateTime?
-  role      Role      @relation(fields: [roleId], references: [id])
   roleId    String    @db.Uuid
+  role      Role      @relation(fields: [roleId], references: [id])
 
   @@map("users")
 }
