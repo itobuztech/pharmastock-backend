@@ -7,6 +7,7 @@ async function bootstrap() {
     cors: true,
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
+
   //app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   await app.listen(4000);

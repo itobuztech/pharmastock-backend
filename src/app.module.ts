@@ -1,11 +1,12 @@
 import { join } from 'path';
 import * as dotenv from 'dotenv';
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { GraphqlInterceptor, SentryModule } from '@travelerdev/nestjs-sentry-graphql';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -24,12 +25,13 @@ const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
     ConfigModule.forRoot({
       envFilePath: join(process.cwd(), `.env.${env}`),
       isGlobal: true,
-      load: [throttle,]
+      load: [throttle]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      plugins: []
     }),
     UsersModule,
     AuthModule,
@@ -43,11 +45,24 @@ const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
         limit: config.get('throttle.LIMIT'),
       }]
     }),
+    SentryModule.forRoot({
+      dsn: process.env.SENTRY_DSN,
+      debug: true,
+      environment: process.env.APP_ENV,
+      logLevels: ["debug"]
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, {
-    provide: APP_GUARD,
-    useClass: GqlThrottlerGuard
-  }],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: GqlThrottlerGuard
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useFactory: () => new GraphqlInterceptor(),
+    },
+  ],
 })
 export class AppModule { }
