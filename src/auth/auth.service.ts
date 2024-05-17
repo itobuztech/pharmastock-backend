@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserInput } from 'src/users/dto/create-user.input';
 import { UsersService } from '../users/users.service';
 import { LoginUserInput } from './dto/login-user.input';
+import { PrivilegesList, PrivilegesListType } from '../privileges/user-privileges';
 
 @Injectable()
 export class AuthService {
@@ -55,5 +56,28 @@ export class AuthService {
       ...signupUserInput,
       password,
     });
+  }
+
+  async getpermissions(ctx: any): Promise<any> {
+    const { userId } = ctx.req.user;
+    const user = await this.usersService.findOneById(userId);
+    return this.rebuildPermissions(PrivilegesList, user?.role?.privileges as number[]);
+  }
+
+  rebuildPermissions(originalPermissions: PrivilegesListType, validCapabilities: number[]): any {
+    const rebuiltSections = {};
+    for (const sectionkey in originalPermissions) {
+      const section = originalPermissions[sectionkey];
+      const rebuiltCapabilities = {};
+      for (const capabilityKey in section.CAPABILITIES) {
+        const capabilityValue = section.CAPABILITIES[capabilityKey];
+        rebuiltCapabilities[capabilityKey] = validCapabilities.includes(capabilityValue) ? capabilityValue : null;
+      }
+      rebuiltSections[sectionkey] = {
+        ...section,
+        CAPABILITIES: rebuiltCapabilities
+      };
+    }
+    return rebuiltSections;
   }
 }

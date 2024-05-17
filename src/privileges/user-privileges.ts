@@ -8,11 +8,12 @@ export enum UserCapabilities {
 }
 
 export enum UserPermissionNames {
-    NOTES = "PROFILE",
-    USER = "USER_MANAGEMENT",
+    PROFILE = "PROFILE",
+    USER_MANAGEMENT = "USER_MANAGEMENT",
+    USER_PERMISSION = "USER_PERMISSION",
 }
 
-const PrivilegesList: {
+export type PrivilegesListType = {
     [key in UserPermissionNames]: {
         LABEL: string;
         ORDER: number;
@@ -22,7 +23,9 @@ const PrivilegesList: {
             }
         >;
     };
-} = {
+};
+
+const PrivilegesList: PrivilegesListType = {
     PROFILE: {
         LABEL: "Profile",
         ORDER: 1,
@@ -39,6 +42,16 @@ const PrivilegesList: {
             CREATE: 202,
             EDIT: 203,
             DELETE: 204,
+        },
+    },
+    USER_PERMISSION: {
+        LABEL: "User Permissions",
+        ORDER: 3,
+        CAPABILITIES: {
+            VIEW: 301,
+            CREATE: 302,
+            EDIT: 303,
+            DELETE: 304,
         },
     },
 }

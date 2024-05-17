@@ -12,13 +12,8 @@ import { UserRole } from '@prisma/client';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) { }
 
-  // Example of a query that requires a JWT token and a role of OWNER
   @Query(() => [User], { name: 'users', nullable: true })
-  // Make sure to add RolesGuard to the @UseGuards() decorator
   @UseGuards(JwtAuthGuard, RolesGuard)
-  // Create roles in enums/roles.enum.ts
-  // Import the enum
-  // Add the right roles to the @Roles() decorator
   @Roles(UserRole.OWNER)
   findAll(): Promise<User[]> {
     return this.usersService.findAll();

@@ -17,6 +17,8 @@ export class PermissionsGuardOR implements CanActivate {
             context.getClass(),
         ]);
 
+        if (!requiredRoles) return false;
+
         const ctx = GqlExecutionContext.create(context);
         const user = ctx.getContext().req.user;
         const role = await this.prisma.role.findFirst({

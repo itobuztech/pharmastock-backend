@@ -1,7 +1,7 @@
 import { Injectable, UnprocessableEntityException, Logger } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { User } from '@prisma/client';
+import { Prisma, User, Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -47,11 +47,19 @@ export class UsersService {
     });
   }
 
-  async findOneById(id: string): Promise<User> {
+  async findOneById(id: string): Promise<User & { role: Pick<Role, 'userType' | 'privileges'> }> {
     return await this.prisma.user.findFirst({
       where: {
         id
       },
+      include: {
+        role: {
+          select: {
+            userType: true,
+            privileges: true
+          }
+        }
+      }
     });
   }
 

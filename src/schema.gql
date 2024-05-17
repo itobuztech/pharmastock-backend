@@ -13,6 +13,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
 type LoginResponse {
   access_token: String!
   user: User!
@@ -32,6 +37,7 @@ type Mutation {
 
 type Query {
   account: User!
+  getpermissions: JSON!
   user(email: String!): User!
   users: [User!]
 }
