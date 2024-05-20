@@ -45,6 +45,9 @@ export class UsersService {
         username: createUserInput.username,
         password: createUserInput.password,
         roleId: defaultRole.id
+      },
+      include: {
+        role: true,
       }
     });
   }

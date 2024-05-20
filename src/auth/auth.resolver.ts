@@ -11,6 +11,7 @@ import { PrivilegesList, PrivilegesListType } from '../privileges/user-privilege
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PermissionsGuardOR } from './guards/permissions-or.guard';
+import { SignupResponse } from './dto/signup-response';
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) { }
@@ -21,7 +22,7 @@ export class AuthResolver {
     return this.authService.login(loginUserInput);
   }
 
-  @Mutation(() => User)
+  @Mutation(() => SignupResponse)
   signup(@Args('signupUserInput') signupUserInput: CreateUserInput) {
     return this.authService.signup(signupUserInput);
   }

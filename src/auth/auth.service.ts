@@ -52,10 +52,18 @@ export class AuthService {
 
     const password = await bcrypt.hash(signupUserInput.password, 10);
 
-    return this.usersService.create({
+    const newUser = await this.usersService.create({
       ...signupUserInput,
       password,
     });
+
+    return {
+      access_token: this.jwtService.sign({
+        email: newUser.email,
+        sub: newUser.id,
+        role: newUser.role,
+      }),
+    };
   }
 
   async getpermissions(ctx: any): Promise<any> {
