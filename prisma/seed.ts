@@ -12,25 +12,19 @@ async function main() {
                 name: 'Owner',
                 description: 'Admin of the whole application',
                 userType: UserRole.OWNER,
-                privileges: {
-                    ...PrivilegesList.PROFILE,
-                }
+                privileges: [101, 102, 201, 202, 203, 204, 301, 302, 303, 304]
             },
             {
                 name: 'Employer',
                 description: 'Entity that employs individuals',
                 userType: UserRole.EMPLOYER,
-                privileges: {
-                    ...PrivilegesList.PROFILE,
-                }
+                privileges: [101, 102]
             },
             {
                 name: 'User',
                 description: 'Usertype of jobseekers',
                 userType: UserRole.USER,
-                privileges: {
-                    ...PrivilegesList.PROFILE,
-                }
+                privileges: [101, 102]
             },
         ],
         skipDuplicates: true,

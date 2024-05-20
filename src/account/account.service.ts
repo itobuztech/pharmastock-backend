@@ -11,16 +11,10 @@ export class AccountService {
         private readonly logger: Logger,
     ) { }
 
-    async findOne(): Promise<any> {
-        return await this.prisma.user.findFirst({
-            include: {
-                role: {
-                    select: {
-                        userType: true
-                    }
-                }
-            }
-        });
+    async findOne(ctx: any): Promise<any> {
+        const user = await this.usersService.findOneById(ctx.req.user.userId);
+        const { password, ...result } = user;
+        return result;
     }
 
     async resetPassword(ctx: any, resetPasswordInput: ResetPasswordInput): Promise<Boolean> {

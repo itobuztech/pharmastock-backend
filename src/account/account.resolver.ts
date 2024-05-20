@@ -17,7 +17,7 @@ export class AccountResolver {
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.PROFILE.CAPABILITIES.VIEW])
   findOne(@Context() ctx: any): Promise<User> {
-    return this.accountService.findOne();
+    return this.accountService.findOne(ctx);
   }
 
   @Mutation(() => Boolean)

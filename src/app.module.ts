@@ -7,8 +7,6 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { GraphqlInterceptor, SentryModule } from '@travelerdev/nestjs-sentry-graphql';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AccountModule } from './account/account.module';
@@ -52,9 +50,8 @@ const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
       logLevels: ["debug"]
     }),
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: GqlThrottlerGuard
