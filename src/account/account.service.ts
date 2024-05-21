@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ResetPasswordInput } from './dto/reset-password.input';
 import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
+import { UpdateProfileInput } from './dto/update-profile.input';
 @Injectable()
 export class AccountService {
     constructor(
@@ -17,7 +18,7 @@ export class AccountService {
         return result;
     }
 
-    async resetPassword(ctx: any, resetPasswordInput: ResetPasswordInput): Promise<Boolean> {
+    async resetPassword(ctx: any, resetPasswordInput: ResetPasswordInput): Promise<boolean> {
         const user = await this.usersService.findOneById(ctx.req.user.userId);
         const { password, ...result } = user;
 
@@ -26,6 +27,11 @@ export class AccountService {
         if (match) await this.usersService.updateUser(ctx.req.user.userId, { password: newPassword });
         else throw new BadRequestException("Password doesn't match");
 
+        return true;
+    }
+
+    async update(ctx: any, updateProfileInput: UpdateProfileInput): Promise<boolean> {
+        await this.usersService.updateUser(ctx.req.user.userId, { name: updateProfileInput.name, username: updateProfileInput.username });
         return true;
     }
 }

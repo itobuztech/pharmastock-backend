@@ -8,6 +8,7 @@ import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
 import { ResetPasswordInput } from './dto/reset-password.input';
+import { UpdateProfileInput } from './dto/update-profile.input';
 
 @Resolver()
 export class AccountResolver {
@@ -23,7 +24,14 @@ export class AccountResolver {
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.PROFILE.CAPABILITIES.EDIT])
-  resetPassword(@Context() ctx: any, @Args('resetPasswordInput') resetPasswordInput: ResetPasswordInput): Promise<Boolean> {
+  resetPassword(@Context() ctx: any, @Args('resetPasswordInput') resetPasswordInput: ResetPasswordInput): Promise<boolean> {
     return this.accountService.resetPassword(ctx, resetPasswordInput);
+  }
+
+  @Mutation(() => Boolean, { name: 'updateprofile' })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.PROFILE.CAPABILITIES.EDIT])
+  update(@Context() ctx: any, @Args('updateProfileInput') updateProfileInput: UpdateProfileInput): Promise<boolean> {
+    return this.accountService.update(ctx, updateProfileInput);
   }
 }

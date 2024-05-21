@@ -14,7 +14,7 @@ export class UsersService {
     return await this.prisma.user.findMany({});
   }
 
-  async findOne(email: string): Promise<any> {
+  async findOne(email: string): Promise<User & { role: Partial<Role> }> {
     return await this.prisma.user.findFirst({
       where: {
         email
@@ -22,6 +22,7 @@ export class UsersService {
       include: {
         role: {
           select: {
+            privileges: true,
             userType: true
           }
         }
@@ -38,7 +39,7 @@ export class UsersService {
         id: true,
       }
     });
-    if (!defaultRole) throw new UnprocessableEntityException("Can't find the role related information")
+    if (!defaultRole) throw new UnprocessableEntityException("Can't find the role related information");
     return await this.prisma.user.create({
       data: {
         email: createUserInput.email,
@@ -47,7 +48,12 @@ export class UsersService {
         roleId: defaultRole.id
       },
       include: {
-        role: true,
+        role: {
+          select: {
+            privileges: true,
+            userType: true
+          }
+        },
       }
     });
   }
