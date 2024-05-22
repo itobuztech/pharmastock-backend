@@ -1,51 +1,38 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { setup } from './utils/app';
 
 describe('Get Graphql Schema (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-    app.useLogger(console);
+    app = await setup(app);
   });
 
-  it('/ (GET)', async () => {
-    const expectedPattern = {
-      data: {
-        __schema: {
-          types: [
-            { name: 'Boolean' },
-            { name: 'CreateUserInput' },
-            { name: 'DateTime' },
-          ],
-        },
-      },
-    };
+  it('/ (Fetch Schema:)', async () => {
+    const expectedTypes = ['Boolean', 'CreateUserInput', 'DateTime'];
 
-    const req = await request(app.getHttpServer())
-      .get('/graphql')
+    await request(app.getHttpServer())
+      .post('/graphql')
       .send({
-        query: `
-          query {
-            __schema {
-              types {
-                name
-              }
+        query: `{
+          __schema {
+            types {
+              name
             }
           }
-        `,
-      }).expect(200);
-
-    req.once('request', (request) => {
-      console.log('Request headers:', request.header);
-      console.log('Request body:', request._data);
-    });
+        }`,
+      })
+      .expect(200)
+      .expect((response: any) => {
+        const data = JSON.parse(response.res.text);
+        const receivedTypes = (data.data.__schema.types.map(type => type.name));
+        const containsSome = expectedTypes.some(type => receivedTypes.includes(type));
+        expect(containsSome).toBe(true);
+      });
   });
+
+  afterEach(async () => {
+    app.close();
+  })
 });
