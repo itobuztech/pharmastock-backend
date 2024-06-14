@@ -4,14 +4,17 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserInput } from 'src/users/dto/create-user.input';
 import { UsersService } from '../users/users.service';
 import { LoginUserInput } from './dto/login-user.input';
-import { PrivilegesList, PrivilegesListType } from '../privileges/user-privileges';
+import {
+  PrivilegesList,
+  PrivilegesListType,
+} from '../privileges/user-privileges';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(email);
@@ -31,7 +34,7 @@ export class AuthService {
 
     const match = await bcrypt.compare(loginUserInput.password, password);
 
-    if (!match) throw new UnauthorizedException("Unauthorized");
+    if (!match) throw new UnauthorizedException('Unauthorized');
 
     return {
       access_token: this.jwtService.sign({
@@ -69,21 +72,31 @@ export class AuthService {
   async getpermissions(ctx: any): Promise<any> {
     const { userId } = ctx.req.user;
     const user = await this.usersService.findOneById(userId);
-    return this.rebuildPermissions(PrivilegesList, user?.role?.privileges as number[]);
+    return this.rebuildPermissions(
+      PrivilegesList,
+      user?.role?.privileges as number[],
+    );
   }
 
-  rebuildPermissions(originalPermissions: PrivilegesListType, validCapabilities: number[]): any {
+  rebuildPermissions(
+    originalPermissions: PrivilegesListType,
+    validCapabilities: number[],
+  ): any {
     const rebuiltSections = {};
     for (const sectionkey in originalPermissions) {
       const section = originalPermissions[sectionkey];
       const rebuiltCapabilities = {};
       for (const capabilityKey in section.CAPABILITIES) {
         const capabilityValue = section.CAPABILITIES[capabilityKey];
-        rebuiltCapabilities[capabilityKey] = validCapabilities.includes(capabilityValue) ? capabilityValue : null;
+        rebuiltCapabilities[capabilityKey] = validCapabilities.includes(
+          capabilityValue,
+        )
+          ? capabilityValue
+          : null;
       }
       rebuiltSections[sectionkey] = {
         ...section,
-        CAPABILITIES: rebuiltCapabilities
+        CAPABILITIES: rebuiltCapabilities,
       };
     }
     return rebuiltSections;

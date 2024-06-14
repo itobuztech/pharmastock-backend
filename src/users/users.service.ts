@@ -50,14 +50,26 @@ export class UsersService {
 
     const password = await bcrypt.hash(createUserInput.password, 10);
 
-    return await this.prisma.user.create({
-      data: {
-        email: createUserInput.email,
-        username: createUserInput.username,
-        password,
-        name: createUserInput.name,
-        roleId: createUserInput.roleId,
+    let data: any = {
+      email: createUserInput.email,
+      username: createUserInput.username,
+      password,
+      name: createUserInput.name,
+      role: {
+        connect: { id: createUserInput.roleId },
       },
+    };
+
+    if (createUserInput?.orgId) {
+      data = {
+        ...data,
+        organization: {
+          connect: { id: createUserInput?.orgId },
+        },
+      };
+    }
+    return await this.prisma.user.create({
+      data,
       include: {
         role: {
           select: {

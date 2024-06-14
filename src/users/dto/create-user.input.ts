@@ -17,4 +17,7 @@ export class CreateUserInput {
 
   @Field()
   roleId: string;
+
+  @Field({ nullable: true })
+  orgId: string;
 }

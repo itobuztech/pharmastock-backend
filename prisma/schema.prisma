@@ -17,6 +17,9 @@ model User {
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
   roleId    String    @map("role_id") @db.Uuid
   role      Role      @relation(fields: [roleId], references: [id])
+  organizationId String?    @map("organization_id") @db.Uuid
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  Warehouse   Warehouse[]
 
   @@map("users")
 }
@@ -36,4 +39,132 @@ enum UserRole {
   SUPERADMIN
   ADMIN
   STAFF
+}
+
+model Organization {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String    @unique
+  description String
+  active    Boolean @default(true)
+  address        String
+  city        String
+  country        String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  User        User[]
+  Warehouse   Warehouse[]
+  Pharmacy   Pharmacy[]
+
+  @@map("Organization")
+}
+
+model Warehouse {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  location  Json?
+  area      String
+  organizationId    String    @map("organization_id") @db.Uuid
+  organization Organization @relation(fields: [organizationId], references: [id])
+  adminId    String    @map("admin_id") @db.Uuid
+  admin User @relation(fields: [adminId], references: [id])
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  WarehouseStock   WarehouseStock[]
+  PharmacyStock   PharmacyStock[]
+
+  @@map("Warehouse")
+}
+
+model Item {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseUnit  BaseUnit @map("base_unit")
+  instructions      String
+  sku    String
+  mrp_base_unit Int
+  wholesale_price Int
+  hsn_code String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  WarehouseStock   WarehouseStock[]
+  PharmacyStock   PharmacyStock[]
+  StockMovement   StockMovement[]
+
+  @@map("Item")
+}
+
+enum BaseUnit {
+  kg
+  nos
+  strip
+  vial
+}
+
+model WarehouseStock {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  itemId    String    @map("item_id") @db.Uuid
+  item Item @relation(fields: [itemId], references: [id])
+  warehouseId    String    @map("warehouse_id") @db.Uuid
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  stocklevel_min    Int
+  stocklevel_max  Int
+  stock_status    String
+  stockLevel StockLevel @map("stock_level")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  StockMovement   StockMovement[]
+
+  @@map("WarehouseStock")
+}
+
+enum StockLevel {
+  LOW
+  HIGH
+  POSITIVE
+  NEGATIVE
+}
+
+model StockMovement {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  warehouseStockId    String    @map("warehouseStock_id") @db.Uuid
+  warehouseStock WarehouseStock @relation(fields: [warehouseStockId], references: [id])
+  qty  Int
+  final_qty  Int
+  itemId    String    @map("item_id") @db.Uuid
+  item Item @relation(fields: [itemId], references: [id])
+  pharmacyStockId    String    @map("pharmacyStockId_id") @db.Uuid
+  pharmacyStock PharmacyStock @relation(fields: [pharmacyStockId], references: [id])
+  batch_name    String
+  expiry    DateTime
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+
+  @@map("StockMovement")
+}
+
+
+model Pharmacy {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name    String
+  location Json?
+  organizationId String    @map("organization_id") @db.Uuid
+  organization Organization @relation(fields: [organizationId], references: [id])
+  contact_info  String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+
+  @@map("Pharmacy")
+}
+
+model PharmacyStock {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  itemId    String    @map("item_id") @db.Uuid
+  item Item @relation(fields: [itemId], references: [id])
+  warehouseId    String    @map("warehouse_id") @db.Uuid
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  qty  Int
+  final_qty  Int
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  StockMovement   StockMovement[]
+
+  @@map("PharmacyStock")
 }

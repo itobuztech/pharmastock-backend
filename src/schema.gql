@@ -5,6 +5,7 @@
 input CreateUserInput {
   email: String!
   name: String
+  orgId: String
   password: String!
   roleId: String!
   username: String!
