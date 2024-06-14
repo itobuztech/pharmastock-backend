@@ -33,7 +33,7 @@ model Role {
 }
 
 enum UserRole {
-  OWNER
-  EMPLOYER
-  USER
+  SUPERADMIN
+  ADMIN
+  STAFF
 }

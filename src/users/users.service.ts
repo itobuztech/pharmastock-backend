@@ -33,7 +33,7 @@ export class UsersService {
   async create(createUserInput: CreateUserInput) {
     const defaultRole = await this.prisma.role.findFirst({
       where: {
-        userType: UserRole.USER,
+        userType: UserRole.STAFF,
       },
       select: {
         id: true,

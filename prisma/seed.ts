@@ -3,36 +3,38 @@ import { PrismaClient, UserRole } from '@prisma/client'
 import { PrivilegesList } from '../src/privileges/user-privileges';
 const prisma = new PrismaClient();
 
+console.log("gg");
+
 
 async function main() {
     //CREATE UserRoles
     const roles = await prisma.role.createMany({
         data: [
             {
-                name: 'Owner',
-                description: 'Admin of the whole application',
-                userType: UserRole.OWNER,
+                name: 'Superadmin',
+                description: 'Super admin of the whole application',
+                userType: UserRole.SUPERADMIN,
                 privileges: [101, 102, 201, 202, 203, 204, 301, 302, 303, 304]
             },
             {
-                name: 'Employer',
-                description: 'Entity that employs individuals',
-                userType: UserRole.EMPLOYER,
+                name: 'Admin',
+                description: 'Admin made by super admin',
+                userType: UserRole.ADMIN,
                 privileges: [101, 102]
             },
             {
-                name: 'User',
-                description: 'Usertype of jobseekers',
-                userType: UserRole.USER,
+                name: 'Staff',
+                description: 'Staff made by admin',
+                userType: UserRole.STAFF,
                 privileges: [101, 102]
             },
         ],
         skipDuplicates: true,
     });
 
-    const ownerRole = await prisma.role.findFirst({
+    const superAdminRole = await prisma.role.findFirst({
         where: {
-            userType: UserRole.OWNER
+            userType: UserRole.SUPERADMIN
         }
     });
 
@@ -44,7 +46,7 @@ async function main() {
             email: 'palash@itobuz.com',
             name: 'Admin Creator',
             password: password,
-            roleId: ownerRole.id
+            roleId: superAdminRole.id
         },
     });
 }
