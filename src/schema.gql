@@ -2,6 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateOrganizationInput {
+  active: Boolean
+  address: String!
+  city: String!
+  country: String!
+  description: String!
+  name: String!
+}
+
 input CreateUserInput {
   email: String!
   name: String
@@ -15,6 +24,10 @@ input CreateUserInput {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+input DeleteOrganizationInput {
+  id: String!
+}
 
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
@@ -33,15 +46,33 @@ input LoginUserInput {
 
 type Mutation {
   create(createUserInput: CreateUserInput!): User!
+  createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
+  deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
+  updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
+}
+
+type Organization {
+  active: Boolean
+  address: String!
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  description: String!
+  id: String!
+  name: String!
+  updatedAt: DateTime
 }
 
 type Query {
   account: User!
   getpermissions: JSON!
+  organization(id: String!): Organization!
+  organizationByName(name: String!): Organization!
+  organizations: [Organization!]
   user(email: String!): User!
   users: [User!]
 }
@@ -53,6 +84,16 @@ input ResetPasswordInput {
 
 type SignupResponse {
   access_token: String!
+}
+
+input UpdateOrganizationInput {
+  active: Boolean
+  address: String
+  city: String
+  country: String
+  description: String
+  id: String!
+  name: String
 }
 
 input UpdateProfileInput {

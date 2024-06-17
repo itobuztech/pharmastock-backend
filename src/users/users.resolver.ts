@@ -10,7 +10,7 @@ import { UserRole } from '@prisma/client';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Query(() => [User], { name: 'users', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
