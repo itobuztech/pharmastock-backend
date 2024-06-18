@@ -100,10 +100,10 @@ enum BaseUnit {
 
 model WarehouseStock {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  itemId    String    @map("item_id") @db.Uuid
-  item Item @relation(fields: [itemId], references: [id])
-  warehouseId    String    @map("warehouse_id") @db.Uuid
-  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  itemId    String?    @map("item_id") @db.Uuid
+  item Item? @relation(fields: [itemId], references: [id])
+  warehouseId    String?    @map("warehouse_id") @db.Uuid
+  warehouse Warehouse? @relation(fields: [warehouseId], references: [id])
   stocklevel_min    Int
   stocklevel_max  Int
   stock_status    String
