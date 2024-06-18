@@ -2,6 +2,22 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+enum BaseUnit {
+  KG
+  NOS
+  STRIP
+  VIAL
+}
+
+input CreateItemInput {
+  baseUnit: String!
+  hsn_code: String
+  instructions: String!
+  mrp_base_unit: Float
+  sku: String
+  wholesale_price: Float
+}
+
 input CreateOrganizationInput {
   active: Boolean
   address: String!
@@ -32,12 +48,28 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input DeleteItemInput {
+  id: String!
+}
+
 input DeleteOrganizationInput {
   id: String!
 }
 
 input DeleteWarehouseInput {
   id: String!
+}
+
+type Item {
+  baseUnit: BaseUnit!
+  createdAt: DateTime!
+  hsn_code: String!
+  id: String!
+  instructions: String!
+  mrp_base_unit: Float
+  sku: String!
+  updatedAt: DateTime
+  wholesale_price: Float
 }
 
 """
@@ -57,13 +89,16 @@ input LoginUserInput {
 
 type Mutation {
   create(createUserInput: CreateUserInput!): User!
+  createItem(createItemInput: CreateItemInput!): Item!
   createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
   createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
+  deleteItem(deleteItemInput: DeleteItemInput!): Item!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
+  updateItem(updateItemInput: UpdateItemInput!): Item!
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
   updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
@@ -84,6 +119,8 @@ type Organization {
 type Query {
   account: User!
   getpermissions: JSON!
+  item(id: String!): Item!
+  items: [Item!]
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
   organizations: [Organization!]
@@ -100,6 +137,16 @@ input ResetPasswordInput {
 
 type SignupResponse {
   access_token: String!
+}
+
+input UpdateItemInput {
+  baseUnit: String
+  hsn_code: String
+  id: String!
+  instructions: String
+  mrp_base_unit: Float
+  sku: String
+  wholesale_price: Float
 }
 
 input UpdateOrganizationInput {

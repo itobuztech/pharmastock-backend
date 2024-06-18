@@ -18,6 +18,7 @@ import { LoggerModule } from './logger/app-logger.module';
 import { GqlThrottlerGuard } from './util/guards/gql-execution-context.guard';
 import throttle from './config/throttle.config';
 import { WarehouseModule } from './warehouse/warehouse.module';
+import { ItemModule } from './items/item.module';
 
 const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
 
@@ -38,6 +39,7 @@ dotenv.config({ path: join(process.cwd(), `.env.${env}`) });
     UsersModule,
     OrganizationModule,
     WarehouseModule,
+    ItemModule,
     AuthModule,
     AccountModule,
     LoggerModule,
