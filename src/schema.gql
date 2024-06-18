@@ -27,6 +27,13 @@ input CreateOrganizationInput {
   name: String!
 }
 
+input CreatePharmacyInput {
+  contact_info: String
+  location: String!
+  name: String!
+  organizationId: String
+}
+
 input CreateUserInput {
   email: String!
   name: String
@@ -62,6 +69,10 @@ input DeleteItemInput {
 }
 
 input DeleteOrganizationInput {
+  id: String!
+}
+
+input DeletePharmacyInput {
   id: String!
 }
 
@@ -104,10 +115,12 @@ type Mutation {
   create(createUserInput: CreateUserInput!): User!
   createItem(createItemInput: CreateItemInput!): Item!
   createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
+  createPharmacy(createPharmacyInput: CreatePharmacyInput!): Pharmacy!
   createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
   createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
   deleteItem(deleteItemInput: DeleteItemInput!): Item!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
+  deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
   login(loginUserInput: LoginUserInput!): LoginResponse!
@@ -115,6 +128,7 @@ type Mutation {
   signup(signupUserInput: CreateUserInput!): SignupResponse!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
+  updatePharmacy(updatePharmacyInput: UpdatePharmacyInput!): Pharmacy!
   updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
   updateWarehouseStock(updateWarehouseStockInput: UpdateWarehouseStockInput!): WarehouseStock!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
@@ -132,6 +146,16 @@ type Organization {
   updatedAt: DateTime
 }
 
+type Pharmacy {
+  contact_info: String
+  createdAt: DateTime!
+  id: String!
+  location: String!
+  name: String!
+  organizationId: String
+  updatedAt: DateTime
+}
+
 type Query {
   account: User!
   getpermissions: JSON!
@@ -140,6 +164,8 @@ type Query {
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
   organizations: [Organization!]
+  pharmacy(id: String!): Pharmacy!
+  pharmacys: [Pharmacy!]
   user(email: String!): User!
   users: [User!]
   warehouse(id: String!): Warehouse!
@@ -182,6 +208,14 @@ input UpdateOrganizationInput {
   description: String
   id: String!
   name: String
+}
+
+input UpdatePharmacyInput {
+  contact_info: String
+  id: String!
+  location: String
+  name: String
+  organizationId: String
 }
 
 input UpdateProfileInput {

@@ -143,11 +143,11 @@ model StockMovement {
 
 model Pharmacy {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name    String
+  name    String @unique @db.VarChar(255)
   location Json?
-  organizationId String    @map("organization_id") @db.Uuid
-  organization Organization @relation(fields: [organizationId], references: [id])
-  contact_info  String
+  organizationId String?    @map("organization_id") @db.Uuid
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  contact_info  String @db.VarChar(12)
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
 
