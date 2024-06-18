@@ -20,12 +20,23 @@ input CreateUserInput {
   username: String!
 }
 
+input CreateWarehouseInput {
+  adminId: String
+  area: String!
+  location: String!
+  organizationId: String
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
 input DeleteOrganizationInput {
+  id: String!
+}
+
+input DeleteWarehouseInput {
   id: String!
 }
 
@@ -47,11 +58,14 @@ input LoginUserInput {
 type Mutation {
   create(createUserInput: CreateUserInput!): User!
   createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
+  createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
+  deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
+  updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
 }
 
@@ -75,6 +89,8 @@ type Query {
   organizations: [Organization!]
   user(email: String!): User!
   users: [User!]
+  warehouse(id: String!): Warehouse!
+  warehouses: [Warehouse!]
 }
 
 input ResetPasswordInput {
@@ -101,6 +117,14 @@ input UpdateProfileInput {
   username: String!
 }
 
+input UpdateWarehouseInput {
+  adminId: String
+  area: String
+  id: String!
+  location: String
+  organizationId: String
+}
+
 type User {
   createdAt: DateTime!
   email: String!
@@ -108,4 +132,14 @@ type User {
   name: String
   updatedAt: DateTime
   username: String!
+}
+
+type Warehouse {
+  adminId: String
+  area: String!
+  createdAt: DateTime!
+  id: String!
+  location: String!
+  organizationId: String
+  updatedAt: DateTime
 }
