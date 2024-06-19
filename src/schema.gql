@@ -9,6 +9,11 @@ enum BaseUnit {
   VIAL
 }
 
+input CreateItemCategoryInput {
+  name: String!
+  parentCategoryId: String
+}
+
 input CreateItemInput {
   baseUnit: String!
   hsn_code: String
@@ -64,6 +69,10 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input DeleteItemCategoryInput {
+  id: String!
+}
+
 input DeleteItemInput {
   id: String!
 }
@@ -96,6 +105,14 @@ type Item {
   wholesale_price: Float
 }
 
+type ItemCategory {
+  createdAt: DateTime!
+  id: String!
+  name: String!
+  parentCategoryId: String
+  updatedAt: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -114,11 +131,13 @@ input LoginUserInput {
 type Mutation {
   create(createUserInput: CreateUserInput!): User!
   createItem(createItemInput: CreateItemInput!): Item!
+  createItemCategory(createItemCategoryInput: CreateItemCategoryInput!): ItemCategory!
   createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
   createPharmacy(createPharmacyInput: CreatePharmacyInput!): Pharmacy!
   createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
   createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
   deleteItem(deleteItemInput: DeleteItemInput!): Item!
+  deleteItemCategory(deleteItemCategoryInput: DeleteItemCategoryInput!): ItemCategory!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
@@ -127,6 +146,7 @@ type Mutation {
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
   updateItem(updateItemInput: UpdateItemInput!): Item!
+  updateItemCategory(updateItemCategoryInput: UpdateItemCategoryInput!): ItemCategory!
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
   updatePharmacy(updatePharmacyInput: UpdatePharmacyInput!): Pharmacy!
   updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
@@ -160,6 +180,8 @@ type Query {
   account: User!
   getpermissions: JSON!
   item(id: String!): Item!
+  itemCategories: [ItemCategory!]
+  itemCategory(id: String!): ItemCategory!
   items: [Item!]
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
@@ -188,6 +210,12 @@ enum StockLevel {
   LOW
   NEGATIVE
   POSITIVE
+}
+
+input UpdateItemCategoryInput {
+  id: String!
+  name: String
+  parentCategoryId: String
 }
 
 input UpdateItemInput {

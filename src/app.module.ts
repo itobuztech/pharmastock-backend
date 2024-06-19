@@ -21,6 +21,7 @@ import { WarehouseModule } from './warehouse/warehouse.module';
 import { ItemModule } from './items/item.module';
 import { WarehouseStockModule } from './warehouseStocks/warehouseStock.module';
 import { PharmacyModule } from './pharmacy/pharmacy.module';
+import { ItemCategoryModule } from './itemCategories/itemCategory.module';
 
 const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
 
@@ -44,6 +45,7 @@ dotenv.config({ path: join(process.cwd(), `.env.${env}`) });
     ItemModule,
     WarehouseStockModule,
     PharmacyModule,
+    ItemCategoryModule,
     AuthModule,
     AccountModule,
     LoggerModule,

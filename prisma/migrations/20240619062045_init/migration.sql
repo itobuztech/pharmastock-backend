@@ -53,8 +53,8 @@ CREATE TABLE "Warehouse" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "location" JSONB,
     "area" TEXT NOT NULL,
-    "organization_id" UUID NOT NULL,
-    "admin_id" UUID NOT NULL,
+    "organization_id" UUID,
+    "admin_id" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
@@ -77,10 +77,21 @@ CREATE TABLE "Item" (
 );
 
 -- CreateTable
+CREATE TABLE "ItemCategory" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "name" TEXT NOT NULL,
+    "parent_category_id" UUID,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ItemCategory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "WarehouseStock" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "item_id" UUID NOT NULL,
-    "warehouse_id" UUID NOT NULL,
+    "item_id" UUID,
+    "warehouse_id" UUID,
     "stocklevel_min" INTEGER NOT NULL,
     "stocklevel_max" INTEGER NOT NULL,
     "stock_status" TEXT NOT NULL,
@@ -110,10 +121,10 @@ CREATE TABLE "StockMovement" (
 -- CreateTable
 CREATE TABLE "Pharmacy" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "name" TEXT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
     "location" JSONB,
-    "organization_id" UUID NOT NULL,
-    "contact_info" TEXT NOT NULL,
+    "organization_id" UUID,
+    "contact_info" VARCHAR(12) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
@@ -139,6 +150,9 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 -- CreateIndex
 CREATE UNIQUE INDEX "Organization_name_key" ON "Organization"("name");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "Pharmacy_name_key" ON "Pharmacy"("name");
+
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -146,16 +160,19 @@ ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") 
 ALTER TABLE "users" ADD CONSTRAINT "users_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "Organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Warehouse" ADD CONSTRAINT "Warehouse_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Warehouse" ADD CONSTRAINT "Warehouse_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "Organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Warehouse" ADD CONSTRAINT "Warehouse_admin_id_fkey" FOREIGN KEY ("admin_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Warehouse" ADD CONSTRAINT "Warehouse_admin_id_fkey" FOREIGN KEY ("admin_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "WarehouseStock" ADD CONSTRAINT "WarehouseStock_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "Item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ItemCategory" ADD CONSTRAINT "ItemCategory_parent_category_id_fkey" FOREIGN KEY ("parent_category_id") REFERENCES "ItemCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "WarehouseStock" ADD CONSTRAINT "WarehouseStock_warehouse_id_fkey" FOREIGN KEY ("warehouse_id") REFERENCES "Warehouse"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "WarehouseStock" ADD CONSTRAINT "WarehouseStock_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "Item"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WarehouseStock" ADD CONSTRAINT "WarehouseStock_warehouse_id_fkey" FOREIGN KEY ("warehouse_id") REFERENCES "Warehouse"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_warehouseStock_id_fkey" FOREIGN KEY ("warehouseStock_id") REFERENCES "WarehouseStock"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -167,7 +184,7 @@ ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_item_id_fkey" FOREIGN 
 ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_pharmacyStockId_id_fkey" FOREIGN KEY ("pharmacyStockId_id") REFERENCES "PharmacyStock"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Pharmacy" ADD CONSTRAINT "Pharmacy_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Pharmacy" ADD CONSTRAINT "Pharmacy_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "Organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PharmacyStock" ADD CONSTRAINT "PharmacyStock_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "Item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
