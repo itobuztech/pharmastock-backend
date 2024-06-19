@@ -10,18 +10,18 @@ import { UserRole } from '@prisma/client';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Query(() => [User], { name: 'users', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
+  @Roles(UserRole.SUPERADMIN)
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
   @Query(() => User, { name: 'user' })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
+  @Roles(UserRole.SUPERADMIN)
   findOne(@Args('email') email: string): Promise<User> {
     return this.usersService.findOne(email);
   }

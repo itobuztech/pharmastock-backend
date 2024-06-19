@@ -3,6 +3,9 @@ import { UserRole } from '@prisma/client';
 
 @InputType()
 export class CreateUserInput {
+  @Field({ nullable: true })
+  name: string;
+
   @Field()
   email: string;
 
@@ -11,4 +14,10 @@ export class CreateUserInput {
 
   @Field()
   password: string;
+
+  @Field()
+  roleId: string;
+
+  @Field({ nullable: true })
+  orgId: string;
 }

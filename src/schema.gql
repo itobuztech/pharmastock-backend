@@ -2,16 +2,116 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+enum BaseUnit {
+  KG
+  NOS
+  STRIP
+  VIAL
+}
+
+input CreateItemCategoryInput {
+  name: String!
+  parentCategoryId: String
+}
+
+input CreateItemInput {
+  baseUnit: String!
+  hsn_code: String
+  instructions: String!
+  mrp_base_unit: Float
+  sku: String
+  wholesale_price: Float
+}
+
+input CreateOrganizationInput {
+  active: Boolean
+  address: String!
+  city: String!
+  country: String!
+  description: String!
+  name: String!
+}
+
+input CreatePharmacyInput {
+  contact_info: String
+  location: String!
+  name: String!
+  organizationId: String
+}
+
 input CreateUserInput {
   email: String!
+  name: String
+  orgId: String
   password: String!
+  roleId: String!
   username: String!
+}
+
+input CreateWarehouseInput {
+  adminId: String
+  area: String!
+  location: String!
+  organizationId: String
+}
+
+input CreateWarehouseStockInput {
+  itemId: String
+  stockLevel: String!
+  stock_status: String!
+  stocklevel_max: Float!
+  stocklevel_min: Float!
+  warehouseId: String
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+input DeleteItemCategoryInput {
+  id: String!
+}
+
+input DeleteItemInput {
+  id: String!
+}
+
+input DeleteOrganizationInput {
+  id: String!
+}
+
+input DeletePharmacyInput {
+  id: String!
+}
+
+input DeleteWarehouseInput {
+  id: String!
+}
+
+input DeleteWarehouseStockInput {
+  id: String!
+}
+
+type Item {
+  baseUnit: BaseUnit!
+  createdAt: DateTime!
+  hsn_code: String!
+  id: String!
+  instructions: String!
+  mrp_base_unit: Float
+  sku: String!
+  updatedAt: DateTime
+  wholesale_price: Float
+}
+
+type ItemCategory {
+  createdAt: DateTime!
+  id: String!
+  name: String!
+  parentCategoryId: String
+  updatedAt: DateTime
+}
 
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
@@ -30,17 +130,70 @@ input LoginUserInput {
 
 type Mutation {
   create(createUserInput: CreateUserInput!): User!
+  createItem(createItemInput: CreateItemInput!): Item!
+  createItemCategory(createItemCategoryInput: CreateItemCategoryInput!): ItemCategory!
+  createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
+  createPharmacy(createPharmacyInput: CreatePharmacyInput!): Pharmacy!
+  createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
+  createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
+  deleteItem(deleteItemInput: DeleteItemInput!): Item!
+  deleteItemCategory(deleteItemCategoryInput: DeleteItemCategoryInput!): ItemCategory!
+  deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
+  deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
+  deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
+  deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
+  updateItem(updateItemInput: UpdateItemInput!): Item!
+  updateItemCategory(updateItemCategoryInput: UpdateItemCategoryInput!): ItemCategory!
+  updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
+  updatePharmacy(updatePharmacyInput: UpdatePharmacyInput!): Pharmacy!
+  updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
+  updateWarehouseStock(updateWarehouseStockInput: UpdateWarehouseStockInput!): WarehouseStock!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
+}
+
+type Organization {
+  active: Boolean
+  address: String!
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  description: String!
+  id: String!
+  name: String!
+  updatedAt: DateTime
+}
+
+type Pharmacy {
+  contact_info: String
+  createdAt: DateTime!
+  id: String!
+  location: String!
+  name: String!
+  organizationId: String
+  updatedAt: DateTime
 }
 
 type Query {
   account: User!
   getpermissions: JSON!
+  item(id: String!): Item!
+  itemCategories: [ItemCategory!]
+  itemCategory(id: String!): ItemCategory!
+  items: [Item!]
+  organization(id: String!): Organization!
+  organizationByName(name: String!): Organization!
+  organizations: [Organization!]
+  pharmacy(id: String!): Pharmacy!
+  pharmacys: [Pharmacy!]
   user(email: String!): User!
   users: [User!]
+  warehouse(id: String!): Warehouse!
+  warehouseStock(id: String!): WarehouseStock!
+  warehouseStocks: [WarehouseStock!]
+  warehouses: [Warehouse!]
 }
 
 input ResetPasswordInput {
@@ -52,15 +205,97 @@ type SignupResponse {
   access_token: String!
 }
 
+enum StockLevel {
+  HIGH
+  LOW
+  NEGATIVE
+  POSITIVE
+}
+
+input UpdateItemCategoryInput {
+  id: String!
+  name: String
+  parentCategoryId: String
+}
+
+input UpdateItemInput {
+  baseUnit: String
+  hsn_code: String
+  id: String!
+  instructions: String
+  mrp_base_unit: Float
+  sku: String
+  wholesale_price: Float
+}
+
+input UpdateOrganizationInput {
+  active: Boolean
+  address: String
+  city: String
+  country: String
+  description: String
+  id: String!
+  name: String
+}
+
+input UpdatePharmacyInput {
+  contact_info: String
+  id: String!
+  location: String
+  name: String
+  organizationId: String
+}
+
 input UpdateProfileInput {
   name: String!
   username: String!
+}
+
+input UpdateWarehouseInput {
+  adminId: String
+  area: String
+  id: String!
+  location: String
+  organizationId: String
+}
+
+input UpdateWarehouseStockInput {
+  id: String!
+  itemId: String
+  stockLevel: String
+  stock_status: String
+  stocklevel_max: Float
+  stocklevel_min: Float
+  warehouseId: String
 }
 
 type User {
   createdAt: DateTime!
   email: String!
   id: String!
+  name: String
   updatedAt: DateTime
   username: String!
+}
+
+type Warehouse {
+  adminId: String
+  area: String!
+  createdAt: DateTime!
+  id: String!
+  location: String!
+  organizationId: String
+  updatedAt: DateTime
+}
+
+type WarehouseStock {
+  createdAt: DateTime!
+  id: String!
+  itemId: String
+  stockLevel: StockLevel!
+  stock_status: String!
+  stocklevel_max: Float
+  stocklevel_min: Float
+  updatedAt: DateTime
+  warehouseId: String
 }

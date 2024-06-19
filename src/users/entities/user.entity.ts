@@ -4,21 +4,24 @@ import { Exclude } from 'class-transformer';
 
 @ObjectType()
 export class User {
-    @Field(() => String)
-    id: UserDB['id'];
+  @Field(() => String)
+  id: UserDB['id'];
 
-    @Field(() => String)
-    username: UserDB['username'];
+  @Field(() => String)
+  username: UserDB['username'];
 
-    @Field(() => String)
-    email: UserDB['email'];
+  @Field(() => String)
+  email: UserDB['email'];
 
-    @Exclude()
-    password: UserDB['password'];
+  @Field(() => String, { nullable: true })
+  name: UserDB['name'];
 
-    @Field(() => Date)
-    createdAt: UserDB['createdAt'];
+  @Exclude()
+  password: UserDB['password'];
 
-    @Field(() => Date, { nullable: true })
-    updatedAt: UserDB['updatedAt'] | null;
+  @Field(() => Date)
+  createdAt: UserDB['createdAt'];
+
+  @Field(() => Date, { nullable: true })
+  updatedAt: UserDB['updatedAt'] | null;
 }
