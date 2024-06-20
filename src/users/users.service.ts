@@ -7,13 +7,15 @@ import {
 import { CreateUserInput } from './dto/create-user.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, User, Role, UserRole } from '@prisma/client';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.prisma.user.findMany({});
+  async findAll(paginationArgs?: PaginationArgs): Promise<User[]> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    return await this.prisma.user.findMany({ skip, take });
   }
 
   async findOne(email: string): Promise<User & { role: Partial<Role> }> {

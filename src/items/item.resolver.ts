@@ -11,6 +11,7 @@ import { UserRole } from '@prisma/client';
 import { UpdateItemInput } from './dto/update-item.input';
 import { DeleteItemInput } from './dto/delete-item.input';
 import { DeleteItemCategoryRelationInput } from './dto/delete-item-category-relation.input';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Resolver(() => Item)
 export class ItemResolver {
@@ -19,9 +20,11 @@ export class ItemResolver {
   @Query(() => [Item], { name: 'items', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async findAll(): Promise<Item[]> {
+  async findAll(
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<Item[]> {
     try {
-      return await this.itemService.findAll();
+      return await this.itemService.findAll(paginationArgs);
     } catch (e) {
       throw new BadRequestException(e);
     }

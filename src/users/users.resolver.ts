@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { User } from './entities/user.entity';
 import { UserRole } from '@prisma/client';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -15,8 +16,10 @@ export class UsersResolver {
   @Query(() => [User], { name: 'users', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SUPERADMIN)
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  findAll(
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<User[]> {
+    return this.usersService.findAll(paginationArgs);
   }
 
   @Query(() => User, { name: 'user' })

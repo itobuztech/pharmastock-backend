@@ -9,6 +9,7 @@ import { Pharmacy } from './entities/pharmacy.entity';
 import { UserRole } from '@prisma/client';
 import { UpdatePharmacyInput } from './dto/update-pharmacy.input';
 import { DeletePharmacyInput } from './dto/delete-pharmacy.input';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Resolver(() => Pharmacy)
 export class PharmacyResolver {
@@ -17,9 +18,11 @@ export class PharmacyResolver {
   @Query(() => [Pharmacy], { name: 'pharmacys', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async findAll(): Promise<Pharmacy[]> {
+  async findAll(
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<Pharmacy[]> {
     try {
-      return await this.pharmacyService.findAll();
+      return await this.pharmacyService.findAll(paginationArgs);
     } catch (e) {
       throw new BadRequestException(e);
     }

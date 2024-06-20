@@ -9,6 +9,7 @@ import { Warehouse } from './entities/warehouse.entity';
 import { UserRole } from '@prisma/client';
 import { UpdateWarehouseInput } from './dto/update-warehouse.input';
 import { DeleteWarehouseInput } from './dto/delete-warehouse.input';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Resolver(() => Warehouse)
 export class WarehouseResolver {
@@ -17,9 +18,11 @@ export class WarehouseResolver {
   @Query(() => [Warehouse], { name: 'warehouses', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async findAll(): Promise<Warehouse[]> {
+  async findAll(
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<Warehouse[]> {
     try {
-      return await this.warehouseService.findAll();
+      return await this.warehouseService.findAll(paginationArgs);
     } catch (e) {
       throw new BadRequestException(e);
     }

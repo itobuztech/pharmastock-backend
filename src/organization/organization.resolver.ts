@@ -9,7 +9,7 @@ import { Organization } from './entities/organization.entity';
 import { UserRole } from '@prisma/client';
 import { UpdateOrganizationInput } from './dto/update-organization.input';
 import { DeleteOrganizationInput } from './dto/delete-organization.input';
-import { STATUS_CODES } from 'http';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Resolver(() => Organization)
 export class OrganizationResolver {
@@ -18,9 +18,11 @@ export class OrganizationResolver {
   @Query(() => [Organization], { name: 'organizations', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async findAll(): Promise<Organization[]> {
+  async findAll(
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<Organization[]> {
     try {
-      return await this.organizationService.findAll();
+      return await this.organizationService.findAll(paginationArgs);
     } catch (e) {
       throw new BadRequestException(e);
     }

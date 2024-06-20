@@ -187,6 +187,11 @@ type Organization {
   updatedAt: DateTime
 }
 
+input PaginationArgs {
+  skip: Int
+  take: Int
+}
+
 type Pharmacy {
   contact_info: String
   createdAt: DateTime!
@@ -201,20 +206,20 @@ type Query {
   account: AccountTypeResponse!
   getpermissions: JSON!
   item(id: String!): Item!
-  itemCategories: [ItemCategory!]
+  itemCategories(paginationArgs: PaginationArgs): [ItemCategory!]
   itemCategory(id: String!): ItemCategory!
-  items: [Item!]
+  items(paginationArgs: PaginationArgs): [Item!]
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
-  organizations: [Organization!]
+  organizations(paginationArgs: PaginationArgs): [Organization!]
   pharmacy(id: String!): Pharmacy!
-  pharmacys: [Pharmacy!]
+  pharmacys(paginationArgs: PaginationArgs): [Pharmacy!]
   user(email: String!): User!
-  users: [User!]
+  users(paginationArgs: PaginationArgs): [User!]
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
-  warehouseStocks: [WarehouseStock!]
-  warehouses: [Warehouse!]
+  warehouseStocks(paginationArgs: PaginationArgs): [WarehouseStock!]
+  warehouses(paginationArgs: PaginationArgs): [Warehouse!]
 }
 
 input ResetPasswordInput {
