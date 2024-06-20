@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AccountTypeResponse {
+  role: String!
+  user: User!
+}
+
 enum BaseUnit {
   KG
   NOS
@@ -177,7 +182,7 @@ type Pharmacy {
 }
 
 type Query {
-  account: User!
+  account: AccountTypeResponse!
   getpermissions: JSON!
   item(id: String!): Item!
   itemCategories: [ItemCategory!]
