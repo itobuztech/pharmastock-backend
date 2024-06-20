@@ -9,7 +9,28 @@ export class ItemService {
 
   async findAll(): Promise<Item[]> {
     try {
-      const item = await this.prisma.item.findMany({});
+      const item: any = await this.prisma.item.findMany({
+        include: {
+          ItemCategoryRelation: {
+            include: {
+              itemCategory: true,
+            },
+          },
+        },
+      });
+
+      if (item) {
+        item.forEach((it) => {
+          if (it.ItemCategoryRelation) {
+            const relationArr = it.ItemCategoryRelation;
+            const categories = [];
+            relationArr.forEach((rel) => {
+              categories.push(rel.itemCategory);
+            });
+            it.Category = categories;
+          }
+        });
+      }
 
       return item;
     } catch (error) {
@@ -18,14 +39,30 @@ export class ItemService {
   }
 
   async findOne(id: string): Promise<Item> {
-    const item = await this.prisma.item.findFirst({
+    const item: any = await this.prisma.item.findFirst({
       where: {
         id,
+      },
+      include: {
+        ItemCategoryRelation: {
+          include: {
+            itemCategory: true,
+          },
+        },
       },
     });
 
     if (!item) {
       throw new Error('No Item found!');
+    }
+
+    if (item.ItemCategoryRelation) {
+      const relationArr = item.ItemCategoryRelation;
+      const categories = [];
+      relationArr.forEach((rel) => {
+        categories.push(rel.itemCategory);
+      });
+      item.Category = categories;
     }
 
     return item;
@@ -48,6 +85,27 @@ export class ItemService {
         throw new Error(
           'Could not create the Item. Please try after sometime!',
         );
+      }
+
+      if (createItemInput.category) {
+        const data = [{}];
+
+        createItemInput.category.forEach((cat) => {
+          data.push({
+            itemId: item?.id,
+            itemCategoryId: cat,
+          });
+        });
+
+        const relations = await this.prisma.itemCategoryRelation.createMany({
+          data,
+        });
+
+        if (!relations) {
+          throw new Error(
+            'Could not create the Item and Category Relation. Please try after sometime!',
+          );
+        }
       }
 
       return item;
@@ -80,6 +138,21 @@ export class ItemService {
 
     if (!deleted) {
       throw new Error('Could not delete the Item. Please try after sometime!');
+    }
+    return deleted;
+  }
+
+  async deleteItemCategoryRelation(id: string) {
+    const deleted = await this.prisma.itemCategoryRelation.delete({
+      where: {
+        id,
+      },
+    });
+
+    if (!deleted) {
+      throw new Error(
+        'Could not delete the Item and Category Relation. Please try after sometime!',
+      );
     }
     return deleted;
   }

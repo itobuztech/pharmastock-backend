@@ -16,6 +16,7 @@ input CreateItemCategoryInput {
 
 input CreateItemInput {
   baseUnit: String!
+  category: [String!]
   hsn_code: String
   instructions: String!
   mrp_base_unit: Float
@@ -73,6 +74,10 @@ input DeleteItemCategoryInput {
   id: String!
 }
 
+input DeleteItemCategoryRelationInput {
+  id: String!
+}
+
 input DeleteItemInput {
   id: String!
 }
@@ -94,6 +99,7 @@ input DeleteWarehouseStockInput {
 }
 
 type Item {
+  Category: [ItemCategory!]
   baseUnit: BaseUnit!
   createdAt: DateTime!
   hsn_code: String!
@@ -106,10 +112,19 @@ type Item {
 }
 
 type ItemCategory {
+  Item: [Item!]
   createdAt: DateTime!
   id: String!
   name: String!
   parentCategoryId: String
+  updatedAt: DateTime
+}
+
+type ItemCategoryRelation {
+  createdAt: DateTime!
+  id: String!
+  itemCategoryId: String!
+  itemId: String!
   updatedAt: DateTime
 }
 
@@ -138,6 +153,7 @@ type Mutation {
   createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
   deleteItem(deleteItemInput: DeleteItemInput!): Item!
   deleteItemCategory(deleteItemCategoryInput: DeleteItemCategoryInput!): ItemCategory!
+  deleteItemCategoryRelation(deleteItemCategoryRelationInput: DeleteItemCategoryRelationInput!): ItemCategoryRelation!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
@@ -220,6 +236,7 @@ input UpdateItemCategoryInput {
 
 input UpdateItemInput {
   baseUnit: String
+  category: [String!]
   hsn_code: String
   id: String!
   instructions: String

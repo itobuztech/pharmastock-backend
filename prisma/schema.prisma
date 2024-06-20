@@ -87,6 +87,7 @@ model Item {
   WarehouseStock   WarehouseStock[]
   PharmacyStock   PharmacyStock[]
   StockMovement   StockMovement[]
+  ItemCategoryRelation ItemCategoryRelation[]
 
   @@map("Item")
 }
@@ -106,8 +107,21 @@ model ItemCategory {
   children         ItemCategory[] @relation("CategoryHierarchy")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  ItemCategoryRelation ItemCategoryRelation[]
 
   @@map("ItemCategory")
+}
+
+model ItemCategoryRelation {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  itemCategoryId    String?    @map("item_category_id") @db.Uuid
+  itemCategory ItemCategory? @relation(fields: [itemCategoryId], references: [id])
+  itemId    String?    @map("item_id") @db.Uuid
+  item Item? @relation(fields: [itemId], references: [id])
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+
+  @@map("ItemCategoryRelation")
 }
 
 model WarehouseStock {

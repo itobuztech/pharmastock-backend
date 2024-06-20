@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Item as ItemDB } from '@prisma/client';
+import { ItemCategory as ItemCategoryDB, Item as ItemDB } from '@prisma/client';
 import { BaseUnit } from '../base-unit.enum';
+import { ItemCategory } from 'src/itemCategories/entities/itemCategory.entity';
 
 @ObjectType()
 export class Item {
@@ -30,4 +31,7 @@ export class Item {
 
   @Field(() => Date, { nullable: true })
   updatedAt: ItemDB['updatedAt'] | null;
+
+  @Field(() => [ItemCategory], { nullable: true })
+  Category?: ItemCategoryDB;
 }

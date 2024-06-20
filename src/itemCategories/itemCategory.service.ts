@@ -9,7 +9,28 @@ export class ItemCategoryService {
 
   async findAll(): Promise<ItemCategory[]> {
     try {
-      const itemCategory = await this.prisma.itemCategory.findMany({});
+      const itemCategory: any = await this.prisma.itemCategory.findMany({
+        include: {
+          ItemCategoryRelation: {
+            include: {
+              item: true,
+            },
+          },
+        },
+      });
+
+      if (itemCategory) {
+        itemCategory.forEach((ic) => {
+          if (ic.ItemCategoryRelation) {
+            const relationArr = ic.ItemCategoryRelation;
+            const items = [];
+            relationArr.forEach((rel) => {
+              items.push(rel.item);
+            });
+            ic.Item = items;
+          }
+        });
+      }
 
       return itemCategory;
     } catch (error) {
@@ -18,14 +39,30 @@ export class ItemCategoryService {
   }
 
   async findOne(id: string): Promise<ItemCategory> {
-    const itemCategory = await this.prisma.itemCategory.findFirst({
+    const itemCategory: any = await this.prisma.itemCategory.findFirst({
       where: {
         id,
+      },
+      include: {
+        ItemCategoryRelation: {
+          include: {
+            item: true,
+          },
+        },
       },
     });
 
     if (!itemCategory) {
       throw new Error('No Item Category found!');
+    }
+
+    if (itemCategory.ItemCategoryRelation) {
+      const relationArr = itemCategory.ItemCategoryRelation;
+      const items = [];
+      relationArr.forEach((rel) => {
+        items.push(rel.item);
+      });
+      itemCategory.Item = items;
     }
 
     return itemCategory;
