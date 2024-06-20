@@ -11,19 +11,25 @@ async function main() {
         name: 'Superadmin',
         description: 'Super admin of the whole application',
         userType: UserRole.SUPERADMIN,
-        privileges: [101, 102, 201, 202, 203, 204, 301, 302, 303, 304],
+        privileges: [
+          101, 102, 111, 112, 113, 114, 121, 122, 123, 124, 141, 151, 161, 171,
+          181, 191, 201, 202, 203, 204,
+        ],
       },
       {
         name: 'Admin',
         description: 'Admin made by super admin',
         userType: UserRole.ADMIN,
-        privileges: [101, 102],
+        privileges: [
+          141, 142, 143, 144, 151, 152, 153, 154, 161, 162, 163, 164, 171, 172,
+          173, 174, 181, 182, 183, 184, 191, 192, 193, 194,
+        ],
       },
       {
         name: 'Staff',
         description: 'Staff made by admin',
         userType: UserRole.STAFF,
-        privileges: [101, 102],
+        privileges: [201, 202, 203, 204],
       },
     ],
     skipDuplicates: true,
