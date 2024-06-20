@@ -15,7 +15,7 @@ export class AccountService {
     async findOne(ctx: any): Promise<any> {
         const user = await this.usersService.findOneById(ctx.req.user.userId);
         const { password, ...result } = user;
-        return result;
+        return { user: result, role: result?.role.userType };
     }
 
     async resetPassword(ctx: any, resetPasswordInput: ResetPasswordInput): Promise<boolean> {

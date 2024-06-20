@@ -9,15 +9,16 @@ import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
 import { ResetPasswordInput } from './dto/reset-password.input';
 import { UpdateProfileInput } from './dto/update-profile.input';
+import { AccountTypeResponse } from './dto/role-response';
 
 @Resolver()
 export class AccountResolver {
   constructor(private readonly accountService: AccountService) { }
 
-  @Query(() => User, { name: 'account' })
+  @Query(() => AccountTypeResponse, { name: 'account' })
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.PROFILE.CAPABILITIES.VIEW])
-  findOne(@Context() ctx: any): Promise<User> {
+  findOne(@Context() ctx: any): Promise<AccountTypeResponse> {
     return this.accountService.findOne(ctx);
   }
 
