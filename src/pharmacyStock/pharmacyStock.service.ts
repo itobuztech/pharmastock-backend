@@ -30,7 +30,7 @@ export class PharmacyStockService {
     });
 
     if (!pharmacyStock) {
-      throw new Error('No PharmacyStock found!');
+      throw new Error('No Pharmacy Stock found!');
     }
 
     return pharmacyStock;
@@ -40,7 +40,7 @@ export class PharmacyStockService {
     try {
       const data = {
         qty: createPharmacyStockInput.qty || null,
-        final_qty: createPharmacyStockInput.final_qty || null,
+        final_qty: createPharmacyStockInput.finalQty || null,
         item: {
           connect: { id: createPharmacyStockInput?.itemId },
         },

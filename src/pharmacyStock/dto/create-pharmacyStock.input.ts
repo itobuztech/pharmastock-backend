@@ -14,6 +14,6 @@ export class CreatePharmacyStockInput {
   @Field()
   qty: number;
 
-  @Field({ name: 'finalQty' })
-  final_qty: number;
+  @Field()
+  finalQty: number;
 }
