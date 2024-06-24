@@ -2,20 +2,17 @@ import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
 export class CreateStockMovementInput {
-  @Field()
+  @Field({ nullable: true })
   warehouseStockId?: string;
 
   @Field()
-  itemId?: string;
+  itemId: string;
 
-  @Field()
+  @Field({ nullable: true })
   pharmacyStockId?: string;
 
   @Field()
   qty: number;
-
-  @Field()
-  finalQty: number;
 
   @Field()
   batchName: string;

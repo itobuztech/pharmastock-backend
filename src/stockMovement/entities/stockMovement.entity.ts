@@ -6,19 +6,16 @@ export class StockMovement {
   @Field(() => String)
   id: StockMovementDB['id'];
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   warehouseStockId: StockMovementDB['warehouseStockId'];
 
   @Field(() => Number)
   qty: StockMovementDB['qty'];
 
-  @Field(() => Number, { name: 'finalQty' })
-  final_qty: StockMovementDB['final_qty'];
-
   @Field(() => String)
   itemId: StockMovementDB['itemId'];
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   pharmacyStockId: StockMovementDB['pharmacyStockId'];
 
   @Field(() => String, { name: 'batchName' })

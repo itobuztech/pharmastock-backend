@@ -37,30 +37,39 @@ export class StockMovementService {
   }
 
   async create(createStockMovementInput: CreateStockMovementInput) {
-    console.log('createStockMovementInput=', createStockMovementInput);
-
     try {
-      let data = {
+      let data: any = {
         qty: createStockMovementInput.qty,
-        final_qty: createStockMovementInput.finalQty,
         batch_name: createStockMovementInput.batchName,
         expiry: createStockMovementInput.expiry,
-        warehouseStock: {
-          connect: {
-            id: createStockMovementInput?.warehouseStockId,
-          },
-        },
         item: {
           connect: {
             id: createStockMovementInput?.itemId,
           },
         },
-        pharmacyStock: {
-          connect: {
-            id: createStockMovementInput?.pharmacyStockId,
-          },
-        },
       };
+
+      if (createStockMovementInput?.warehouseStockId) {
+        data = {
+          ...data,
+          warehouseStock: {
+            connect: {
+              id: createStockMovementInput?.warehouseStockId,
+            },
+          },
+        };
+      }
+
+      if (createStockMovementInput?.pharmacyStockId) {
+        data = {
+          ...data,
+          pharmacyStock: {
+            connect: {
+              id: createStockMovementInput?.pharmacyStockId,
+            },
+          },
+        };
+      }
 
       const stockMovement = await this.prisma.stockMovement.create({
         data,

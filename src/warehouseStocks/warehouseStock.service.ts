@@ -4,9 +4,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import { WarehouseStock } from '@prisma/client';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
 
+import { StockMovementService } from '../stockMovement/stockMovement.service';
+import { CreateStockMovementInput } from 'src/stockMovement/dto/create-stockMovement.input';
+
 @Injectable()
 export class WarehouseStockService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly logger: Logger,
+    private readonly stockMovementService: StockMovementService,
+  ) {}
 
   async findAll(paginationArgs?: PaginationArgs): Promise<WarehouseStock[]> {
     const { skip = 0, take = 10 } = paginationArgs || {};
@@ -38,39 +45,66 @@ export class WarehouseStockService {
 
   async create(createWarehouseStockInput: CreateWarehouseStockInput) {
     try {
-      let data: any = {
-        stocklevel_min: createWarehouseStockInput.stocklevel_min,
-        stocklevel_max: createWarehouseStockInput.stocklevel_max,
-        stock_status: createWarehouseStockInput.stock_status,
+      const data = {
+        item: {
+          connect: { id: createWarehouseStockInput?.itemId },
+        },
+        warehouse: {
+          connect: { id: createWarehouseStockInput?.warehouseId },
+        },
+        stocklevel_min: createWarehouseStockInput.stocklevelMin,
+        stocklevel_max: createWarehouseStockInput.stocklevelMax,
+        stock_status: createWarehouseStockInput.stockStatus,
         stockLevel: createWarehouseStockInput.stockLevel,
+        final_qty: createWarehouseStockInput.qty,
       };
 
-      if (createWarehouseStockInput?.itemId) {
-        data = {
-          ...data,
-          item: {
-            connect: { id: createWarehouseStockInput?.itemId },
-          },
-        };
-      }
-      if (createWarehouseStockInput?.warehouseId) {
-        data = {
-          ...data,
-          warehouse: {
-            connect: { id: createWarehouseStockInput?.warehouseId },
-          },
-        };
-      }
-
-      const warehouseStock = await this.prisma.warehouseStock.create({
-        data,
+      const existingStock = await this.prisma.warehouseStock.findFirst({
+        where: {
+          itemId: createWarehouseStockInput?.itemId,
+        },
       });
 
-      if (!warehouseStock) {
-        throw new Error(
-          'Could not create the WarehouseStock. Please try after sometime!',
-        );
+      let warehouseStock;
+      if (!existingStock) {
+        // This section is when a new item is added to the stock.
+        warehouseStock = await this.prisma.warehouseStock.create({
+          data,
+        });
+
+        if (!warehouseStock) {
+          throw new Error(
+            'Could not create the Warehouse Stock. Please try after sometime!',
+          );
+        }
+      } else {
+        // This section is when the item exists.
+        warehouseStock = await this.prisma.warehouseStock.update({
+          where: {
+            id: existingStock?.id,
+          },
+          data: {
+            final_qty: existingStock.final_qty + createWarehouseStockInput.qty,
+          },
+        });
+
+        if (!warehouseStock) {
+          throw new Error(
+            'Could not update the Warehouse Stock. Please try after sometime!',
+          );
+        }
       }
+
+      // Creation of Stock Movement.
+      const createStockMovement: CreateStockMovementInput = {
+        itemId: createWarehouseStockInput?.itemId,
+        qty: createWarehouseStockInput.qty,
+        batchName: createWarehouseStockInput.batchName,
+        expiry: createWarehouseStockInput.expiry,
+        warehouseStockId: warehouseStock.id || existingStock.warehouseId,
+      };
+
+      await this.stockMovementService.create(createStockMovement);
 
       return warehouseStock;
     } catch (error) {

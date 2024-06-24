@@ -102,6 +102,7 @@ CREATE TABLE "ItemCategoryRelation" (
 CREATE TABLE "WarehouseStock" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "item_id" UUID,
+    "final_qty" INTEGER NOT NULL,
     "warehouse_id" UUID,
     "stocklevel_min" INTEGER NOT NULL,
     "stocklevel_max" INTEGER NOT NULL,
@@ -147,6 +148,7 @@ CREATE TABLE "PharmacyStock" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "item_id" UUID NOT NULL,
     "warehouse_id" UUID NOT NULL,
+    "pharmacy_id" UUID NOT NULL,
     "qty" INTEGER NOT NULL,
     "final_qty" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -208,3 +210,6 @@ ALTER TABLE "PharmacyStock" ADD CONSTRAINT "PharmacyStock_item_id_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "PharmacyStock" ADD CONSTRAINT "PharmacyStock_warehouse_id_fkey" FOREIGN KEY ("warehouse_id") REFERENCES "Warehouse"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PharmacyStock" ADD CONSTRAINT "PharmacyStock_pharmacy_id_fkey" FOREIGN KEY ("pharmacy_id") REFERENCES "Pharmacy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
