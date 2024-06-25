@@ -53,6 +53,16 @@ input CreatePharmacyStockInput {
   warehouseId: String!
 }
 
+input CreateStockMovementInput {
+  batchName: String!
+  expiry: DateTime!
+  finalQty: Float!
+  itemId: String!
+  pharmacyStockId: String!
+  qty: Float!
+  warehouseStockId: String!
+}
+
 input CreateUserInput {
   email: String!
   name: String
@@ -104,6 +114,10 @@ input DeletePharmacyInput {
 }
 
 input DeletePharmacyStockInput {
+  id: String!
+}
+
+input DeleteStockMovementInput {
   id: String!
 }
 
@@ -167,6 +181,7 @@ type Mutation {
   createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
   createPharmacy(createPharmacyInput: CreatePharmacyInput!): Pharmacy!
   createPharmacyStock(createPharmacyStockInput: CreatePharmacyStockInput!): PharmacyStock!
+  createStockMovement(createStockMovementInput: CreateStockMovementInput!): StockMovement!
   createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
   createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
   deleteItem(deleteItemInput: DeleteItemInput!): Item!
@@ -175,6 +190,7 @@ type Mutation {
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
   deletePharmacyStock(deletePharmacyStockInput: DeletePharmacyStockInput!): PharmacyStock!
+  deleteStockMovement(deleteStockMovementInput: DeleteStockMovementInput!): StockMovement!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
   login(loginUserInput: LoginUserInput!): LoginResponse!
@@ -185,6 +201,7 @@ type Mutation {
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
   updatePharmacy(updatePharmacyInput: UpdatePharmacyInput!): Pharmacy!
   updatePharmacyStock(updatePharmacyStockInput: UpdatePharmacyStockInput!): PharmacyStock!
+  updateStockMovement(updateStockMovementInput: UpdateStockMovementInput!): StockMovement!
   updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
   updateWarehouseStock(updateWarehouseStockInput: UpdateWarehouseStockInput!): WarehouseStock!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
@@ -242,6 +259,8 @@ type Query {
   organizations(paginationArgs: PaginationArgs): [Organization!]
   pharmacy(id: String!): Pharmacy!
   pharmacys(paginationArgs: PaginationArgs): [Pharmacy!]
+  stockMovement(id: String!): StockMovement!
+  stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
   user(email: String!): User!
   users(paginationArgs: PaginationArgs): [User!]
   warehouse(id: String!): Warehouse!
@@ -264,6 +283,19 @@ enum StockLevel {
   LOW
   NEGATIVE
   POSITIVE
+}
+
+type StockMovement {
+  batchName: String!
+  createdAt: DateTime!
+  expiry: DateTime!
+  finalQty: Float!
+  id: String!
+  itemId: String!
+  pharmacyStockId: String!
+  qty: Float!
+  updatedAt: DateTime
+  warehouseStockId: String!
 }
 
 input UpdateItemCategoryInput {
@@ -313,6 +345,17 @@ input UpdatePharmacyStockInput {
 input UpdateProfileInput {
   name: String!
   username: String!
+}
+
+input UpdateStockMovementInput {
+  batchName: String
+  expiry: DateTime
+  finalQty: Float
+  id: String!
+  itemId: String
+  pharmacyStockId: String
+  qty: Float
+  warehouseStockId: String
 }
 
 input UpdateWarehouseInput {
