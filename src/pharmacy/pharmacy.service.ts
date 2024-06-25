@@ -37,15 +37,6 @@ export class PharmacyService {
     try {
       const location = JSON.stringify(createPharmacyInput.location);
 
-      const organizationCheck = await this.prisma.organization.findFirst({
-        where: {
-          id: createPharmacyInput?.organizationId,
-        },
-      });
-
-      if (!organizationCheck)
-        throw new Error('No Organization present with this ID!');
-
       let data: any = {
         location,
         name: createPharmacyInput.name || null,
@@ -78,18 +69,6 @@ export class PharmacyService {
   }
 
   async updatePharmacy(id: string, data) {
-    if (data.organizationId) {
-      const organizationCheck = await this.prisma.organization.findFirst({
-        where: {
-          id: data?.organizationId,
-        },
-      });
-
-      if (!organizationCheck) {
-        throw new Error('No Organization present with this ID!');
-      }
-    }
-
     const pharmacy = await this.prisma.pharmacy.update({
       where: {
         id,
