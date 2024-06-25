@@ -7,7 +7,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { StockMovement } from './entities/stockMovement.entity';
 import { UserRole } from '@prisma/client';
-import { UpdateStockMovementInput } from './dto/update-stockMovement.input';
 import { DeleteStockMovementInput } from './dto/delete-stockMovement.input';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
 
@@ -48,21 +47,6 @@ export class StockMovementResolver {
   ): Promise<StockMovement> {
     try {
       return await this.stockMovementService.create(createStockMovementInput);
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
-
-  @Mutation(() => StockMovement)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  async updateStockMovement(
-    @Args('updateStockMovementInput')
-    updateStockMovementInput: UpdateStockMovementInput,
-  ): Promise<StockMovement> {
-    try {
-      const { id, ...data } = updateStockMovementInput;
-      return await this.stockMovementService.updateStockMovement(id, data);
     } catch (error) {
       throw new BadRequestException(error);
     }

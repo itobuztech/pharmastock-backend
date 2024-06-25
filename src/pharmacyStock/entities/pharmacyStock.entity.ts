@@ -15,9 +15,6 @@ export class PharmacyStock {
   @Field(() => String)
   pharmacyId: PharmacyStockDB['pharmacyId'];
 
-  @Field(() => Int)
-  qty: PharmacyStockDB['qty'];
-
   @Field(() => Int, { name: 'finalQty' })
   final_qty: PharmacyStockDB['final_qty'];
 

@@ -18,11 +18,11 @@ export class StockMovement {
   @Field(() => String, { nullable: true })
   pharmacyStockId: StockMovementDB['pharmacyStockId'];
 
-  @Field(() => String, { name: 'batchName' })
-  batch_name: StockMovementDB['batch_name'];
+  @Field(() => String, { name: 'batchName', nullable: true })
+  batch_name?: StockMovementDB['batch_name'];
 
-  @Field(() => Date)
-  expiry: StockMovementDB['expiry'];
+  @Field(() => Date, { nullable: true })
+  expiry?: StockMovementDB['expiry'];
 
   @Field(() => Date)
   createdAt: StockMovementDB['createdAt'];

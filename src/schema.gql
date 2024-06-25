@@ -46,7 +46,6 @@ input CreatePharmacyInput {
 }
 
 input CreatePharmacyStockInput {
-  finalQty: Float!
   itemId: String!
   pharmacyId: String!
   qty: Float!
@@ -54,8 +53,8 @@ input CreatePharmacyStockInput {
 }
 
 input CreateStockMovementInput {
-  batchName: String!
-  expiry: DateTime!
+  batchName: String
+  expiry: DateTime
   itemId: String!
   pharmacyStockId: String
   qty: Float!
@@ -202,10 +201,7 @@ type Mutation {
   updateItemCategory(updateItemCategoryInput: UpdateItemCategoryInput!): ItemCategory!
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
   updatePharmacy(updatePharmacyInput: UpdatePharmacyInput!): Pharmacy!
-  updatePharmacyStock(updatePharmacyStockInput: UpdatePharmacyStockInput!): PharmacyStock!
-  updateStockMovement(updateStockMovementInput: UpdateStockMovementInput!): StockMovement!
   updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
-  updateWarehouseStock(updateWarehouseStockInput: UpdateWarehouseStockInput!): WarehouseStock!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
 }
 
@@ -242,7 +238,6 @@ type PharmacyStock {
   id: String!
   itemId: String!
   pharmacyId: String!
-  qty: Int!
   updatedAt: DateTime
   warehouseId: String!
 }
@@ -288,9 +283,9 @@ enum StockLevel {
 }
 
 type StockMovement {
-  batchName: String!
+  batchName: String
   createdAt: DateTime!
-  expiry: DateTime!
+  expiry: DateTime
   id: String!
   itemId: String!
   pharmacyStockId: String
@@ -334,28 +329,9 @@ input UpdatePharmacyInput {
   organizationId: String
 }
 
-input UpdatePharmacyStockInput {
-  finalQty: Float
-  id: String!
-  itemId: String
-  pharmacyId: String
-  qty: Float
-  warehouseId: String
-}
-
 input UpdateProfileInput {
   name: String!
   username: String!
-}
-
-input UpdateStockMovementInput {
-  batchName: String
-  expiry: DateTime
-  id: String!
-  itemId: String
-  pharmacyStockId: String
-  qty: Float
-  warehouseStockId: String
 }
 
 input UpdateWarehouseInput {
@@ -364,19 +340,6 @@ input UpdateWarehouseInput {
   id: String!
   location: String
   organizationId: String
-}
-
-input UpdateWarehouseStockInput {
-  batchName: String
-  expiry: DateTime
-  id: String!
-  itemId: String
-  qty: Float
-  stockLevel: String
-  stockStatus: String
-  stocklevelMax: Float
-  stocklevelMin: Float
-  warehouseId: String
 }
 
 type User {

@@ -14,9 +14,9 @@ export class CreateStockMovementInput {
   @Field()
   qty: number;
 
-  @Field()
+  @Field({ nullable: true })
   batchName: string;
 
-  @Field(() => Date)
+  @Field(() => Date, { nullable: true })
   expiry: Date;
 }

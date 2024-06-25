@@ -7,7 +7,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { PharmacyStock } from './entities/pharmacyStock.entity';
 import { UserRole } from '@prisma/client';
-import { UpdatePharmacyStockInput } from './dto/update-pharmacyStock.input';
 import { DeletePharmacyStockInput } from './dto/delete-pharmacyStock.input';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
 
@@ -48,21 +47,6 @@ export class PharmacyStockResolver {
   ): Promise<PharmacyStock> {
     try {
       return await this.PharmacyStockService.create(createPharmacyStockInput);
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
-
-  @Mutation(() => PharmacyStock)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  async updatePharmacyStock(
-    @Args('updatePharmacyStockInput')
-    updatePharmacyStockInput: UpdatePharmacyStockInput,
-  ): Promise<PharmacyStock> {
-    try {
-      const { id, ...data } = updatePharmacyStockInput;
-      return await this.PharmacyStockService.updatePharmacyStock(id, data);
     } catch (error) {
       throw new BadRequestException(error);
     }
