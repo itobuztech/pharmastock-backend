@@ -13,7 +13,4 @@ export class CreatePharmacyStockInput {
 
   @Field()
   qty: number;
-
-  @Field()
-  finalQty: number;
 }

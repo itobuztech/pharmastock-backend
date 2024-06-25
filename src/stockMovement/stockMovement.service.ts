@@ -40,8 +40,8 @@ export class StockMovementService {
     try {
       let data: any = {
         qty: createStockMovementInput.qty,
-        batch_name: createStockMovementInput.batchName,
-        expiry: createStockMovementInput.expiry,
+        batch_name: createStockMovementInput.batchName || null,
+        expiry: createStockMovementInput.expiry || null,
         item: {
           connect: {
             id: createStockMovementInput?.itemId,
@@ -85,23 +85,6 @@ export class StockMovementService {
     } catch (error) {
       throw error;
     }
-  }
-
-  async updateStockMovement(id: string, data) {
-    const stockMovement = await this.prisma.stockMovement.update({
-      where: {
-        id,
-      },
-      data,
-    });
-
-    if (!stockMovement) {
-      throw new Error(
-        'Could not update the Stock Movement. Please try after sometime!',
-      );
-    }
-
-    return stockMovement;
   }
 
   async deleteStockMovement(id: string) {

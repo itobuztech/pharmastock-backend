@@ -158,8 +158,8 @@ model StockMovement {
   item Item @relation(fields: [itemId], references: [id])
   pharmacyStockId    String?    @map("pharmacyStockId_id") @db.Uuid
   pharmacyStock PharmacyStock? @relation(fields: [pharmacyStockId], references: [id])
-  batch_name    String
-  expiry    DateTime
+  batch_name    String?
+  expiry    DateTime?
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
 
@@ -189,7 +189,6 @@ model PharmacyStock {
   warehouse Warehouse @relation(fields: [warehouseId], references: [id])
   pharmacyId    String    @map("pharmacy_id") @db.Uuid
   pharmacy Pharmacy @relation(fields: [pharmacyId], references: [id])
-  qty  Int
   final_qty  Int
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")

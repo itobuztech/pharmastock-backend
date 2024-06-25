@@ -7,7 +7,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { WarehouseStock } from './entities/warehouseStock.entity';
 import { UserRole } from '@prisma/client';
-import { UpdateWarehouseStockInput } from './dto/update-warehouseStock.input';
 import { DeleteWarehouseStockInput } from './dto/delete-warehouseStock.input';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
 
@@ -48,21 +47,6 @@ export class WarehouseStockResolver {
   ): Promise<WarehouseStock> {
     try {
       return await this.warehouseStockService.create(createWarehouseStockInput);
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
-
-  @Mutation(() => WarehouseStock)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  async updateWarehouseStock(
-    @Args('updateWarehouseStockInput')
-    updateWarehouseStockInput: UpdateWarehouseStockInput,
-  ): Promise<WarehouseStock> {
-    try {
-      const { id, ...data } = updateWarehouseStockInput;
-      return await this.warehouseStockService.updateWarehouseStock(id, data);
     } catch (error) {
       throw new BadRequestException(error);
     }
