@@ -3,6 +3,7 @@ import { CreateItemInput } from './dto/create-item.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Item } from '@prisma/client';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { error } from 'console';
 
 @Injectable()
 export class ItemService {
@@ -74,7 +75,29 @@ export class ItemService {
 
   async create(createItemInput: CreateItemInput) {
     try {
-      const item = await this.prisma.item.create({
+      let catArr = [];
+      // Check if the category ID that is provided is valid or not. STARTS!
+      if (createItemInput.category) {
+        const categories = createItemInput.category;
+
+        for (const cat of categories) {
+          const category = await this.prisma.itemCategory.findFirst({
+            where: {
+              id: cat,
+            },
+          });
+
+          if (!category) {
+            throw new Error('No category find with this ID!');
+          }
+
+          catArr.push(category);
+        }
+      }
+      // Check if the category ID that is provided is valid or not. ENDS!
+
+      // Creting the item. STARTS
+      const item: any = await this.prisma.item.create({
         data: {
           baseUnit: createItemInput.baseUnit,
           instructions: createItemInput.instructions,
@@ -90,17 +113,27 @@ export class ItemService {
           'Could not create the Item. Please try after sometime!',
         );
       }
+      // Creting the item. ENDS
 
+      // Adding the category list with the new created item details.STARTS
+      if (catArr) {
+        item.Category = catArr;
+      }
+      // Adding the category list with the new created item details.ENDS
+
+      // Creating item-category-relation. Starts
       if (createItemInput.category) {
-        const data = [{}];
-
+        // Filling up the data array with the categories.STARTS
+        const data = [];
         createItemInput.category.forEach((cat) => {
           data.push({
             itemId: item?.id,
             itemCategoryId: cat,
           });
         });
+        // Filling up the data array with the categories.ENDS
 
+        // Creating the relation.STARTS
         const relations = await this.prisma.itemCategoryRelation.createMany({
           data,
         });
@@ -110,7 +143,9 @@ export class ItemService {
             'Could not create the Item and Category Relation. Please try after sometime!',
           );
         }
+        // Creating the relation.ENDS
       }
+      // Creating item-category-relation. Ends
 
       return item;
     } catch (error) {
@@ -119,12 +154,100 @@ export class ItemService {
   }
 
   async updateItem(id: string, data) {
-    const item = await this.prisma.item.update({
+    let catArr = [];
+
+    if (data.category) {
+      this.prisma.itemCategoryRelation.deleteMany({
+        where: {
+          itemId: id,
+        },
+      });
+
+      const categories = data.category;
+
+      for (const cat of categories) {
+        const category = await this.prisma.itemCategory.findFirst({
+          where: {
+            id: cat,
+          },
+        });
+
+        if (!category) {
+          throw new Error('No category find with this ID!');
+        }
+
+        catArr.push(category);
+      }
+    } else {
+      const itemCatRelation = await this.prisma.itemCategoryRelation.findMany({
+        where: {
+          itemId: id,
+        },
+      });
+
+      if (!itemCatRelation) {
+        throw new Error('No item category relation found with this item ID!');
+      }
+
+      for (const itCatRel of itemCatRelation) {
+        const category = await this.prisma.itemCategory.findFirst({
+          where: {
+            id: itCatRel.itemCategoryId,
+          },
+        });
+
+        if (!category) {
+          throw new Error('No category find with this ID!');
+        }
+
+        catArr.push(category);
+      }
+    }
+
+    let itemData = data;
+
+    delete itemData.category;
+
+    // Updating the item.Starts
+    const item: any = await this.prisma.item.update({
       where: {
         id,
       },
-      data,
+      data: itemData,
     });
+    // Updating the item.Ends
+
+    // Adding the category list with the new created item details.STARTS
+    if (catArr) {
+      item.Category = catArr;
+    }
+    // Adding the category list with the new created item details.ENDS
+
+    // Creating item-category-relation. Starts
+    if (data.category) {
+      // Filling up the data array with the categories.STARTS
+      const dataRelation = [];
+      data.category.forEach((cat) => {
+        dataRelation.push({
+          itemId: item?.id,
+          itemCategoryId: cat,
+        });
+      });
+      // Filling up the data array with the categories.ENDS
+
+      // Creating the relation.STARTS
+      const relations = await this.prisma.itemCategoryRelation.createMany({
+        data: dataRelation,
+      });
+
+      if (!relations) {
+        throw new Error(
+          'Could not create the Item and Category Relation. Please try after sometime!',
+        );
+      }
+      // Creating the relation.ENDS
+    }
+    // Creating item-category-relation. Ends
 
     if (!item) {
       throw new Error('Could not update the Item. Please try after sometime!');
