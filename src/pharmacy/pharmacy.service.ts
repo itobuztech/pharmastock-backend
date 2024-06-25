@@ -2,14 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreatePharmacyInput } from './dto/create-pharmacy.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Pharmacy } from '@prisma/client';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Injectable()
 export class PharmacyService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(): Promise<Pharmacy[]> {
+  async findAll(paginationArgs?: PaginationArgs): Promise<Pharmacy[]> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const pharmacy = await this.prisma.pharmacy.findMany({});
+      const pharmacy = await this.prisma.pharmacy.findMany({ skip, take });
 
       return pharmacy;
     } catch (error) {

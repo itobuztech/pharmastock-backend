@@ -45,6 +45,14 @@ input CreatePharmacyInput {
   organizationId: String
 }
 
+input CreatePharmacyStockInput {
+  finalQty: Float!
+  itemId: String!
+  pharmacyId: String!
+  qty: Float!
+  warehouseId: String!
+}
+
 input CreateUserInput {
   email: String!
   name: String
@@ -92,6 +100,10 @@ input DeleteOrganizationInput {
 }
 
 input DeletePharmacyInput {
+  id: String!
+}
+
+input DeletePharmacyStockInput {
   id: String!
 }
 
@@ -154,6 +166,7 @@ type Mutation {
   createItemCategory(createItemCategoryInput: CreateItemCategoryInput!): ItemCategory!
   createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
   createPharmacy(createPharmacyInput: CreatePharmacyInput!): Pharmacy!
+  createPharmacyStock(createPharmacyStockInput: CreatePharmacyStockInput!): PharmacyStock!
   createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
   createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
   deleteItem(deleteItemInput: DeleteItemInput!): Item!
@@ -161,6 +174,7 @@ type Mutation {
   deleteItemCategoryRelation(deleteItemCategoryRelationInput: DeleteItemCategoryRelationInput!): ItemCategoryRelation!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
+  deletePharmacyStock(deletePharmacyStockInput: DeletePharmacyStockInput!): PharmacyStock!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
   login(loginUserInput: LoginUserInput!): LoginResponse!
@@ -170,6 +184,7 @@ type Mutation {
   updateItemCategory(updateItemCategoryInput: UpdateItemCategoryInput!): ItemCategory!
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
   updatePharmacy(updatePharmacyInput: UpdatePharmacyInput!): Pharmacy!
+  updatePharmacyStock(updatePharmacyStockInput: UpdatePharmacyStockInput!): PharmacyStock!
   updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
   updateWarehouseStock(updateWarehouseStockInput: UpdateWarehouseStockInput!): WarehouseStock!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
@@ -187,6 +202,11 @@ type Organization {
   updatedAt: DateTime
 }
 
+input PaginationArgs {
+  skip: Int
+  take: Int
+}
+
 type Pharmacy {
   contact_info: String
   createdAt: DateTime!
@@ -197,24 +217,37 @@ type Pharmacy {
   updatedAt: DateTime
 }
 
+type PharmacyStock {
+  createdAt: DateTime!
+  finalQty: Int!
+  id: String!
+  itemId: String!
+  pharmacyId: String!
+  qty: Int!
+  updatedAt: DateTime
+  warehouseId: String!
+}
+
 type Query {
+  PharmacyStock(id: String!): PharmacyStock!
+  PharmacyStocks(paginationArgs: PaginationArgs): [PharmacyStock!]
   account: AccountTypeResponse!
   getpermissions: JSON!
   item(id: String!): Item!
-  itemCategories: [ItemCategory!]
+  itemCategories(paginationArgs: PaginationArgs): [ItemCategory!]
   itemCategory(id: String!): ItemCategory!
-  items: [Item!]
+  items(paginationArgs: PaginationArgs): [Item!]
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
-  organizations: [Organization!]
+  organizations(paginationArgs: PaginationArgs): [Organization!]
   pharmacy(id: String!): Pharmacy!
-  pharmacys: [Pharmacy!]
+  pharmacys(paginationArgs: PaginationArgs): [Pharmacy!]
   user(email: String!): User!
-  users: [User!]
+  users(paginationArgs: PaginationArgs): [User!]
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
-  warehouseStocks: [WarehouseStock!]
-  warehouses: [Warehouse!]
+  warehouseStocks(paginationArgs: PaginationArgs): [WarehouseStock!]
+  warehouses(paginationArgs: PaginationArgs): [Warehouse!]
 }
 
 input ResetPasswordInput {
@@ -266,6 +299,15 @@ input UpdatePharmacyInput {
   location: String
   name: String
   organizationId: String
+}
+
+input UpdatePharmacyStockInput {
+  finalQty: Float
+  id: String!
+  itemId: String
+  pharmacyId: String
+  qty: Float
+  warehouseId: String
 }
 
 input UpdateProfileInput {

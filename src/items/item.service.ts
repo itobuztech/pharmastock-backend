@@ -2,14 +2,18 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateItemInput } from './dto/create-item.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Item } from '@prisma/client';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Injectable()
 export class ItemService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(): Promise<Item[]> {
+  async findAll(paginationArgs?: PaginationArgs): Promise<Item[]> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
     try {
       const item: any = await this.prisma.item.findMany({
+        skip,
+        take,
         include: {
           ItemCategoryRelation: {
             include: {
