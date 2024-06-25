@@ -126,14 +126,15 @@ model ItemCategoryRelation {
 
 model WarehouseStock {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  itemId    String?    @map("item_id") @db.Uuid
+  itemId    String?   @unique   @map("item_id") @db.Uuid
   item Item? @relation(fields: [itemId], references: [id])
+  final_qty    Int
   warehouseId    String?    @map("warehouse_id") @db.Uuid
   warehouse Warehouse? @relation(fields: [warehouseId], references: [id])
-  stocklevel_min    Int
-  stocklevel_max  Int
-  stock_status    String
-  stockLevel StockLevel @map("stock_level")
+  stocklevel_min    Int?
+  stocklevel_max  Int?
+  stock_status    String?
+  stockLevel StockLevel? @map("stock_level")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
   StockMovement   StockMovement[]
@@ -150,14 +151,13 @@ enum StockLevel {
 
 model StockMovement {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warehouseStockId    String    @map("warehouseStock_id") @db.Uuid
-  warehouseStock WarehouseStock @relation(fields: [warehouseStockId], references: [id])
+  warehouseStockId    String?    @map("warehouseStock_id") @db.Uuid
+  warehouseStock WarehouseStock? @relation(fields: [warehouseStockId], references: [id])
   qty  Int
-  final_qty  Int
   itemId    String    @map("item_id") @db.Uuid
   item Item @relation(fields: [itemId], references: [id])
-  pharmacyStockId    String    @map("pharmacyStockId_id") @db.Uuid
-  pharmacyStock PharmacyStock @relation(fields: [pharmacyStockId], references: [id])
+  pharmacyStockId    String?    @map("pharmacyStockId_id") @db.Uuid
+  pharmacyStock PharmacyStock? @relation(fields: [pharmacyStockId], references: [id])
   batch_name    String
   expiry    DateTime
   createdAt DateTime  @default(now()) @map("created_at")

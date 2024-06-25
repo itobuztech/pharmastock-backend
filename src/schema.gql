@@ -56,11 +56,10 @@ input CreatePharmacyStockInput {
 input CreateStockMovementInput {
   batchName: String!
   expiry: DateTime!
-  finalQty: Float!
   itemId: String!
-  pharmacyStockId: String!
+  pharmacyStockId: String
   qty: Float!
-  warehouseStockId: String!
+  warehouseStockId: String
 }
 
 input CreateUserInput {
@@ -80,12 +79,15 @@ input CreateWarehouseInput {
 }
 
 input CreateWarehouseStockInput {
-  itemId: String
-  stockLevel: String!
-  stock_status: String!
-  stocklevel_max: Float!
-  stocklevel_min: Float!
-  warehouseId: String
+  batchName: String!
+  expiry: DateTime!
+  itemId: String!
+  qty: Float!
+  stockLevel: String
+  stockStatus: String
+  stocklevelMax: Float
+  stocklevelMin: Float
+  warehouseId: String!
 }
 
 """
@@ -289,13 +291,12 @@ type StockMovement {
   batchName: String!
   createdAt: DateTime!
   expiry: DateTime!
-  finalQty: Float!
   id: String!
   itemId: String!
-  pharmacyStockId: String!
+  pharmacyStockId: String
   qty: Float!
   updatedAt: DateTime
-  warehouseStockId: String!
+  warehouseStockId: String
 }
 
 input UpdateItemCategoryInput {
@@ -350,7 +351,6 @@ input UpdateProfileInput {
 input UpdateStockMovementInput {
   batchName: String
   expiry: DateTime
-  finalQty: Float
   id: String!
   itemId: String
   pharmacyStockId: String
@@ -367,12 +367,15 @@ input UpdateWarehouseInput {
 }
 
 input UpdateWarehouseStockInput {
+  batchName: String
+  expiry: DateTime
   id: String!
   itemId: String
+  qty: Float
   stockLevel: String
-  stock_status: String
-  stocklevel_max: Float
-  stocklevel_min: Float
+  stockStatus: String
+  stocklevelMax: Float
+  stocklevelMin: Float
   warehouseId: String
 }
 
@@ -397,12 +400,13 @@ type Warehouse {
 
 type WarehouseStock {
   createdAt: DateTime!
+  finalQty: Float!
   id: String!
   itemId: String
-  stockLevel: StockLevel!
-  stock_status: String!
-  stocklevel_max: Float
-  stocklevel_min: Float
+  stockLevel: StockLevel
+  stockStatus: String
+  stocklevelMax: Float
+  stocklevelMin: Float
   updatedAt: DateTime
   warehouseId: String
 }
