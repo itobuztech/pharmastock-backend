@@ -16,7 +16,7 @@ export class CreateUserInput {
   password: string;
 
   @Field()
-  roleId: string;
+  role: UserRole;
 
   @Field({ nullable: true })
   orgId: string;

@@ -44,7 +44,7 @@ input CreateUserInput {
   name: String
   orgId: String
   password: String!
-  roleId: String!
+  role: String!
   username: String!
 }
 
