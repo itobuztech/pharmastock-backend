@@ -20,4 +20,7 @@ export class CreateItemInput {
 
   @Field({ nullable: true })
   hsn_code?: string;
+
+  @Field((type) => [String], { nullable: true })
+  category?: string[];
 }

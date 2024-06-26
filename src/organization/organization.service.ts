@@ -2,13 +2,18 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateOrganizationInput } from './dto/create-organization.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, Organization, Role, UserRole } from '@prisma/client';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Injectable()
 export class OrganizationService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(): Promise<Organization[]> {
-    const organizations = await this.prisma.organization.findMany({});
+  async findAll(paginationArgs?: PaginationArgs): Promise<Organization[]> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    const organizations = await this.prisma.organization.findMany({
+      skip,
+      take,
+    });
 
     return organizations;
   }

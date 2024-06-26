@@ -2,14 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreatePharmacyInput } from './dto/create-pharmacy.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Pharmacy } from '@prisma/client';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Injectable()
 export class PharmacyService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(): Promise<Pharmacy[]> {
+  async findAll(paginationArgs?: PaginationArgs): Promise<Pharmacy[]> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const pharmacy = await this.prisma.pharmacy.findMany({});
+      const pharmacy = await this.prisma.pharmacy.findMany({ skip, take });
 
       return pharmacy;
     } catch (error) {
@@ -34,6 +36,15 @@ export class PharmacyService {
   async create(createPharmacyInput: CreatePharmacyInput) {
     try {
       const location = JSON.stringify(createPharmacyInput.location);
+
+      const organizationCheck = await this.prisma.organization.findFirst({
+        where: {
+          id: createPharmacyInput?.organizationId,
+        },
+      });
+
+      if (!organizationCheck)
+        throw new Error('No Organization present with this ID!');
 
       let data: any = {
         location,
@@ -67,6 +78,18 @@ export class PharmacyService {
   }
 
   async updatePharmacy(id: string, data) {
+    if (data.organizationId) {
+      const organizationCheck = await this.prisma.organization.findFirst({
+        where: {
+          id: data?.organizationId,
+        },
+      });
+
+      if (!organizationCheck) {
+        throw new Error('No Organization present with this ID!');
+      }
+    }
+
     const pharmacy = await this.prisma.pharmacy.update({
       where: {
         id,

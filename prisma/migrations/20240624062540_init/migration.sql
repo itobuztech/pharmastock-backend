@@ -80,7 +80,7 @@ CREATE TABLE "Item" (
 CREATE TABLE "ItemCategory" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
-    "parent_category_id" UUID,
+    "parentCategoryId" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
@@ -88,9 +88,21 @@ CREATE TABLE "ItemCategory" (
 );
 
 -- CreateTable
+CREATE TABLE "ItemCategoryRelation" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "item_category_id" UUID,
+    "item_id" UUID,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ItemCategoryRelation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "WarehouseStock" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "item_id" UUID,
+    "final_qty" INTEGER NOT NULL,
     "warehouse_id" UUID,
     "stocklevel_min" INTEGER NOT NULL,
     "stocklevel_max" INTEGER NOT NULL,
@@ -136,6 +148,7 @@ CREATE TABLE "PharmacyStock" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "item_id" UUID NOT NULL,
     "warehouse_id" UUID NOT NULL,
+    "pharmacy_id" UUID NOT NULL,
     "qty" INTEGER NOT NULL,
     "final_qty" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -166,7 +179,13 @@ ALTER TABLE "Warehouse" ADD CONSTRAINT "Warehouse_organization_id_fkey" FOREIGN 
 ALTER TABLE "Warehouse" ADD CONSTRAINT "Warehouse_admin_id_fkey" FOREIGN KEY ("admin_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ItemCategory" ADD CONSTRAINT "ItemCategory_parent_category_id_fkey" FOREIGN KEY ("parent_category_id") REFERENCES "ItemCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ItemCategory" ADD CONSTRAINT "ItemCategory_parentCategoryId_fkey" FOREIGN KEY ("parentCategoryId") REFERENCES "ItemCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ItemCategoryRelation" ADD CONSTRAINT "ItemCategoryRelation_item_category_id_fkey" FOREIGN KEY ("item_category_id") REFERENCES "ItemCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ItemCategoryRelation" ADD CONSTRAINT "ItemCategoryRelation_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "Item"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "WarehouseStock" ADD CONSTRAINT "WarehouseStock_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "Item"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -191,3 +210,6 @@ ALTER TABLE "PharmacyStock" ADD CONSTRAINT "PharmacyStock_item_id_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "PharmacyStock" ADD CONSTRAINT "PharmacyStock_warehouse_id_fkey" FOREIGN KEY ("warehouse_id") REFERENCES "Warehouse"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PharmacyStock" ADD CONSTRAINT "PharmacyStock_pharmacy_id_fkey" FOREIGN KEY ("pharmacy_id") REFERENCES "Pharmacy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

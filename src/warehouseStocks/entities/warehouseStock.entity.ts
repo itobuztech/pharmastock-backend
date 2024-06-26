@@ -13,17 +13,20 @@ export class WarehouseStock {
   @Field(() => String, { nullable: true })
   warehouseId: WarehouseStockDB['warehouseId'];
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Number, { nullable: true, name: 'stocklevelMin' })
   stocklevel_min?: WarehouseStockDB['stocklevel_min'];
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Number, { nullable: true, name: 'stocklevelMax' })
   stocklevel_max?: WarehouseStockDB['stocklevel_max'];
 
-  @Field(() => String)
-  stock_status: WarehouseStockDB['stock_status'];
+  @Field(() => String, { nullable: true, name: 'stockStatus' })
+  stock_status?: WarehouseStockDB['stock_status'];
 
-  @Field(() => StockLevel)
-  stockLevel: WarehouseStockDB['stockLevel'];
+  @Field(() => StockLevel, { nullable: true })
+  stockLevel?: WarehouseStockDB['stockLevel'];
+
+  @Field(() => Number, { name: 'finalQty' })
+  final_qty: WarehouseStockDB['final_qty'];
 
   @Field(() => Date)
   createdAt: WarehouseStockDB['createdAt'];

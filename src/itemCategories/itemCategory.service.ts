@@ -2,14 +2,39 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateItemCategoryInput } from './dto/create-itemCategory.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { ItemCategory } from '@prisma/client';
+import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Injectable()
 export class ItemCategoryService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(): Promise<ItemCategory[]> {
+  async findAll(paginationArgs?: PaginationArgs): Promise<ItemCategory[]> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const itemCategory = await this.prisma.itemCategory.findMany({});
+      const itemCategory: any = await this.prisma.itemCategory.findMany({
+        skip,
+        take,
+        include: {
+          ItemCategoryRelation: {
+            include: {
+              item: true,
+            },
+          },
+        },
+      });
+
+      if (itemCategory) {
+        itemCategory.forEach((ic) => {
+          if (ic.ItemCategoryRelation) {
+            const relationArr = ic.ItemCategoryRelation;
+            const items = [];
+            relationArr.forEach((rel) => {
+              items.push(rel.item);
+            });
+            ic.Item = items;
+          }
+        });
+      }
 
       return itemCategory;
     } catch (error) {
@@ -18,14 +43,30 @@ export class ItemCategoryService {
   }
 
   async findOne(id: string): Promise<ItemCategory> {
-    const itemCategory = await this.prisma.itemCategory.findFirst({
+    const itemCategory: any = await this.prisma.itemCategory.findFirst({
       where: {
         id,
+      },
+      include: {
+        ItemCategoryRelation: {
+          include: {
+            item: true,
+          },
+        },
       },
     });
 
     if (!itemCategory) {
       throw new Error('No Item Category found!');
+    }
+
+    if (itemCategory.ItemCategoryRelation) {
+      const relationArr = itemCategory.ItemCategoryRelation;
+      const items = [];
+      relationArr.forEach((rel) => {
+        items.push(rel.item);
+      });
+      itemCategory.Item = items;
     }
 
     return itemCategory;

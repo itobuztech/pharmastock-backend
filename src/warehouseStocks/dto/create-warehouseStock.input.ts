@@ -3,21 +3,30 @@ import { StockLevel } from '../stock-level.enum';
 
 @InputType()
 export class CreateWarehouseStockInput {
+  @Field()
+  itemId: string;
+
+  @Field()
+  warehouseId: string;
+
   @Field({ nullable: true })
-  itemId?: string;
+  stocklevelMin: number;
 
   @Field({ nullable: true })
-  warehouseId?: string;
+  stocklevelMax: number;
 
-  @Field()
-  stocklevel_min: number;
+  @Field({ nullable: true })
+  stockStatus: string;
 
-  @Field()
-  stocklevel_max: number;
-
-  @Field()
-  stock_status: string;
-
-  @Field()
+  @Field({ nullable: true })
   stockLevel: StockLevel;
+
+  @Field()
+  qty: number;
+
+  @Field()
+  batchName: string;
+
+  @Field()
+  expiry: Date;
 }
