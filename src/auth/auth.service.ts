@@ -9,12 +9,23 @@ import {
   PrivilegesListType,
 } from '../privileges/user-privileges';
 
+import { EmailService } from '../email/email.service';
+import { randomBytes } from 'crypto';
+
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
+
+  async generateToken() {
+    // Generate random bytes
+    const buffer = randomBytes(32 / 2);
+    // Convert to hex string
+    return await buffer.toString('hex');
+  }
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(email);
@@ -47,26 +58,51 @@ export class AuthService {
   }
 
   async signup(signupUserInput: CreateUserInput) {
-    const user = await this.usersService.findOne(signupUserInput.email);
+    try {
+      const user = await this.usersService.findOne(signupUserInput.email);
 
-    if (user) {
-      throw new Error('User already exists');
+      if (user) {
+        throw new Error('User already exists');
+      }
+
+      const password = signupUserInput.password;
+      const confirmationToken = await this.generateToken();
+
+      const newUser = await this.usersService.create({
+        ...signupUserInput,
+        password,
+        confirmationToken,
+      });
+      if (!newUser) {
+        throw new Error(
+          'No User is Created. Please try again after some time!',
+        );
+      }
+
+      const subject = 'Confirmation Email!';
+      const body = `<p>Please confirm your email.</p> 
+        <p>By clicking on this link ${process.env.BASE_URL}/token?confirmation_token=${confirmationToken}</p> 
+        <p>Thanks</p>
+        `;
+
+      const emailSent = await this.emailService.run(
+        newUser.email,
+        subject,
+        body,
+      );
+
+      if (!emailSent) {
+        throw new Error(
+          'No Confirmation email is sent. Please try again after some time!',
+        );
+      }
+
+      return {
+        success: 'The user is created. Please check your email!',
+      };
+    } catch (error) {
+      throw error;
     }
-
-    const password = signupUserInput.password;
-
-    const newUser = await this.usersService.create({
-      ...signupUserInput,
-      password,
-    });
-
-    return {
-      access_token: this.jwtService.sign({
-        email: newUser.email,
-        sub: newUser.id,
-        role: newUser.role,
-      }),
-    };
   }
 
   async getpermissions(ctx: any): Promise<any> {

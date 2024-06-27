@@ -9,13 +9,11 @@ export class AwsConfigService {
   constructor(private configService: ConfigService) {
     // Initialize SES client with region from environment variable
     this.sesClient = new SES({
-      region: this.configService.get<string>(process.env.AWS_REGION),
+      region: this.configService.get<string>('AWS_REGION'),
       credentials: {
-        accessKeyId: this.configService.get<string>(
-          process.env.AWS_ACCESS_KEY_ID,
-        ),
+        accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID'),
         secretAccessKey: this.configService.get<string>(
-          process.env.AWS_SECRET_ACCESS_KEY,
+          'AWS_SECRET_ACCESS_KEY',
         ),
       },
     });

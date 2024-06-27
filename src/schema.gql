@@ -62,6 +62,7 @@ input CreateStockMovementInput {
 }
 
 input CreateUserInput {
+  confirmationToken: String
   email: String!
   name: String
   orgId: String
@@ -272,7 +273,7 @@ input ResetPasswordInput {
 }
 
 type SignupResponse {
-  access_token: String!
+  success: String!
 }
 
 enum StockLevel {

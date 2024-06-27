@@ -12,7 +12,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) { }
+  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(paginationArgs?: PaginationArgs): Promise<User[]> {
     const { skip = 0, take = 10 } = paginationArgs || {};
@@ -54,6 +54,7 @@ export class UsersService {
     const password = await bcrypt.hash(createUserInput.password, 10);
 
     let data: any = {
+      emailConfirmationToken: createUserInput.confirmationToken || null,
       email: createUserInput.email,
       username: createUserInput.username,
       password,
@@ -84,7 +85,7 @@ export class UsersService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException("");
+      throw new InternalServerErrorException('');
     }
   }
 
