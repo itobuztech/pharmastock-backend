@@ -345,7 +345,9 @@ input UpdateWarehouseInput {
 type User {
   createdAt: DateTime!
   email: String!
+  emailConfirmationToken: String
   id: String!
+  isEmailConfirmed: Boolean!
   name: String
   updatedAt: DateTime
   username: String!

@@ -53,7 +53,7 @@ export class AuthService {
       throw new Error('User already exists');
     }
 
-    const password = await bcrypt.hash(signupUserInput.password, 10);
+    const password = signupUserInput.password;
 
     const newUser = await this.usersService.create({
       ...signupUserInput,
