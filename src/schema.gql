@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AccountTypeResponse {
+  role: String!
+  user: User!
+}
+
 enum BaseUnit {
   KG
   NOS
@@ -16,6 +21,7 @@ input CreateItemCategoryInput {
 
 input CreateItemInput {
   baseUnit: String!
+  category: [String!]
   hsn_code: String
   instructions: String!
   mrp_base_unit: Float
@@ -39,6 +45,22 @@ input CreatePharmacyInput {
   organizationId: String
 }
 
+input CreatePharmacyStockInput {
+  itemId: String!
+  pharmacyId: String!
+  qty: Float!
+  warehouseId: String!
+}
+
+input CreateStockMovementInput {
+  batchName: String
+  expiry: DateTime
+  itemId: String!
+  pharmacyStockId: String
+  qty: Float!
+  warehouseStockId: String
+}
+
 input CreateUserInput {
   email: String!
   name: String
@@ -56,12 +78,15 @@ input CreateWarehouseInput {
 }
 
 input CreateWarehouseStockInput {
-  itemId: String
-  stockLevel: String!
-  stock_status: String!
-  stocklevel_max: Float!
-  stocklevel_min: Float!
-  warehouseId: String
+  batchName: String!
+  expiry: DateTime!
+  itemId: String!
+  qty: Float!
+  stockLevel: String
+  stockStatus: String
+  stocklevelMax: Float
+  stocklevelMin: Float
+  warehouseId: String!
 }
 
 """
@@ -70,6 +95,10 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 input DeleteItemCategoryInput {
+  id: String!
+}
+
+input DeleteItemCategoryRelationInput {
   id: String!
 }
 
@@ -85,6 +114,14 @@ input DeletePharmacyInput {
   id: String!
 }
 
+input DeletePharmacyStockInput {
+  id: String!
+}
+
+input DeleteStockMovementInput {
+  id: String!
+}
+
 input DeleteWarehouseInput {
   id: String!
 }
@@ -94,6 +131,7 @@ input DeleteWarehouseStockInput {
 }
 
 type Item {
+  Category: [ItemCategory!]
   baseUnit: BaseUnit!
   createdAt: DateTime!
   hsn_code: String!
@@ -106,10 +144,19 @@ type Item {
 }
 
 type ItemCategory {
+  Item: [Item!]
   createdAt: DateTime!
   id: String!
   name: String!
   parentCategoryId: String
+  updatedAt: DateTime
+}
+
+type ItemCategoryRelation {
+  createdAt: DateTime!
+  id: String!
+  itemCategoryId: String!
+  itemId: String!
   updatedAt: DateTime
 }
 
@@ -134,12 +181,17 @@ type Mutation {
   createItemCategory(createItemCategoryInput: CreateItemCategoryInput!): ItemCategory!
   createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
   createPharmacy(createPharmacyInput: CreatePharmacyInput!): Pharmacy!
+  createPharmacyStock(createPharmacyStockInput: CreatePharmacyStockInput!): PharmacyStock!
+  createStockMovement(createStockMovementInput: CreateStockMovementInput!): StockMovement!
   createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
   createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
   deleteItem(deleteItemInput: DeleteItemInput!): Item!
   deleteItemCategory(deleteItemCategoryInput: DeleteItemCategoryInput!): ItemCategory!
+  deleteItemCategoryRelation(deleteItemCategoryRelationInput: DeleteItemCategoryRelationInput!): ItemCategoryRelation!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
+  deletePharmacyStock(deletePharmacyStockInput: DeletePharmacyStockInput!): PharmacyStock!
+  deleteStockMovement(deleteStockMovementInput: DeleteStockMovementInput!): StockMovement!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
   login(loginUserInput: LoginUserInput!): LoginResponse!
@@ -150,7 +202,6 @@ type Mutation {
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
   updatePharmacy(updatePharmacyInput: UpdatePharmacyInput!): Pharmacy!
   updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
-  updateWarehouseStock(updateWarehouseStockInput: UpdateWarehouseStockInput!): WarehouseStock!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
 }
 
@@ -166,6 +217,11 @@ type Organization {
   updatedAt: DateTime
 }
 
+input PaginationArgs {
+  skip: Int
+  take: Int
+}
+
 type Pharmacy {
   contact_info: String
   createdAt: DateTime!
@@ -176,24 +232,38 @@ type Pharmacy {
   updatedAt: DateTime
 }
 
+type PharmacyStock {
+  createdAt: DateTime!
+  finalQty: Int!
+  id: String!
+  itemId: String!
+  pharmacyId: String!
+  updatedAt: DateTime
+  warehouseId: String!
+}
+
 type Query {
-  account: User!
+  PharmacyStock(id: String!): PharmacyStock!
+  PharmacyStocks(paginationArgs: PaginationArgs): [PharmacyStock!]
+  account: AccountTypeResponse!
   getpermissions: JSON!
   item(id: String!): Item!
-  itemCategories: [ItemCategory!]
+  itemCategories(paginationArgs: PaginationArgs): [ItemCategory!]
   itemCategory(id: String!): ItemCategory!
-  items: [Item!]
+  items(paginationArgs: PaginationArgs): [Item!]
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
-  organizations: [Organization!]
+  organizations(paginationArgs: PaginationArgs): [Organization!]
   pharmacy(id: String!): Pharmacy!
-  pharmacys: [Pharmacy!]
+  pharmacys(paginationArgs: PaginationArgs): [Pharmacy!]
+  stockMovement(id: String!): StockMovement!
+  stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
   user(email: String!): User!
-  users: [User!]
+  users(paginationArgs: PaginationArgs): [User!]
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
-  warehouseStocks: [WarehouseStock!]
-  warehouses: [Warehouse!]
+  warehouseStocks(paginationArgs: PaginationArgs): [WarehouseStock!]
+  warehouses(paginationArgs: PaginationArgs): [Warehouse!]
 }
 
 input ResetPasswordInput {
@@ -212,6 +282,18 @@ enum StockLevel {
   POSITIVE
 }
 
+type StockMovement {
+  batchName: String
+  createdAt: DateTime!
+  expiry: DateTime
+  id: String!
+  itemId: String!
+  pharmacyStockId: String
+  qty: Float!
+  updatedAt: DateTime
+  warehouseStockId: String
+}
+
 input UpdateItemCategoryInput {
   id: String!
   name: String
@@ -220,6 +302,7 @@ input UpdateItemCategoryInput {
 
 input UpdateItemInput {
   baseUnit: String
+  category: [String!]
   hsn_code: String
   id: String!
   instructions: String
@@ -259,20 +342,12 @@ input UpdateWarehouseInput {
   organizationId: String
 }
 
-input UpdateWarehouseStockInput {
-  id: String!
-  itemId: String
-  stockLevel: String
-  stock_status: String
-  stocklevel_max: Float
-  stocklevel_min: Float
-  warehouseId: String
-}
-
 type User {
   createdAt: DateTime!
   email: String!
+  emailConfirmationToken: String
   id: String!
+  isEmailConfirmed: Boolean!
   name: String
   updatedAt: DateTime
   username: String!
@@ -290,12 +365,13 @@ type Warehouse {
 
 type WarehouseStock {
   createdAt: DateTime!
+  finalQty: Float!
   id: String!
   itemId: String
-  stockLevel: StockLevel!
-  stock_status: String!
-  stocklevel_max: Float
-  stocklevel_min: Float
+  stockLevel: StockLevel
+  stockStatus: String
+  stocklevelMax: Float
+  stocklevelMin: Float
   updatedAt: DateTime
   warehouseId: String
 }
