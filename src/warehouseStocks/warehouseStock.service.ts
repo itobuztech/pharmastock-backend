@@ -46,24 +46,22 @@ export class WarehouseStockService {
   async create(createWarehouseStockInput: CreateWarehouseStockInput) {
     try {
       // This section checks whether the relational ID is present or not! Starts
-      if (createWarehouseStockInput?.itemId) {
-        const itemCheck = await this.prisma.item.findFirst({
-          where: {
-            id: createWarehouseStockInput?.itemId,
-          },
-        });
+      const itemCheck = await this.prisma.item.findFirst({
+        where: {
+          id: createWarehouseStockInput?.itemId,
+        },
+      });
 
-        if (!itemCheck) throw new Error('No Item present with this ID!');
-      }
-      if (createWarehouseStockInput?.warehouseId) {
-        const warehouse = await this.prisma.warehouse.findFirst({
-          where: {
-            id: createWarehouseStockInput?.warehouseId,
-          },
-        });
+      if (!itemCheck) throw new Error('No Item present with this ID!');
 
-        if (!warehouse) throw new Error('No Warehouse present with this ID!');
-      }
+      const warehouse = await this.prisma.warehouse.findFirst({
+        where: {
+          id: createWarehouseStockInput?.warehouseId,
+        },
+      });
+
+      if (!warehouse) throw new Error('No Warehouse present with this ID!');
+
       // This section checks whether the relational ID is present or not! Ends
 
       // Setting up the data to be used!Starts
