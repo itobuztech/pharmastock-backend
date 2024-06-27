@@ -13,9 +13,9 @@ import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 @Resolver(() => Pharmacy)
 export class PharmacyResolver {
-  constructor(private readonly pharmacyService: PharmacyService) {}
+  constructor(private readonly pharmacyService: PharmacyService) { }
 
-  @Query(() => [Pharmacy], { name: 'pharmacys', nullable: true })
+  @Query(() => [Pharmacy], { name: 'pharmacies', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
