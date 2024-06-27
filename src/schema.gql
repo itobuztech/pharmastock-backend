@@ -254,8 +254,8 @@ type Query {
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
   organizations(paginationArgs: PaginationArgs): [Organization!]
+  pharmacies(paginationArgs: PaginationArgs): [Pharmacy!]
   pharmacy(id: String!): Pharmacy!
-  pharmacys(paginationArgs: PaginationArgs): [Pharmacy!]
   stockMovement(id: String!): StockMovement!
   stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
   user(email: String!): User!
