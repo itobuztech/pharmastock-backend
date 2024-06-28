@@ -198,6 +198,7 @@ type Mutation {
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
+  tokenConfirmation(tokenConfirmationInput: TokenConfirmationInput!): LoginResponse!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   updateItemCategory(updateItemCategoryInput: UpdateItemCategoryInput!): ItemCategory!
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
@@ -293,6 +294,10 @@ type StockMovement {
   qty: Float!
   updatedAt: DateTime
   warehouseStockId: String
+}
+
+input TokenConfirmationInput {
+  token: String!
 }
 
 input UpdateItemCategoryInput {

@@ -35,6 +35,50 @@ export class UsersService {
     });
   }
 
+  async findOneByToken(
+    emailConfirmationToken: string,
+  ): Promise<User & { role: Partial<Role> }> {
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          emailConfirmationToken,
+        },
+        include: {
+          role: {
+            select: {
+              privileges: true,
+              userType: true,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        throw new Error(
+          'Their is no user with this token Or the token has expired Or The user is already confirmed!!',
+        );
+      }
+
+      const confirmingUser = await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          emailConfirmationToken: '',
+          isEmailConfirmed: true,
+        },
+      });
+
+      if (!confirmingUser) {
+        throw new Error('User not confirmed. Please try after some time!');
+      }
+
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async create(createUserInput: CreateUserInput) {
     ////////////DEFAULT ROLE SETUP///////////
     const defaultRole = await this.prisma.role.findFirst({

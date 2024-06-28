@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserInput } from 'src/users/dto/create-user.input';
 import { UsersService } from '../users/users.service';
 import { LoginUserInput } from './dto/login-user.input';
+import { TokenConfirmationInput } from './dto/token-confirmation.input';
 import {
   PrivilegesList,
   PrivilegesListType,
@@ -37,6 +38,26 @@ export class AuthService {
     }
 
     return null;
+  }
+
+  async tokenConfirmation(tokenConfirmationInput: TokenConfirmationInput) {
+    try {
+      const emailConfirmationToken = tokenConfirmationInput.token;
+      const user = await this.usersService.findOneByToken(
+        emailConfirmationToken,
+      );
+
+      return {
+        access_token: this.jwtService.sign({
+          email: user.email,
+          sub: user.id,
+          role: user.role,
+        }),
+        user,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async login(loginUserInput: LoginUserInput) {
