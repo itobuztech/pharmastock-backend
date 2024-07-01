@@ -11,7 +11,7 @@ import {
 } from '../privileges/user-privileges';
 
 import { EmailService } from '../email/email.service';
-import { randomBytes } from 'crypto';
+import { generateToken } from '../util/helper';
 
 @Injectable()
 export class AuthService {
@@ -20,13 +20,6 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly emailService: EmailService,
   ) {}
-
-  async generateToken() {
-    // Generate random bytes
-    const buffer = randomBytes(32 / 2);
-    // Convert to hex string
-    return await buffer.toString('hex');
-  }
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(email);
@@ -87,7 +80,7 @@ export class AuthService {
       }
 
       const password = signupUserInput.password;
-      const confirmationToken = await this.generateToken();
+      const confirmationToken = await generateToken();
 
       const newUser = await this.usersService.create({
         ...signupUserInput,
