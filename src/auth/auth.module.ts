@@ -4,6 +4,7 @@ import { AuthResolver } from './auth.resolver';
 import { LocalStrategy } from './strategies/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from '../users/users.module';
+import { EmailModule } from '../email/email.module';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
@@ -16,6 +17,7 @@ import { RolesGuard } from './guards/roles.guard';
       signOptions: { expiresIn: '3h' },
       secret: 'secret',
     }),
+    EmailModule,
   ],
   providers: [
     AuthService,
@@ -25,4 +27,4 @@ import { RolesGuard } from './guards/roles.guard';
     RolesGuard,
   ],
 })
-export class AuthModule { }
+export class AuthModule {}

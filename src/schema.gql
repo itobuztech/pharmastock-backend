@@ -62,6 +62,7 @@ input CreateStockMovementInput {
 }
 
 input CreateUserInput {
+  confirmationToken: String
   email: String!
   name: String
   orgId: String
@@ -197,6 +198,7 @@ type Mutation {
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
+  tokenConfirmation(tokenConfirmationInput: TokenConfirmationInput!): LoginResponse!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   updateItemCategory(updateItemCategoryInput: UpdateItemCategoryInput!): ItemCategory!
   updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
@@ -272,7 +274,7 @@ input ResetPasswordInput {
 }
 
 type SignupResponse {
-  access_token: String!
+  success: String!
 }
 
 enum StockLevel {
@@ -292,6 +294,10 @@ type StockMovement {
   qty: Float!
   updatedAt: DateTime
   warehouseStockId: String
+}
+
+input TokenConfirmationInput {
+  token: String!
 }
 
 input UpdateItemCategoryInput {
@@ -345,7 +351,9 @@ input UpdateWarehouseInput {
 type User {
   createdAt: DateTime!
   email: String!
+  emailConfirmationToken: String
   id: String!
+  isEmailConfirmed: Boolean!
   name: String
   updatedAt: DateTime
   username: String!

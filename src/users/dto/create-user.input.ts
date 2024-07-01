@@ -25,4 +25,7 @@ export class CreateUserInput {
 
   @Field({ nullable: true })
   orgId: string;
+
+  @Field({ nullable: true })
+  confirmationToken: string;
 }

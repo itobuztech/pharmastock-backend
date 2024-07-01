@@ -24,4 +24,10 @@ export class User {
 
   @Field(() => Date, { nullable: true })
   updatedAt: UserDB['updatedAt'] | null;
+
+  @Field({ defaultValue: false })
+  isEmailConfirmed: boolean;
+
+  @Field({ nullable: true })
+  emailConfirmationToken: string;
 }

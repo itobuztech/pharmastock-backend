@@ -12,7 +12,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) { }
+  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(paginationArgs?: PaginationArgs): Promise<User[]> {
     const { skip = 0, take = 10 } = paginationArgs || {};
@@ -35,6 +35,50 @@ export class UsersService {
     });
   }
 
+  async findOneByToken(
+    emailConfirmationToken: string,
+  ): Promise<User & { role: Partial<Role> }> {
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          emailConfirmationToken,
+        },
+        include: {
+          role: {
+            select: {
+              privileges: true,
+              userType: true,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        throw new Error(
+          'Their is no user with this token Or the token has expired Or The user is already confirmed!!',
+        );
+      }
+
+      const confirmingUser = await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          emailConfirmationToken: '',
+          isEmailConfirmed: true,
+        },
+      });
+
+      if (!confirmingUser) {
+        throw new Error('User not confirmed. Please try after some time!');
+      }
+
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async create(createUserInput: CreateUserInput) {
     ////////////DEFAULT ROLE SETUP///////////
     const defaultRole = await this.prisma.role.findFirst({
@@ -54,6 +98,7 @@ export class UsersService {
     const password = await bcrypt.hash(createUserInput.password, 10);
 
     let data: any = {
+      emailConfirmationToken: createUserInput.confirmationToken || null,
       email: createUserInput.email,
       username: createUserInput.username,
       password,
@@ -84,7 +129,7 @@ export class UsersService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException("Failed due to some reason");
+      throw new InternalServerErrorException('Failed due to some reason');
     }
   }
 
