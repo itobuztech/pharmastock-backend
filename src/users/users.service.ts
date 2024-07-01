@@ -129,7 +129,7 @@ export class UsersService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException('');
+      throw new InternalServerErrorException('Failed due to some reason');
     }
   }
 

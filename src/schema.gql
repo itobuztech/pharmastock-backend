@@ -67,7 +67,7 @@ input CreateUserInput {
   name: String
   orgId: String
   password: String!
-  role: String!
+  role: UserRole!
   username: String!
 }
 
@@ -351,12 +351,17 @@ input UpdateWarehouseInput {
 type User {
   createdAt: DateTime!
   email: String!
-  emailConfirmationToken: String
   id: String!
-  isEmailConfirmed: Boolean!
   name: String
   updatedAt: DateTime
   username: String!
+}
+
+"""The roles available for a user"""
+enum UserRole {
+  ADMIN
+  STAFF
+  SUPERADMIN
 }
 
 type Warehouse {
