@@ -21,15 +21,15 @@ async function main() {
         description: 'Admin made by super admin',
         userType: UserRole.ADMIN,
         privileges: [
-          141, 142, 143, 144, 151, 152, 153, 154, 161, 162, 163, 164, 171, 172,
-          173, 174, 181, 182, 183, 184, 191, 192, 193, 194,
+          101, 102, 141, 142, 143, 144, 151, 152, 153, 154, 161, 162, 163, 164,
+          171, 172, 173, 174, 181, 182, 183, 184, 191, 192, 193, 194,
         ],
       },
       {
         name: 'Staff',
         description: 'Staff made by admin',
         userType: UserRole.STAFF,
-        privileges: [201, 202, 203, 204],
+        privileges: [101, 102, 201, 202, 203, 204],
       },
     ],
     skipDuplicates: true,
