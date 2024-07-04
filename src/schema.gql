@@ -219,6 +219,11 @@ type Organization {
   updatedAt: DateTime
 }
 
+type PaginatedOrganizations {
+  organizations: [Organization!]!
+  totalCount: Float!
+}
+
 input PaginationArgs {
   skip: Int
   take: Int
@@ -255,7 +260,7 @@ type Query {
   items(paginationArgs: PaginationArgs): [Item!]
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
-  organizations(paginationArgs: PaginationArgs): [Organization!]
+  organizations(paginationArgs: PaginationArgs): PaginatedOrganizations
   pharmacies(paginationArgs: PaginationArgs): [Pharmacy!]
   pharmacy(id: String!): Pharmacy!
   stockMovement(id: String!): StockMovement!
