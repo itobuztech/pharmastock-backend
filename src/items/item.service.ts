@@ -9,10 +9,13 @@ import { error } from 'console';
 export class ItemService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<Item[]> {
+  async findAll(
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ items: Item[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const item: any = await this.prisma.item.findMany({
+      const totalCount = await this.prisma.item.count();
+      const items: any = await this.prisma.item.findMany({
         skip,
         take,
         include: {
@@ -24,8 +27,8 @@ export class ItemService {
         },
       });
 
-      if (item) {
-        item.forEach((it) => {
+      if (items) {
+        items.forEach((it) => {
           if (it.ItemCategoryRelation) {
             const relationArr = it.ItemCategoryRelation;
             const categories = [];
@@ -37,7 +40,8 @@ export class ItemService {
         });
       }
 
-      return item;
+      return { items, total: totalCount };
+      // return item;
     } catch (error) {
       throw error;
     }
