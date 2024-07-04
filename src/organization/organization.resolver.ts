@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+} from '@nestjs/graphql';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationInput } from './dto/create-organization.input';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -9,18 +16,29 @@ import { Organization } from './entities/organization.entity';
 import { UserRole } from '@prisma/client';
 import { UpdateOrganizationInput } from './dto/update-organization.input';
 import { DeleteOrganizationInput } from './dto/delete-organization.input';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { TotalCount } from '../pagination/toalCount.entity';
+
+// Define a new type for the paginated result
+@ObjectType()
+class PaginatedOrganizations extends TotalCount {
+  @Field(() => [Organization])
+  organizations: Organization[];
+}
 
 @Resolver(() => Organization)
 export class OrganizationResolver {
   constructor(private readonly organizationService: OrganizationService) {}
 
-  @Query(() => [Organization], { name: 'organizations', nullable: true })
+  @Query(() => PaginatedOrganizations, {
+    name: 'organizations',
+    nullable: true,
+  })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<Organization[]> {
+  ): Promise<PaginatedOrganizations> {
     try {
       return await this.organizationService.findAll(paginationArgs);
     } catch (e) {

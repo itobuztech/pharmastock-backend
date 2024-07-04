@@ -219,6 +219,16 @@ type Organization {
   updatedAt: DateTime
 }
 
+type PaginatedItems {
+  items: [Item!]!
+  total: Float!
+}
+
+type PaginatedOrganizations {
+  organizations: [Organization!]!
+  total: Float!
+}
+
 input PaginationArgs {
   skip: Int
   take: Int
@@ -252,10 +262,10 @@ type Query {
   item(id: String!): Item!
   itemCategories(paginationArgs: PaginationArgs): [ItemCategory!]
   itemCategory(id: String!): ItemCategory!
-  items(paginationArgs: PaginationArgs): [Item!]
+  items(paginationArgs: PaginationArgs): PaginatedItems
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
-  organizations(paginationArgs: PaginationArgs): [Organization!]
+  organizations(paginationArgs: PaginationArgs): PaginatedOrganizations
   pharmacies(paginationArgs: PaginationArgs): [Pharmacy!]
   pharmacy(id: String!): Pharmacy!
   stockMovement(id: String!): StockMovement!
