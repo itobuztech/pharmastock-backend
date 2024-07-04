@@ -221,7 +221,7 @@ type Organization {
 
 type PaginatedOrganizations {
   organizations: [Organization!]!
-  totalCount: Float!
+  total: Float!
 }
 
 input PaginationArgs {

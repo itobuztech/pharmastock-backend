@@ -16,16 +16,14 @@ import { Organization } from './entities/organization.entity';
 import { UserRole } from '@prisma/client';
 import { UpdateOrganizationInput } from './dto/update-organization.input';
 import { DeleteOrganizationInput } from './dto/delete-organization.input';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { TotalCount } from '../pagination/toalCount.entity';
 
 // Define a new type for the paginated result
 @ObjectType()
-class PaginatedOrganizations {
+class PaginatedOrganizations extends TotalCount {
   @Field(() => [Organization])
   organizations: Organization[];
-
-  @Field(() => Number)
-  totalCount: number;
 }
 
 @Resolver(() => Organization)
