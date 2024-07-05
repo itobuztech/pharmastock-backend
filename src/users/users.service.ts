@@ -12,7 +12,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
+  constructor(private prisma: PrismaService, private readonly logger: Logger) { }
 
   async findAll(paginationArgs?: PaginationArgs): Promise<User[]> {
     const { skip = 0, take = 10 } = paginationArgs || {};
