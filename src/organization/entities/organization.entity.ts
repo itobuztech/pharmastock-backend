@@ -24,6 +24,9 @@ export class Organization {
   @Field(() => String)
   country: OrganizationDB['country'];
 
+  @Field(() => String)
+  contact: OrganizationDB['contact'];
+
   @Field(() => Date)
   createdAt: OrganizationDB['createdAt'];
 

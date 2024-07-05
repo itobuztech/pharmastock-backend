@@ -63,6 +63,7 @@ async function main() {
       address: 'kolkata 567',
       city: 'Kolkata',
       country: 'India',
+      contact: '+919073458041'
     },
   });
 

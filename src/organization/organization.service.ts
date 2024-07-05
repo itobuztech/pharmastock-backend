@@ -7,7 +7,7 @@ import { TotalCount } from '../pagination/toalCount.entity';
 
 @Injectable()
 export class OrganizationService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
+  constructor(private prisma: PrismaService, private readonly logger: Logger) { }
 
   async findAll(
     paginationArgs?: PaginationArgs,
@@ -22,10 +22,10 @@ export class OrganizationService {
     return { organizations, total: totalCount };
   }
 
-  async findOne(name: string): Promise<Organization> {
+  async findOne(id: string): Promise<Organization> {
     const organization = await this.prisma.organization.findFirst({
       where: {
-        name,
+        id,
       },
     });
 
@@ -55,6 +55,7 @@ export class OrganizationService {
         address: createOrganizationInput.address,
         city: createOrganizationInput.city,
         country: createOrganizationInput.country,
+        contact: createOrganizationInput.contact
       },
     });
 

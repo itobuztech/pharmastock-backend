@@ -19,4 +19,7 @@ export class CreateOrganizationInput {
 
   @Field()
   country: string;
+
+  @Field()
+  contact: string;
 }
