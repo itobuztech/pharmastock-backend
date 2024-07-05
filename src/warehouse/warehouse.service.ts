@@ -2,18 +2,21 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateWarehouseInput } from './dto/create-warehouse.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Warehouse } from '@prisma/client';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class WarehouseService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<Warehouse[]> {
+  async findAll(
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ warehouses: Warehouse[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const warehouse = await this.prisma.warehouse.findMany({ skip, take });
+      const totalCount = await this.prisma.warehouse.count();
+      const warehouses = await this.prisma.warehouse.findMany({ skip, take });
 
-      return warehouse;
+      return { warehouses, total: totalCount };
     } catch (error) {
       throw error;
     }

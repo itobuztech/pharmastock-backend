@@ -15,15 +15,18 @@ export class WarehouseStockService {
     private readonly stockMovementService: StockMovementService,
   ) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<WarehouseStock[]> {
+  async findAll(
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ warehouseStocks: WarehouseStock[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const warehouseStock = await this.prisma.warehouseStock.findMany({
+      const totalCount = await this.prisma.warehouseStock.count();
+      const warehouseStocks = await this.prisma.warehouseStock.findMany({
         skip,
         take,
       });
 
-      return warehouseStock;
+      return { warehouseStocks, total: totalCount };
     } catch (error) {
       throw error;
     }

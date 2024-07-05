@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+} from '@nestjs/graphql';
 import { WarehouseService } from './warehouse.service';
 import { CreateWarehouseInput } from './dto/create-warehouse.input';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -9,18 +16,26 @@ import { Warehouse } from './entities/warehouse.entity';
 import { UserRole } from '@prisma/client';
 import { UpdateWarehouseInput } from './dto/update-warehouse.input';
 import { DeleteWarehouseInput } from './dto/delete-warehouse.input';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { TotalCount } from '../pagination/toalCount.entity';
+
+// Define a new type for the paginated result
+@ObjectType()
+class PaginatedWarehouses extends TotalCount {
+  @Field(() => [Warehouse])
+  warehouses: Warehouse[];
+}
 
 @Resolver(() => Warehouse)
 export class WarehouseResolver {
   constructor(private readonly warehouseService: WarehouseService) {}
 
-  @Query(() => [Warehouse], { name: 'warehouses', nullable: true })
+  @Query(() => PaginatedWarehouses, { name: 'warehouses', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<Warehouse[]> {
+  ): Promise<PaginatedWarehouses> {
     try {
       return await this.warehouseService.findAll(paginationArgs);
     } catch (e) {

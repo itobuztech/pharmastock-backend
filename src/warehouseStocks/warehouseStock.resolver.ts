@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+} from '@nestjs/graphql';
 import { WarehouseStockService } from './warehouseStock.service';
 import { CreateWarehouseStockInput } from './dto/create-warehouseStock.input';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -8,18 +15,29 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { WarehouseStock } from './entities/warehouseStock.entity';
 import { UserRole } from '@prisma/client';
 import { DeleteWarehouseStockInput } from './dto/delete-warehouseStock.input';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { TotalCount } from '../pagination/toalCount.entity';
+
+// Define a new type for the paginated result
+@ObjectType()
+class PaginatedWarehouseStocks extends TotalCount {
+  @Field(() => [WarehouseStock])
+  warehouseStocks: WarehouseStock[];
+}
 
 @Resolver(() => WarehouseStock)
 export class WarehouseStockResolver {
   constructor(private readonly warehouseStockService: WarehouseStockService) {}
 
-  @Query(() => [WarehouseStock], { name: 'warehouseStocks', nullable: true })
+  @Query(() => PaginatedWarehouseStocks, {
+    name: 'warehouseStocks',
+    nullable: true,
+  })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<WarehouseStock[]> {
+  ): Promise<PaginatedWarehouseStocks> {
     try {
       return await this.warehouseStockService.findAll(paginationArgs);
     } catch (e) {
