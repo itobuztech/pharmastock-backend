@@ -22,10 +22,10 @@ export class OrganizationService {
     return { organizations, total: totalCount };
   }
 
-  async findOne(name: string): Promise<Organization> {
+  async findOne(id: string): Promise<Organization> {
     const organization = await this.prisma.organization.findFirst({
       where: {
-        name,
+        id,
       },
     });
 
