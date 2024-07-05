@@ -219,6 +219,11 @@ type Organization {
   updatedAt: DateTime
 }
 
+type PaginatedItemCategories {
+  itemCategories: [ItemCategory!]!
+  total: Float!
+}
+
 type PaginatedItems {
   items: [Item!]!
   total: Float!
@@ -227,6 +232,26 @@ type PaginatedItems {
 type PaginatedOrganizations {
   organizations: [Organization!]!
   total: Float!
+}
+
+type PaginatedPharmacyStocks {
+  pharmacyStocks: [PharmacyStock!]!
+  total: Float!
+}
+
+type PaginatedUsers {
+  total: Float!
+  users: [User!]!
+}
+
+type PaginatedWarehouseStocks {
+  total: Float!
+  warehouseStocks: [WarehouseStock!]!
+}
+
+type PaginatedWarehouses {
+  total: Float!
+  warehouses: [Warehouse!]!
 }
 
 input PaginationArgs {
@@ -256,11 +281,11 @@ type PharmacyStock {
 
 type Query {
   PharmacyStock(id: String!): PharmacyStock!
-  PharmacyStocks(paginationArgs: PaginationArgs): [PharmacyStock!]
+  PharmacyStocks(paginationArgs: PaginationArgs): PaginatedPharmacyStocks
   account: AccountTypeResponse!
   getpermissions: JSON!
   item(id: String!): Item!
-  itemCategories(paginationArgs: PaginationArgs): [ItemCategory!]
+  itemCategories(paginationArgs: PaginationArgs): PaginatedItemCategories
   itemCategory(id: String!): ItemCategory!
   items(paginationArgs: PaginationArgs): PaginatedItems
   organization(id: String!): Organization!
@@ -271,11 +296,11 @@ type Query {
   stockMovement(id: String!): StockMovement!
   stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
   user(email: String!): User!
-  users(paginationArgs: PaginationArgs): [User!]
+  users(paginationArgs: PaginationArgs): PaginatedUsers
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
-  warehouseStocks(paginationArgs: PaginationArgs): [WarehouseStock!]
-  warehouses(paginationArgs: PaginationArgs): [Warehouse!]
+  warehouseStocks(paginationArgs: PaginationArgs): PaginatedWarehouseStocks
+  warehouses(paginationArgs: PaginationArgs): PaginatedWarehouses
 }
 
 input ResetPasswordInput {

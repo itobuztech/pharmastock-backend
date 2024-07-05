@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+} from '@nestjs/graphql';
 import { ItemCategoryService } from './itemCategory.service';
 import { CreateItemCategoryInput } from './dto/create-itemCategory.input';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -9,18 +16,29 @@ import { ItemCategory } from './entities/itemCategory.entity';
 import { UserRole } from '@prisma/client';
 import { UpdateItemCategoryInput } from './dto/update-itemCategory.input';
 import { DeleteItemCategoryInput } from './dto/delete-itemCategory.input';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { TotalCount } from '../pagination/toalCount.entity';
+
+// Define a new type for the paginated result
+@ObjectType()
+class PaginatedItemCategories extends TotalCount {
+  @Field(() => [ItemCategory])
+  itemCategories: ItemCategory[];
+}
 
 @Resolver(() => ItemCategory)
 export class ItemCategoryResolver {
   constructor(private readonly itemService: ItemCategoryService) {}
 
-  @Query(() => [ItemCategory], { name: 'itemCategories', nullable: true })
+  @Query(() => PaginatedItemCategories, {
+    name: 'itemCategories',
+    nullable: true,
+  })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<ItemCategory[]> {
+  ): Promise<PaginatedItemCategories> {
     try {
       return await this.itemService.findAll(paginationArgs);
     } catch (e) {

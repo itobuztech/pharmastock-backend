@@ -2,8 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateItemInput } from './dto/create-item.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Item } from '@prisma/client';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
-import { error } from 'console';
+import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class ItemService {

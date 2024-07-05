@@ -2,16 +2,19 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateItemCategoryInput } from './dto/create-itemCategory.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { ItemCategory } from '@prisma/client';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class ItemCategoryService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<ItemCategory[]> {
+  async findAll(
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ itemCategories: ItemCategory[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const itemCategory: any = await this.prisma.itemCategory.findMany({
+      const totalCount = await this.prisma.itemCategory.count();
+      const itemCategories: any = await this.prisma.itemCategory.findMany({
         skip,
         take,
         include: {
@@ -23,8 +26,8 @@ export class ItemCategoryService {
         },
       });
 
-      if (itemCategory) {
-        itemCategory.forEach((ic) => {
+      if (itemCategories) {
+        itemCategories.forEach((ic) => {
           if (ic.ItemCategoryRelation) {
             const relationArr = ic.ItemCategoryRelation;
             const items = [];
@@ -36,7 +39,7 @@ export class ItemCategoryService {
         });
       }
 
-      return itemCategory;
+      return { itemCategories, total: totalCount };
     } catch (error) {
       throw error;
     }

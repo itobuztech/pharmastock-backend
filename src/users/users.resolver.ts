@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+} from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { CreateUserInput } from './dto/create-user.input';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -7,18 +14,26 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { User } from './entities/user.entity';
 import { UserRole } from '@prisma/client';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { TotalCount } from '../pagination/toalCount.entity';
+
+// Define a new type for the paginated result
+@ObjectType()
+class PaginatedUsers extends TotalCount {
+  @Field(() => [User])
+  users: User[];
+}
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Query(() => [User], { name: 'users', nullable: true })
+  @Query(() => PaginatedUsers, { name: 'users', nullable: true })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SUPERADMIN)
   findAll(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<User[]> {
+  ): Promise<PaginatedUsers> {
     return this.usersService.findAll(paginationArgs);
   }
 

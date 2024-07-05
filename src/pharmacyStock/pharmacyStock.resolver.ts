@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+} from '@nestjs/graphql';
 import { PharmacyStockService } from './pharmacyStock.service';
 import { CreatePharmacyStockInput } from './dto/create-pharmacyStock.input';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -8,18 +15,29 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { PharmacyStock } from './entities/pharmacyStock.entity';
 import { UserRole } from '@prisma/client';
 import { DeletePharmacyStockInput } from './dto/delete-pharmacyStock.input';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { TotalCount } from '../pagination/toalCount.entity';
+
+// Define a new type for the paginated result
+@ObjectType()
+class PaginatedPharmacyStocks extends TotalCount {
+  @Field(() => [PharmacyStock])
+  pharmacyStocks: PharmacyStock[];
+}
 
 @Resolver(() => PharmacyStock)
 export class PharmacyStockResolver {
   constructor(private readonly PharmacyStockService: PharmacyStockService) {}
 
-  @Query(() => [PharmacyStock], { name: 'PharmacyStocks', nullable: true })
+  @Query(() => PaginatedPharmacyStocks, {
+    name: 'PharmacyStocks',
+    nullable: true,
+  })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<PharmacyStock[]> {
+  ): Promise<PaginatedPharmacyStocks> {
     try {
       return await this.PharmacyStockService.findAll(paginationArgs);
     } catch (e) {

@@ -12,11 +12,16 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) { }
+  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<User[]> {
+  async findAll(
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ users: User[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
-    return await this.prisma.user.findMany({ skip, take });
+    const totalCount = await this.prisma.user.count();
+    const users = await this.prisma.user.findMany({ skip, take });
+
+    return { users, total: totalCount };
   }
 
   async findOne(email: string): Promise<User & { role: Partial<Role> }> {

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreatePharmacyStockInput } from './dto/create-pharmacyStock.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { PharmacyStock } from '@prisma/client';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
 
 import { StockMovementService } from '../stockMovement/stockMovement.service';
 import { CreateStockMovementInput } from 'src/stockMovement/dto/create-stockMovement.input';
@@ -15,15 +15,18 @@ export class PharmacyStockService {
     private readonly stockMovementService: StockMovementService,
   ) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<PharmacyStock[]> {
+  async findAll(
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ pharmacyStocks: PharmacyStock[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const pharmacyStock = await this.prisma.pharmacyStock.findMany({
+      const totalCount = await this.prisma.pharmacyStock.count();
+      const pharmacyStocks = await this.prisma.pharmacyStock.findMany({
         skip,
         take,
       });
 
-      return pharmacyStock;
+      return { pharmacyStocks, total: totalCount };
     } catch (error) {
       throw error;
     }
