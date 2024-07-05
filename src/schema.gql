@@ -33,6 +33,7 @@ input CreateOrganizationInput {
   active: Boolean
   address: String!
   city: String!
+  contact: String!
   country: String!
   description: String!
   name: String!
@@ -211,6 +212,7 @@ type Organization {
   active: Boolean
   address: String!
   city: String!
+  contact: String!
   country: String!
   createdAt: DateTime!
   description: String!
@@ -331,6 +333,7 @@ input UpdateOrganizationInput {
   active: Boolean
   address: String
   city: String
+  contact: String
   country: String
   description: String
   id: String!
