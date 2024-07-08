@@ -150,7 +150,7 @@ type ItemCategory {
   createdAt: DateTime!
   id: String!
   name: String!
-  parentCategoryId: String
+  parentCategory: ItemParentCategory
   updatedAt: DateTime
 }
 
@@ -159,6 +159,14 @@ type ItemCategoryRelation {
   id: String!
   itemCategoryId: String!
   itemId: String!
+  updatedAt: DateTime
+}
+
+type ItemParentCategory {
+  Item: [Item!]
+  createdAt: DateTime
+  id: String
+  name: String
   updatedAt: DateTime
 }
 

@@ -13,6 +13,8 @@ export class ItemCategoryService {
   ): Promise<{ itemCategories: ItemCategory[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
+      console.log('gg');
+
       const totalCount = await this.prisma.itemCategory.count();
       const itemCategories: any = await this.prisma.itemCategory.findMany({
         skip,
@@ -23,6 +25,7 @@ export class ItemCategoryService {
               item: true,
             },
           },
+          parent: true,
         },
       });
 
@@ -35,6 +38,9 @@ export class ItemCategoryService {
               items.push(rel.item);
             });
             ic.Item = items;
+          }
+          if (ic.parent) {
+            ic.parentCategory = ic.parent;
           }
         });
       }
@@ -56,6 +62,7 @@ export class ItemCategoryService {
             item: true,
           },
         },
+        parent: true,
       },
     });
 
@@ -72,16 +79,31 @@ export class ItemCategoryService {
       itemCategory.Item = items;
     }
 
+    if (itemCategory.parent) {
+      itemCategory.parentCategory = itemCategory.parent;
+    }
     return itemCategory;
   }
 
   async create(createItemCategoryInput: CreateItemCategoryInput) {
     try {
+      let data: any = {
+        name: createItemCategoryInput.name || null,
+      };
+
+      if (createItemCategoryInput?.parentCategoryId) {
+        data = {
+          ...data,
+          parent: {
+            connect: {
+              id: createItemCategoryInput?.parentCategoryId,
+            },
+          },
+        };
+      }
+
       const itemCategory = await this.prisma.itemCategory.create({
-        data: {
-          name: createItemCategoryInput.name || null,
-          parentCategoryId: createItemCategoryInput.parentCategoryId || null,
-        },
+        data,
       });
 
       if (!itemCategory) {

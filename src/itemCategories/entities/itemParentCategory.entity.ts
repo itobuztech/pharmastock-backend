@@ -1,20 +1,16 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ItemCategory as ItemCategoryDB, Item as ItemDB } from '@prisma/client';
-import { Item } from 'src/items/entities/item.entity';
-import { ItemParentCategory } from './itemParentCategory.entity';
+import { Item } from '../../items/entities/item.entity';
 
 @ObjectType()
-export class ItemCategory {
-  @Field(() => String)
+export class ItemParentCategory {
+  @Field(() => String, { nullable: true })
   id: ItemCategoryDB['id'];
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   name: ItemCategoryDB['name'];
 
-  @Field(() => ItemParentCategory, { nullable: true })
-  parentCategory?: ItemParentCategory;
-
-  @Field(() => Date)
+  @Field(() => Date, { nullable: true })
   createdAt: ItemCategoryDB['createdAt'];
 
   @Field(() => Date, { nullable: true })

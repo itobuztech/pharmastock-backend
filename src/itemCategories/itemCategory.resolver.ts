@@ -28,7 +28,7 @@ class PaginatedItemCategories extends TotalCount {
 
 @Resolver(() => ItemCategory)
 export class ItemCategoryResolver {
-  constructor(private readonly itemService: ItemCategoryService) {}
+  constructor(private readonly itemCategoryService: ItemCategoryService) {}
 
   @Query(() => PaginatedItemCategories, {
     name: 'itemCategories',
@@ -40,7 +40,7 @@ export class ItemCategoryResolver {
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedItemCategories> {
     try {
-      return await this.itemService.findAll(paginationArgs);
+      return await this.itemCategoryService.findAll(paginationArgs);
     } catch (e) {
       throw new BadRequestException(e);
     }
@@ -51,7 +51,7 @@ export class ItemCategoryResolver {
   @Roles(UserRole.ADMIN)
   async findOne(@Args('id') id: string): Promise<ItemCategory> {
     try {
-      return await this.itemService.findOne(id);
+      return await this.itemCategoryService.findOne(id);
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -65,7 +65,7 @@ export class ItemCategoryResolver {
     createItemCategoryInput: CreateItemCategoryInput,
   ): Promise<ItemCategory> {
     try {
-      return await this.itemService.create(createItemCategoryInput);
+      return await this.itemCategoryService.create(createItemCategoryInput);
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -80,7 +80,7 @@ export class ItemCategoryResolver {
   ): Promise<ItemCategory> {
     try {
       const { id, ...data } = updateItemCategoryInput;
-      return await this.itemService.updateItemCategory(id, data);
+      return await this.itemCategoryService.updateItemCategory(id, data);
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -95,7 +95,7 @@ export class ItemCategoryResolver {
   ) {
     try {
       const { id } = deleteItemCategoryInput;
-      return await this.itemService.deleteItemCategory(id);
+      return await this.itemCategoryService.deleteItemCategory(id);
     } catch (error) {
       throw new BadRequestException(error);
     }
