@@ -12,5 +12,5 @@ export class CreatePharmacyInput {
   organizationId?: string;
 
   @Field({ nullable: true })
-  contact_info?: string;
+  contactInfo?: string;
 }

@@ -43,10 +43,8 @@ export class WarehouseService {
 
   async create(createWarehouseInput: CreateWarehouseInput) {
     try {
-      const location = JSON.stringify(createWarehouseInput.location);
-
       let data: any = {
-        location,
+        location: createWarehouseInput.location,
         area: createWarehouseInput.area,
       };
 

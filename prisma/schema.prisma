@@ -63,7 +63,7 @@ model Organization {
 
 model Warehouse {
   id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  location       Json?
+  location       String?
   area           String
   organizationId String?          @map("organization_id") @db.Uuid
   organization   Organization?    @relation(fields: [organizationId], references: [id])
@@ -81,7 +81,6 @@ model Item {
   id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   baseUnit             BaseUnit               @map("base_unit")
   instructions         String
-  sku                  String
   mrp_base_unit        Int
   wholesale_price      Int
   hsn_code             String
@@ -157,6 +156,7 @@ model StockMovement {
   warehouseStockId String?         @map("warehouseStock_id") @db.Uuid
   warehouseStock   WarehouseStock? @relation(fields: [warehouseStockId], references: [id])
   qty              Int
+  sku                  String
   itemId           String          @map("item_id") @db.Uuid
   item             Item            @relation(fields: [itemId], references: [id])
   pharmacyStockId  String?         @map("pharmacyStockId_id") @db.Uuid
@@ -172,7 +172,7 @@ model StockMovement {
 model Pharmacy {
   id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String          @unique @db.VarChar(255)
-  location       Json?
+  location       String?
   organizationId String?         @map("organization_id") @db.Uuid
   organization   Organization?   @relation(fields: [organizationId], references: [id])
   contact_info   String          @db.VarChar(12)

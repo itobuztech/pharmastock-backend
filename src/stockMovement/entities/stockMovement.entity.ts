@@ -21,6 +21,9 @@ export class StockMovement {
   @Field(() => String, { name: 'batchName', nullable: true })
   batch_name?: StockMovementDB['batch_name'];
 
+  @Field(() => String)
+  sku: StockMovementDB['sku'];
+
   @Field(() => Date, { nullable: true })
   expiry?: StockMovementDB['expiry'];
 
