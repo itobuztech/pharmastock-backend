@@ -16,6 +16,8 @@ import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PermissionsGuardOR } from './guards/permissions-or.guard';
 import { SignupResponse } from './dto/signup-response';
 import { TokenConfirmationInput } from './dto/token-confirmation.input';
+import { ForgotPasswordResponse, ValidateForgotPasswordResponse } from './dto/forgot-password-response';
+import { ForgotPasswordConfirmationInput, ForgotPasswordInput } from './dto/forgot-password';
 
 @Resolver()
 export class AuthResolver {
@@ -49,5 +51,28 @@ export class AuthResolver {
   @Permissions([PrivilegesList.PROFILE.CAPABILITIES.VIEW])
   getpermissions(@Context() ctx: any): Promise<PrivilegesListType> {
     return this.authService.getpermissions(ctx);
+  }
+
+  @Mutation(() => ForgotPasswordResponse)
+  async forgotPassword(
+    @Args('forgotPasswordInput')
+    forgotPasswordInput: ForgotPasswordInput,
+  ) {
+    try {
+      return this.authService.forgotPassword(forgotPasswordInput);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  @Mutation(() => ValidateForgotPasswordResponse)
+  async validateForgotPassword(
+    @Args('forgotPasswordInput') forgotPasswordConfirmationInput: ForgotPasswordConfirmationInput,
+  ) {
+    try {
+      return this.authService.validateForgotPasswordToken(forgotPasswordConfirmationInput);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 }
