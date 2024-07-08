@@ -132,6 +132,19 @@ input DeleteWarehouseStockInput {
   id: String!
 }
 
+input ForgotPasswordConfirmationInput {
+  confirmationToken: String!
+  newPassword: String!
+}
+
+input ForgotPasswordInput {
+  email: String!
+}
+
+type ForgotPasswordResponse {
+  token: String!
+}
+
 type Item {
   Category: [ItemCategory!]
   baseUnit: BaseUnit!
@@ -196,6 +209,7 @@ type Mutation {
   deleteStockMovement(deleteStockMovementInput: DeleteStockMovementInput!): StockMovement!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
+  forgotPassword(forgotPasswordInput: ForgotPasswordInput!): ForgotPasswordResponse!
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
@@ -206,6 +220,7 @@ type Mutation {
   updatePharmacy(updatePharmacyInput: UpdatePharmacyInput!): Pharmacy!
   updateWarehouse(updateWarehouseInput: UpdateWarehouseInput!): Warehouse!
   updateprofile(updateProfileInput: UpdateProfileInput!): Boolean!
+  validateForgotPassword(forgotPasswordInput: ForgotPasswordConfirmationInput!): ValidateForgotPasswordResponse!
 }
 
 type Organization {
@@ -402,6 +417,10 @@ enum UserRole {
   ADMIN
   STAFF
   SUPERADMIN
+}
+
+type ValidateForgotPasswordResponse {
+  message: String!
 }
 
 type Warehouse {
