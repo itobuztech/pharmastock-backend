@@ -14,7 +14,11 @@ export class WarehouseService {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
       const totalCount = await this.prisma.warehouse.count();
-      const warehouses = await this.prisma.warehouse.findMany({ skip, take });
+      const warehouses = await this.prisma.warehouse.findMany({
+        skip,
+        take,
+        include: { organization: true, admin: true },
+      });
 
       return { warehouses, total: totalCount };
     } catch (error) {
@@ -27,6 +31,7 @@ export class WarehouseService {
       where: {
         id,
       },
+      include: { organization: true, admin: true },
     });
 
     if (!warehouse) {
@@ -64,6 +69,7 @@ export class WarehouseService {
 
       const warehouse = await this.prisma.warehouse.create({
         data,
+        include: { organization: true, admin: true },
       });
 
       if (!warehouse) {
@@ -84,6 +90,7 @@ export class WarehouseService {
         id,
       },
       data,
+      include: { organization: true, admin: true },
     });
 
     if (!warehouse) {

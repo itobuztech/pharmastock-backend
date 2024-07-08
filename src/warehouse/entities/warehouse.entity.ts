@@ -1,5 +1,11 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Warehouse as WarehouseDB } from '@prisma/client';
+import {
+  Warehouse as WarehouseDB,
+  Organization as OrganizationDB,
+  User as UserDB,
+} from '@prisma/client';
+import { Organization } from '../../organization/entities/organization.entity';
+import { User } from '../../users/entities/user.entity';
 
 @ObjectType()
 export class Warehouse {
@@ -12,11 +18,11 @@ export class Warehouse {
   @Field(() => String)
   area: WarehouseDB['area'];
 
-  @Field(() => String, { nullable: true })
-  organizationId?: WarehouseDB['organizationId'];
+  @Field(() => Organization, { nullable: true })
+  organization?: OrganizationDB;
 
-  @Field(() => String, { nullable: true })
-  adminId?: WarehouseDB['adminId'];
+  @Field(() => User, { nullable: true })
+  user?: UserDB;
 
   @Field(() => Date)
   createdAt: WarehouseDB['createdAt'];

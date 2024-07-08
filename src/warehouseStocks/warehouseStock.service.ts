@@ -24,6 +24,10 @@ export class WarehouseStockService {
       const warehouseStocks = await this.prisma.warehouseStock.findMany({
         skip,
         take,
+        include: {
+          warehouse: true,
+          item: true,
+        },
       });
 
       return { warehouseStocks, total: totalCount };
@@ -36,6 +40,10 @@ export class WarehouseStockService {
     const warehouseStock = await this.prisma.warehouseStock.findFirst({
       where: {
         id,
+      },
+      include: {
+        warehouse: true,
+        item: true,
       },
     });
 
@@ -97,6 +105,10 @@ export class WarehouseStockService {
         // CREATING THE STOCK IF ALREADY NOT PRESENT!STARTS
         warehouseStock = await this.prisma.warehouseStock.create({
           data,
+          include: {
+            warehouse: true,
+            item: true,
+          },
         });
 
         if (!warehouseStock) {
@@ -113,6 +125,10 @@ export class WarehouseStockService {
           },
           data: {
             final_qty: existingStock.final_qty + createWarehouseStockInput.qty,
+          },
+          include: {
+            warehouse: true,
+            item: true,
           },
         });
 

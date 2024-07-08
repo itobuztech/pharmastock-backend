@@ -105,7 +105,7 @@ enum BaseUnit {
 model ItemCategory {
   id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                 String
-  parentCategoryId     String?                @db.Uuid
+  parentCategoryId     String?                @map("parent_category_id")@db.Uuid
   parent               ItemCategory?          @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
   children             ItemCategory[]         @relation("CategoryHierarchy")
   createdAt            DateTime               @default(now()) @map("created_at")

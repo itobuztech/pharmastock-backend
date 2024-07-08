@@ -19,7 +19,11 @@ export class UsersService {
   ): Promise<{ users: User[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     const totalCount = await this.prisma.user.count();
-    const users = await this.prisma.user.findMany({ skip, take });
+    const users = await this.prisma.user.findMany({
+      skip,
+      take,
+      include: { organization: true },
+    });
 
     return { users, total: totalCount };
   }
@@ -36,6 +40,7 @@ export class UsersService {
             userType: true,
           },
         },
+        organization: true,
       },
     });
   }
@@ -55,6 +60,7 @@ export class UsersService {
               userType: true,
             },
           },
+          organization: true,
         },
       });
 
@@ -131,6 +137,7 @@ export class UsersService {
               userType: true,
             },
           },
+          organization: true,
         },
       });
     } catch (error) {
@@ -152,6 +159,7 @@ export class UsersService {
             privileges: true,
           },
         },
+        organization: true,
       },
     });
   }
@@ -162,6 +170,7 @@ export class UsersService {
         id,
       },
       data,
+      include: { organization: true },
     });
   }
 }

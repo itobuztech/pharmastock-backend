@@ -1,5 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Pharmacy as PharmacyDB } from '@prisma/client';
+import {
+  Pharmacy as PharmacyDB,
+  Organization as OrganizationDB,
+} from '@prisma/client';
+import { Organization } from '../../organization/entities/organization.entity';
 
 @ObjectType()
 export class Pharmacy {
@@ -12,8 +16,8 @@ export class Pharmacy {
   @Field(() => String)
   location: PharmacyDB['location'];
 
-  @Field(() => String, { nullable: true })
-  organizationId?: PharmacyDB['organizationId'];
+  @Field(() => Organization, { nullable: true })
+  organization?: OrganizationDB;
 
   @Field(() => String, { nullable: true })
   contact_info?: PharmacyDB['contact_info'];

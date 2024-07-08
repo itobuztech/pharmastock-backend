@@ -24,6 +24,10 @@ export class PharmacyStockService {
       const pharmacyStocks = await this.prisma.pharmacyStock.findMany({
         skip,
         take,
+        include: {
+          warehouse: true,
+          pharmacy: true,
+        },
       });
 
       return { pharmacyStocks, total: totalCount };
@@ -36,6 +40,10 @@ export class PharmacyStockService {
     const pharmacyStock = await this.prisma.pharmacyStock.findFirst({
       where: {
         id,
+      },
+      include: {
+        warehouse: true,
+        pharmacy: true,
       },
     });
 
@@ -131,6 +139,10 @@ export class PharmacyStockService {
         // CREATING THE STOCK IF ALREADY NOT PRESENT!STARTS
         pharmacyStock = await this.prisma.pharmacyStock.create({
           data,
+          include: {
+            warehouse: true,
+            pharmacy: true,
+          },
         });
 
         if (!pharmacyStock) {
@@ -148,6 +160,10 @@ export class PharmacyStockService {
           data: {
             final_qty:
               existingPharmacyStock.final_qty + createPharmacyStockInput.qty,
+          },
+          include: {
+            warehouse: true,
+            pharmacy: true,
           },
         });
 

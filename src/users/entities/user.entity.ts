@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { User as UserDB } from '@prisma/client';
+import { User as UserDB, Organization as OrganizationDB } from '@prisma/client';
 import { Exclude } from 'class-transformer';
+import { Organization } from '../../organization/entities/organization.entity';
 
 @ObjectType()
 export class User {
@@ -30,4 +31,7 @@ export class User {
 
   @Field({ nullable: true })
   emailConfirmationToken: string;
+
+  @Field(() => Organization, { nullable: true })
+  organization?: OrganizationDB;
 }
