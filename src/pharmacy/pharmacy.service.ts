@@ -11,7 +11,13 @@ export class PharmacyService {
   async findAll(paginationArgs?: PaginationArgs): Promise<Pharmacy[]> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const pharmacy = await this.prisma.pharmacy.findMany({ skip, take });
+      const pharmacy = await this.prisma.pharmacy.findMany({
+        skip,
+        take,
+        include: {
+          organization: true,
+        },
+      });
 
       return pharmacy;
     } catch (error) {
@@ -23,6 +29,9 @@ export class PharmacyService {
     const pharmacy = await this.prisma.pharmacy.findFirst({
       where: {
         id,
+      },
+      include: {
+        organization: true,
       },
     });
 
@@ -63,6 +72,9 @@ export class PharmacyService {
 
       const pharmacy = await this.prisma.pharmacy.create({
         data,
+        include: {
+          organization: true,
+        },
       });
 
       if (!pharmacy) {
@@ -95,6 +107,7 @@ export class PharmacyService {
         id,
       },
       data,
+      include: { organization: true },
     });
 
     if (!pharmacy) {

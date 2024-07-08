@@ -275,7 +275,7 @@ type Pharmacy {
   id: String!
   location: String!
   name: String!
-  organizationId: String
+  organization: Organization
   updatedAt: DateTime
 }
 
@@ -284,9 +284,9 @@ type PharmacyStock {
   finalQty: Int!
   id: String!
   itemId: String!
-  pharmacyId: String!
+  pharmacy: Pharmacy
   updatedAt: DateTime
-  warehouseId: String!
+  warehouse: Warehouse
 }
 
 type Query {
@@ -401,6 +401,7 @@ type User {
   id: String!
   isEmailConfirmed: Boolean!
   name: String
+  organization: Organization
   updatedAt: DateTime
   username: String!
 }
@@ -413,24 +414,24 @@ enum UserRole {
 }
 
 type Warehouse {
-  adminId: String
   area: String!
   createdAt: DateTime!
   id: String!
   location: String!
-  organizationId: String
+  organization: Organization
   updatedAt: DateTime
+  user: User
 }
 
 type WarehouseStock {
   createdAt: DateTime!
   finalQty: Float!
   id: String!
-  itemId: String
+  item: Item
   stockLevel: StockLevel
   stockStatus: String
   stocklevelMax: Float
   stocklevelMin: Float
   updatedAt: DateTime
-  warehouseId: String
+  warehouse: Warehouse
 }

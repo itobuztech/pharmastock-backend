@@ -1,5 +1,11 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { PharmacyStock as PharmacyStockDB } from '@prisma/client';
+import {
+  PharmacyStock as PharmacyStockDB,
+  Warehouse as WarehouseDB,
+  Pharmacy as PharmacyDB,
+} from '@prisma/client';
+import { Warehouse } from '../../warehouse/entities/warehouse.entity';
+import { Pharmacy } from '../../pharmacy/entities/pharmacy.entity';
 
 @ObjectType()
 export class PharmacyStock {
@@ -9,11 +15,11 @@ export class PharmacyStock {
   @Field(() => String)
   itemId: PharmacyStockDB['itemId'];
 
-  @Field(() => String)
-  warehouseId: PharmacyStockDB['warehouseId'];
+  @Field(() => Warehouse, { nullable: true })
+  warehouse?: WarehouseDB;
 
-  @Field(() => String)
-  pharmacyId: PharmacyStockDB['pharmacyId'];
+  @Field(() => Pharmacy, { nullable: true })
+  pharmacy?: PharmacyDB;
 
   @Field(() => Int, { name: 'finalQty' })
   final_qty: PharmacyStockDB['final_qty'];
