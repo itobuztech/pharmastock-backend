@@ -7,7 +7,7 @@ import { TotalCount } from '../pagination/toalCount.entity';
 
 @Injectable()
 export class OrganizationService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) { }
+  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
     paginationArgs?: PaginationArgs,
@@ -55,7 +55,7 @@ export class OrganizationService {
         address: createOrganizationInput.address,
         city: createOrganizationInput.city,
         country: createOrganizationInput.country,
-        contact: createOrganizationInput.contact
+        contact: createOrganizationInput.contact,
       },
     });
 
@@ -83,14 +83,16 @@ export class OrganizationService {
   }
 
   async updateOrganization(id: string, data) {
-    const unique = await this.prisma.organization.findFirst({
-      where: {
-        name: data.name,
-      },
-    });
+    if (data.name || data.name !== '') {
+      const unique = await this.prisma.organization.findFirst({
+        where: {
+          name: data.name,
+        },
+      });
 
-    if (unique) {
-      throw new Error('Organization name alerady present!');
+      if (unique) {
+        throw new Error('Organization name alerady present!');
+      }
     }
 
     const organization = await this.prisma.organization.update({
