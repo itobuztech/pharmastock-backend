@@ -83,7 +83,7 @@ export class OrganizationService {
   }
 
   async updateOrganization(id: string, data) {
-    if (data.name || data.name !== '') {
+    if (data.name) {
       const unique = await this.prisma.organization.findFirst({
         where: {
           name: data.name,
