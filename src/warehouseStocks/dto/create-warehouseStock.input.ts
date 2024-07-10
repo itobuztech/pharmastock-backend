@@ -28,5 +28,8 @@ export class CreateWarehouseStockInput {
   batchName: string;
 
   @Field()
+  sku: string;
+
+  @Field()
   expiry: Date;
 }

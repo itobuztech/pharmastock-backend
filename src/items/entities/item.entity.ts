@@ -14,16 +14,13 @@ export class Item {
   @Field(() => String)
   instructions: ItemDB['instructions'];
 
-  @Field(() => String)
-  sku: ItemDB['sku'];
-
-  @Field(() => Number, { nullable: true })
+  @Field(() => Number, { nullable: true, name: 'mrpBaseUnit' })
   mrp_base_unit?: ItemDB['mrp_base_unit'];
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Number, { nullable: true, name: 'wholesalePrice' })
   wholesale_price?: ItemDB['wholesale_price'];
 
-  @Field(() => String)
+  @Field(() => String, { name: 'hsnCode' })
   hsn_code: ItemDB['hsn_code'];
 
   @Field(() => Date)

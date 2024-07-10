@@ -44,8 +44,6 @@ export class PharmacyService {
 
   async create(createPharmacyInput: CreatePharmacyInput) {
     try {
-      const location = JSON.stringify(createPharmacyInput.location);
-
       const organizationCheck = await this.prisma.organization.findFirst({
         where: {
           id: createPharmacyInput?.organizationId,
@@ -56,9 +54,9 @@ export class PharmacyService {
         throw new Error('No Organization present with this ID!');
 
       let data: any = {
-        location,
+        location: createPharmacyInput.location || null,
         name: createPharmacyInput.name || null,
-        contact_info: createPharmacyInput.contact_info || null,
+        contact_info: createPharmacyInput.contactInfo || null,
       };
 
       if (createPharmacyInput?.organizationId) {

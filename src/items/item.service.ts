@@ -104,10 +104,9 @@ export class ItemService {
         data: {
           baseUnit: createItemInput.baseUnit,
           instructions: createItemInput.instructions,
-          sku: createItemInput.sku,
-          mrp_base_unit: createItemInput.mrp_base_unit,
-          wholesale_price: createItemInput.wholesale_price,
-          hsn_code: createItemInput.hsn_code,
+          mrp_base_unit: createItemInput.mrpBaseUnit,
+          wholesale_price: createItemInput.wholesalePrice,
+          hsn_code: createItemInput.hsnCode,
         },
       });
 

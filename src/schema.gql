@@ -22,11 +22,10 @@ input CreateItemCategoryInput {
 input CreateItemInput {
   baseUnit: String!
   category: [String!]
-  hsn_code: String
+  hsnCode: String
   instructions: String!
-  mrp_base_unit: Float
-  sku: String
-  wholesale_price: Float
+  mrpBaseUnit: Float
+  wholesalePrice: Float
 }
 
 input CreateOrganizationInput {
@@ -40,7 +39,7 @@ input CreateOrganizationInput {
 }
 
 input CreatePharmacyInput {
-  contact_info: String
+  contactInfo: String
   location: String!
   name: String!
   organizationId: String
@@ -59,6 +58,7 @@ input CreateStockMovementInput {
   itemId: String!
   pharmacyStockId: String
   qty: Float!
+  sku: String
   warehouseStockId: String
 }
 
@@ -84,6 +84,7 @@ input CreateWarehouseStockInput {
   expiry: DateTime!
   itemId: String!
   qty: Float!
+  sku: String!
   stockLevel: String
   stockStatus: String
   stocklevelMax: Float
@@ -149,13 +150,12 @@ type Item {
   Category: [ItemCategory!]
   baseUnit: BaseUnit!
   createdAt: DateTime!
-  hsn_code: String!
+  hsnCode: String!
   id: String!
   instructions: String!
-  mrp_base_unit: Float
-  sku: String!
+  mrpBaseUnit: Float
   updatedAt: DateTime
-  wholesale_price: Float
+  wholesalePrice: Float
 }
 
 type ItemCategory {
@@ -285,7 +285,7 @@ input PaginationArgs {
 }
 
 type Pharmacy {
-  contact_info: String
+  contactInfo: String
   createdAt: DateTime!
   id: String!
   location: String!
@@ -352,6 +352,7 @@ type StockMovement {
   itemId: String!
   pharmacyStockId: String
   qty: Float!
+  sku: String!
   updatedAt: DateTime
   warehouseStockId: String
 }
@@ -369,12 +370,11 @@ input UpdateItemCategoryInput {
 input UpdateItemInput {
   baseUnit: String
   category: [String!]
-  hsn_code: String
+  hsnCode: String
   id: String!
   instructions: String
-  mrp_base_unit: Float
-  sku: String
-  wholesale_price: Float
+  mrpBaseUnit: Float
+  wholesalePrice: Float
 }
 
 input UpdateOrganizationInput {
@@ -389,7 +389,7 @@ input UpdateOrganizationInput {
 }
 
 input UpdatePharmacyInput {
-  contact_info: String
+  contactInfo: String
   id: String!
   location: String
   name: String

@@ -19,7 +19,7 @@ export class Pharmacy {
   @Field(() => Organization, { nullable: true })
   organization?: OrganizationDB;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => String, { nullable: true, name: 'contactInfo' })
   contact_info?: PharmacyDB['contact_info'];
 
   @Field(() => Date)
