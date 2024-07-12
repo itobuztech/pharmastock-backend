@@ -57,12 +57,14 @@ model Organization {
   contact     String
   Warehouse   Warehouse[]
   Pharmacy    Pharmacy[]
+  SKU SKU[]
 
   @@map("Organization")
 }
 
 model Warehouse {
   id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String           @unique
   location       String?
   area           String
   organizationId String?          @map("organization_id") @db.Uuid
@@ -73,12 +75,14 @@ model Warehouse {
   updatedAt      DateTime?        @default(now()) @updatedAt @map("updated_at")
   WarehouseStock WarehouseStock[]
   PharmacyStock  PharmacyStock[]
+  SKU  SKU[]
 
   @@map("Warehouse")
 }
 
 model Item {
   id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                 String                 @unique
   baseUnit             BaseUnit               @map("base_unit")
   instructions         String
   mrp_base_unit        Int
@@ -90,6 +94,7 @@ model Item {
   PharmacyStock        PharmacyStock[]
   StockMovement        StockMovement[]
   ItemCategoryRelation ItemCategoryRelation[]
+  SKU SKU[]
 
   @@map("Item")
 }
@@ -133,13 +138,10 @@ model WarehouseStock {
   final_qty      Int
   warehouseId    String?         @map("warehouse_id") @db.Uuid
   warehouse      Warehouse?      @relation(fields: [warehouseId], references: [id])
-  stocklevel_min Int?
-  stocklevel_max Int?
-  stock_status   String?
-  stockLevel     StockLevel?     @map("stock_level")
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime?       @default(now()) @updatedAt @map("updated_at")
   StockMovement  StockMovement[]
+  SKU  SKU?
 
   @@map("WarehouseStock")
 }
@@ -156,7 +158,6 @@ model StockMovement {
   warehouseStockId String?         @map("warehouseStock_id") @db.Uuid
   warehouseStock   WarehouseStock? @relation(fields: [warehouseStockId], references: [id])
   qty              Int
-  sku                  String
   itemId           String          @map("item_id") @db.Uuid
   item             Item            @relation(fields: [itemId], references: [id])
   pharmacyStockId  String?         @map("pharmacyStockId_id") @db.Uuid
@@ -167,6 +168,27 @@ model StockMovement {
   updatedAt        DateTime?       @default(now()) @updatedAt @map("updated_at")
 
   @@map("StockMovement")
+}
+
+model SKU {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sku              String          @unique
+  itemId           String          @map("item_id") @db.Uuid
+  item             Item            @relation(fields: [itemId], references: [id])
+  organizationId   String          @map("organization_id") @db.Uuid
+  organization     Organization    @relation(fields: [organizationId], references: [id])
+  warehouseId      String          @map("warehouse_id") @db.Uuid
+  warehouse        Warehouse       @relation(fields: [warehouseId], references: [id])
+  warehouseStockId String          @map("warehouseStock_id") @db.Uuid @unique
+  warehouseStock   WarehouseStock  @relation(fields: [warehouseStockId], references: [id])
+  stocklevel_min   Int?
+  stocklevel_max   Int?
+  stock_status     String?
+  stockLevel       StockLevel?     @map("stock_level")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime?       @default(now()) @updatedAt @map("updated_at")
+
+  @@map("SKU")
 }
 
 model Pharmacy {

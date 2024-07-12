@@ -17,6 +17,9 @@ import { UserRole } from '@prisma/client';
 import { DeleteWarehouseStockInput } from './dto/delete-warehouseStock.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
+import { CreateSkuNameInput } from './dto/create-skuName.input';
+import { GenerateSku } from './entities/generate-sku.entity';
+import { Sku } from './entities/sku.entity';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -56,6 +59,25 @@ export class WarehouseStockResolver {
     }
   }
 
+  @Query(() => Sku, { name: 'sku' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getSkuByOrgWarhItem(
+    @Args('itemId') itemId: string,
+    @Args('warehouseId') warehouseId: string,
+    @Args('organizationId') organizationId: string,
+  ): Promise<Sku> {
+    try {
+      return await this.warehouseStockService.getSkuByOrgWarhItem(
+        itemId,
+        warehouseId,
+        organizationId,
+      );
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
   @Mutation(() => WarehouseStock)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -65,6 +87,20 @@ export class WarehouseStockResolver {
   ): Promise<WarehouseStock> {
     try {
       return await this.warehouseStockService.create(createWarehouseStockInput);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  @Mutation(() => GenerateSku)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async generateSKU(
+    @Args('generateSkuNameInput')
+    createSkuNameInput: CreateSkuNameInput,
+  ): Promise<{ sku: string }> {
+    try {
+      return await this.warehouseStockService.generateSKU(createSkuNameInput);
     } catch (error) {
       throw new BadRequestException(error);
     }

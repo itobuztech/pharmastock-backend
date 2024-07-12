@@ -9,6 +9,9 @@ export class CreateItemInput {
   @Field()
   instructions: string;
 
+  @Field()
+  name: string;
+
   @Field({ nullable: true })
   mrpBaseUnit?: number;
 

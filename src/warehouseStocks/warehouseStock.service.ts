@@ -6,6 +6,8 @@ import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 import { StockMovementService } from '../stockMovement/stockMovement.service';
 import { CreateStockMovementInput } from 'src/stockMovement/dto/create-stockMovement.input';
+import { CreateSkuNameInput } from './dto/create-skuName.input';
+import { Sku } from './entities/sku.entity';
 
 @Injectable()
 export class WarehouseStockService {
@@ -27,6 +29,7 @@ export class WarehouseStockService {
         include: {
           warehouse: true,
           item: true,
+          SKU: true,
         },
       });
 
@@ -37,13 +40,14 @@ export class WarehouseStockService {
   }
 
   async findOne(id: string): Promise<WarehouseStock> {
-    const warehouseStock = await this.prisma.warehouseStock.findFirst({
+    const warehouseStock: any = await this.prisma.warehouseStock.findFirst({
       where: {
         id,
       },
       include: {
         warehouse: true,
         item: true,
+        SKU: true,
       },
     });
 
@@ -67,12 +71,20 @@ export class WarehouseStockService {
 
       const warehouse = await this.prisma.warehouse.findFirst({
         where: {
-          id: createWarehouseStockInput?.warehouseId,
+          id: createWarehouseStockInput.warehouseId,
         },
       });
 
       if (!warehouse) throw new Error('No Warehouse present with this ID!');
 
+      const organization = await this.prisma.organization.findFirst({
+        where: {
+          id: createWarehouseStockInput.organizationId,
+        },
+      });
+
+      if (!organization)
+        throw new Error('No organization present with this ID!');
       // This section checks whether the relational ID is present or not! Ends
 
       // Setting up the data to be used!Starts
@@ -83,10 +95,6 @@ export class WarehouseStockService {
         warehouse: {
           connect: { id: createWarehouseStockInput?.warehouseId },
         },
-        stocklevel_min: createWarehouseStockInput.stocklevelMin,
-        stocklevel_max: createWarehouseStockInput.stocklevelMax,
-        stock_status: createWarehouseStockInput.stockStatus,
-        stockLevel: createWarehouseStockInput.stockLevel,
         final_qty: createWarehouseStockInput.qty,
       };
       // Setting up the data to be used!ENDS
@@ -95,19 +103,32 @@ export class WarehouseStockService {
       const existingStock = await this.prisma.warehouseStock.findFirst({
         where: {
           itemId: createWarehouseStockInput?.itemId,
+          warehouseId: createWarehouseStockInput?.warehouseId,
         },
       });
       // CHECKING IF THE WAREHOUSE STOCK ALREADY PRESENT OR NOT, FOR THE ID. ENDS
 
       // CREATING OR UPDATING THE WAREHOUSE STOCK. STARTS
       let warehouseStock;
+      let sku;
       if (!existingStock) {
+        // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT. STARTS.
+        const Sku = await this.prisma.sKU.findFirst({
+          where: {
+            sku: createWarehouseStockInput.sku,
+          },
+        });
+
+        if (Sku) throw new Error('SKU already present!');
+        // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT. ENDS.
+
         // CREATING THE STOCK IF ALREADY NOT PRESENT!STARTS
         warehouseStock = await this.prisma.warehouseStock.create({
           data,
           include: {
             warehouse: true,
             item: true,
+            SKU: true,
           },
         });
 
@@ -117,7 +138,84 @@ export class WarehouseStockService {
           );
         }
         // CREATING THE STOCK IF ALREADY NOT PRESENT!ENDS
+
+        // CREATION OF SKU FOR THE ITEM STOCK. STARTS
+        sku = await this.prisma.sKU.create({
+          data: {
+            sku: createWarehouseStockInput.sku,
+            stocklevel_min: createWarehouseStockInput.stocklevelMin,
+            stocklevel_max: createWarehouseStockInput.stocklevelMax,
+            stock_status: createWarehouseStockInput.stockStatus,
+            stockLevel: createWarehouseStockInput.stockLevel,
+            item: {
+              connect: { id: createWarehouseStockInput?.itemId },
+            },
+            organization: {
+              connect: { id: createWarehouseStockInput?.organizationId },
+            },
+            warehouseStock: {
+              connect: { id: warehouseStock?.id },
+            },
+            warehouse: {
+              connect: { id: createWarehouseStockInput?.warehouseId },
+            },
+          },
+        });
+
+        if (!sku) {
+          throw new Error(
+            'Could not create the SKU. Please try after sometime!',
+          );
+        }
+        // CREATION OF SKU FOR THE ITEM STOCK. ENDS
+
+        warehouseStock.SKU = sku;
       } else {
+        // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT IN OTHER ROWS. STARTS.
+        const Sku = await this.prisma.sKU.findFirst({
+          where: {
+            sku: createWarehouseStockInput.sku,
+            NOT: {
+              warehouseStockId: existingStock?.id,
+            },
+          },
+        });
+
+        if (Sku) throw new Error('SKU already present!');
+        // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT IN OTHER ROWS. ENDS.
+
+        // UPDATING THE SKU. STARTS.
+        const updatingSkuData = { sku: createWarehouseStockInput.sku };
+
+        if (createWarehouseStockInput.stocklevelMin) {
+          updatingSkuData['stocklevel_min'] =
+            createWarehouseStockInput.stocklevelMin;
+        }
+        if (createWarehouseStockInput.stocklevelMax) {
+          updatingSkuData['stocklevel_max'] =
+            createWarehouseStockInput.stocklevelMax;
+        }
+        if (createWarehouseStockInput.stockStatus) {
+          updatingSkuData['stock_status'] =
+            createWarehouseStockInput.stockStatus;
+        }
+        if (createWarehouseStockInput.stockLevel) {
+          updatingSkuData['stockLevel'] = createWarehouseStockInput.stockLevel;
+        }
+
+        sku = await this.prisma.sKU.update({
+          where: {
+            warehouseStockId: existingStock?.id,
+          },
+          data: updatingSkuData,
+        });
+
+        if (!sku) {
+          throw new Error(
+            'Could not update the SKU. Please try after sometime!',
+          );
+        }
+        // UPDATING THE SKU. ENDS.
         // UPDATING THE STOCK!STARTS
         warehouseStock = await this.prisma.warehouseStock.update({
           where: {
@@ -129,6 +227,7 @@ export class WarehouseStockService {
           include: {
             warehouse: true,
             item: true,
+            SKU: true,
           },
         });
 
@@ -154,7 +253,6 @@ export class WarehouseStockService {
       // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! STARTS
       await this.stockMovementService.create(createStockMovement);
       // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! ENDS
-
       return warehouseStock;
     } catch (error) {
       throw error;
@@ -174,5 +272,75 @@ export class WarehouseStockService {
       );
     }
     return deleted;
+  }
+
+  async generateSKU(createSkuNameInput: CreateSkuNameInput) {
+    try {
+      // This section checks whether the relational ID is present or not! Starts
+      const itemCheck = await this.prisma.item.findFirst({
+        where: {
+          id: createSkuNameInput?.itemId,
+        },
+      });
+
+      if (!itemCheck) {
+        throw new Error('No Item present with this ID!');
+      }
+
+      const warehouse = await this.prisma.warehouse.findFirst({
+        where: {
+          id: createSkuNameInput.warehouseId,
+        },
+      });
+
+      if (!warehouse) {
+        throw new Error('No Warehouse present with this ID!');
+      }
+      const organization = await this.prisma.organization.findFirst({
+        where: {
+          id: createSkuNameInput.organizationId,
+        },
+      });
+
+      if (!organization) {
+        throw new Error('No organization present with this ID!');
+      }
+      // This section checks whether the relational ID is present or not! Ends
+
+      // SKU VALUE CREATION. STARTS.
+      const itemName = itemCheck.name;
+      const warehouseName = warehouse.name;
+      const orgName = organization.name;
+
+      const skuNameGenerated = `${itemName} ${warehouseName} ${orgName}`;
+      // SKU VALUE CREATION. ENDS.
+
+      return { sku: skuNameGenerated };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getSkuByOrgWarhItem(
+    itemId: string,
+    warehouseId: string,
+    organizationId: string,
+  ): Promise<Sku> {
+    try {
+      const sku = await this.prisma.sKU.findFirst({
+        where: {
+          itemId,
+          warehouseId,
+          organizationId,
+        },
+      });
+
+      if (!sku) {
+        throw new Error('There is no SKU present with these IDs!');
+      }
+      return sku;
+    } catch (error) {
+      throw error;
+    }
   }
 }

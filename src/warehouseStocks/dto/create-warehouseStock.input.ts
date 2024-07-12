@@ -9,6 +9,9 @@ export class CreateWarehouseStockInput {
   @Field()
   warehouseId: string;
 
+  @Field()
+  organizationId: string;
+
   @Field({ nullable: true })
   stocklevelMin: number;
 

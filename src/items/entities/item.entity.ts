@@ -12,6 +12,9 @@ export class Item {
   baseUnit: ItemDB['baseUnit'];
 
   @Field(() => String)
+  name: ItemDB['name'];
+
+  @Field(() => String)
   instructions: ItemDB['instructions'];
 
   @Field(() => Number, { nullable: true, name: 'mrpBaseUnit' })
