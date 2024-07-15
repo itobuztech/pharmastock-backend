@@ -25,7 +25,7 @@ export class Warehouse {
   organization?: OrganizationDB;
 
   @Field(() => User, { nullable: true })
-  user?: UserDB;
+  admin?: UserDB;
 
   @Field(() => Date)
   createdAt: WarehouseDB['createdAt'];

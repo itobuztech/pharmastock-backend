@@ -57,7 +57,7 @@ model Organization {
   contact     String
   Warehouse   Warehouse[]
   Pharmacy    Pharmacy[]
-  SKU SKU[]
+  SKU         SKU[]
 
   @@map("Organization")
 }
@@ -75,7 +75,7 @@ model Warehouse {
   updatedAt      DateTime?        @default(now()) @updatedAt @map("updated_at")
   WarehouseStock WarehouseStock[]
   PharmacyStock  PharmacyStock[]
-  SKU  SKU[]
+  SKU            SKU[]
 
   @@map("Warehouse")
 }
@@ -94,7 +94,7 @@ model Item {
   PharmacyStock        PharmacyStock[]
   StockMovement        StockMovement[]
   ItemCategoryRelation ItemCategoryRelation[]
-  SKU SKU[]
+  SKU                  SKU[]
 
   @@map("Item")
 }
@@ -109,7 +109,7 @@ enum BaseUnit {
 model ItemCategory {
   id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                 String
-  parentCategoryId     String?                @map("parent_category_id")@db.Uuid
+  parentCategoryId     String?                @map("parent_category_id") @db.Uuid
   parent               ItemCategory?          @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
   children             ItemCategory[]         @relation("CategoryHierarchy")
   createdAt            DateTime               @default(now()) @map("created_at")
@@ -132,16 +132,16 @@ model ItemCategoryRelation {
 }
 
 model WarehouseStock {
-  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  itemId         String?         @unique @map("item_id") @db.Uuid
-  item           Item?           @relation(fields: [itemId], references: [id])
-  final_qty      Int
-  warehouseId    String?         @map("warehouse_id") @db.Uuid
-  warehouse      Warehouse?      @relation(fields: [warehouseId], references: [id])
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime?       @default(now()) @updatedAt @map("updated_at")
-  StockMovement  StockMovement[]
-  SKU  SKU?
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  itemId        String?         @unique @map("item_id") @db.Uuid
+  item          Item?           @relation(fields: [itemId], references: [id])
+  final_qty     Int
+  warehouseId   String?         @map("warehouse_id") @db.Uuid
+  warehouse     Warehouse?      @relation(fields: [warehouseId], references: [id])
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime?       @default(now()) @updatedAt @map("updated_at")
+  StockMovement StockMovement[]
+  SKU           SKU?
 
   @@map("WarehouseStock")
 }
@@ -171,22 +171,22 @@ model StockMovement {
 }
 
 model SKU {
-  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sku              String          @unique
-  itemId           String          @map("item_id") @db.Uuid
-  item             Item            @relation(fields: [itemId], references: [id])
-  organizationId   String          @map("organization_id") @db.Uuid
-  organization     Organization    @relation(fields: [organizationId], references: [id])
-  warehouseId      String          @map("warehouse_id") @db.Uuid
-  warehouse        Warehouse       @relation(fields: [warehouseId], references: [id])
-  warehouseStockId String          @map("warehouseStock_id") @db.Uuid @unique
-  warehouseStock   WarehouseStock  @relation(fields: [warehouseStockId], references: [id])
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sku              String         @unique
+  itemId           String         @map("item_id") @db.Uuid
+  item             Item           @relation(fields: [itemId], references: [id])
+  organizationId   String         @map("organization_id") @db.Uuid
+  organization     Organization   @relation(fields: [organizationId], references: [id])
+  warehouseId      String         @map("warehouse_id") @db.Uuid
+  warehouse        Warehouse      @relation(fields: [warehouseId], references: [id])
+  warehouseStockId String         @unique @map("warehouseStock_id") @db.Uuid
+  warehouseStock   WarehouseStock @relation(fields: [warehouseStockId], references: [id])
   stocklevel_min   Int?
   stocklevel_max   Int?
   stock_status     String?
-  stockLevel       StockLevel?     @map("stock_level")
-  createdAt        DateTime        @default(now()) @map("created_at")
-  updatedAt        DateTime?       @default(now()) @updatedAt @map("updated_at")
+  stockLevel       StockLevel?    @map("stock_level")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime?      @default(now()) @updatedAt @map("updated_at")
 
   @@map("SKU")
 }
