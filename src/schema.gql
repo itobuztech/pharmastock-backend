@@ -273,6 +273,11 @@ type PaginatedOrganizations {
   total: Float!
 }
 
+type PaginatedPharmacies {
+  pharmacies: [Pharmacy!]!
+  total: Float!
+}
+
 type PaginatedPharmacyStocks {
   pharmacyStocks: [PharmacyStock!]!
   total: Float!
@@ -330,7 +335,7 @@ type Query {
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
   organizations(paginationArgs: PaginationArgs): PaginatedOrganizations
-  pharmacies(paginationArgs: PaginationArgs): [Pharmacy!]
+  pharmacies(paginationArgs: PaginationArgs): PaginatedPharmacies
   pharmacy(id: String!): Pharmacy!
   sku(itemId: String!, organizationId: String!, warehouseId: String!): Sku!
   stockMovement(id: String!): StockMovement!

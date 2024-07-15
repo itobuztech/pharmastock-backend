@@ -8,10 +8,13 @@ import { PaginationArgs } from 'src/pagination/pagination.dto';
 export class PharmacyService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<Pharmacy[]> {
+  async findAll(
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ pharmacies: Pharmacy[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const pharmacy = await this.prisma.pharmacy.findMany({
+      const totalCount = await this.prisma.pharmacy.count();
+      const pharmacies = await this.prisma.pharmacy.findMany({
         skip,
         take,
         include: {
@@ -19,7 +22,7 @@ export class PharmacyService {
         },
       });
 
-      return pharmacy;
+      return { pharmacies, total: totalCount };
     } catch (error) {
       throw error;
     }
@@ -44,6 +47,28 @@ export class PharmacyService {
 
   async create(createPharmacyInput: CreatePharmacyInput) {
     try {
+      // Handeling Inputs. Starts.
+      // Check if the contact info length is not more than 12. Starts.
+      if (createPharmacyInput.contactInfo) {
+        if (createPharmacyInput.contactInfo.length > 12)
+          throw new Error('Contact info should be less than 12 Numbers');
+      }
+      // Check if the contact info length is not more than 12. Ends.
+
+      //Check if the name of the pharmacy is unique or not. Starts.
+      const uniquePharmacy = await this.prisma.pharmacy.findFirst({
+        where: {
+          name: createPharmacyInput.name,
+        },
+      });
+
+      if (uniquePharmacy) {
+        throw new Error('Pharmacy name alerady present!');
+      }
+      //Check if the name of the pharmacy is unique or not. Ends.
+      // Handeling Inputs. Ends.
+
+      // TO CHECK IF THE ORGANIZATON ID IS PRESENT OR NOT. STARTS.
       const organizationCheck = await this.prisma.organization.findFirst({
         where: {
           id: createPharmacyInput?.organizationId,
@@ -52,6 +77,7 @@ export class PharmacyService {
 
       if (!organizationCheck)
         throw new Error('No Organization present with this ID!');
+      // TO CHECK IF THE ORGANIZATON ID IS PRESENT OR NOT. ENDS.
 
       let data: any = {
         location: createPharmacyInput.location || null,
@@ -88,6 +114,45 @@ export class PharmacyService {
   }
 
   async updatePharmacy(id: string, data) {
+    // Handeling Inputs. Starts.
+    // Check if the contact info length is not more than 12. Starts.
+    if (data.contactInfo) {
+      if (data.contactInfo.length > 12)
+        throw new Error('Contact info should be less than 12 Numbers');
+    }
+    // Check if the contact info length is not more than 12. Ends.
+
+    //Check if the name of the pharmacy is unique or not. Starts.
+    const uniquePharmacy = await this.prisma.pharmacy.findFirst({
+      where: {
+        name: data.name,
+        NOT: {
+          id,
+        },
+      },
+    });
+
+    if (uniquePharmacy) {
+      throw new Error('Pharmacy name alerady present!');
+    }
+    //Check if the name of the pharmacy is unique or not. Ends.
+    // Handeling Inputs. Ends.
+
+    // TO CHECK IF THIS PHARMACY ID IS PRESENT OR NOT. STARTS.
+    const pharmacyCheck = await this.prisma.pharmacy.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!pharmacyCheck) throw new Error('No Pharmacy present with this ID!');
+    // TO CHECK IF THIS PHARMACY ID IS PRESENT OR NOT. ENDS.
+
+    if (data.contactInfo) {
+      data.contact_info = data.contactInfo;
+      delete data.contactInfo;
+    }
+
     if (data.organizationId) {
       const organizationCheck = await this.prisma.organization.findFirst({
         where: {

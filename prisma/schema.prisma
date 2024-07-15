@@ -59,7 +59,7 @@ model Organization {
   Pharmacy    Pharmacy[]
   SKU SKU[]
 
-  @@map("Organization")
+  @@map("organization")
 }
 
 model Warehouse {
@@ -77,7 +77,7 @@ model Warehouse {
   PharmacyStock  PharmacyStock[]
   SKU  SKU[]
 
-  @@map("Warehouse")
+  @@map("warehouse")
 }
 
 model Item {
@@ -96,7 +96,7 @@ model Item {
   ItemCategoryRelation ItemCategoryRelation[]
   SKU SKU[]
 
-  @@map("Item")
+  @@map("item")
 }
 
 enum BaseUnit {
@@ -116,7 +116,7 @@ model ItemCategory {
   updatedAt            DateTime?              @default(now()) @updatedAt @map("updated_at")
   ItemCategoryRelation ItemCategoryRelation[]
 
-  @@map("ItemCategory")
+  @@map("item_category")
 }
 
 model ItemCategoryRelation {
@@ -128,7 +128,7 @@ model ItemCategoryRelation {
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime?     @default(now()) @updatedAt @map("updated_at")
 
-  @@map("ItemCategoryRelation")
+  @@map("item_category_relation")
 }
 
 model WarehouseStock {
@@ -143,7 +143,7 @@ model WarehouseStock {
   StockMovement  StockMovement[]
   SKU  SKU?
 
-  @@map("WarehouseStock")
+  @@map("warehouse_stock")
 }
 
 enum StockLevel {
@@ -167,7 +167,7 @@ model StockMovement {
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime?       @default(now()) @updatedAt @map("updated_at")
 
-  @@map("StockMovement")
+  @@map("stock_movement")
 }
 
 model SKU {
@@ -188,7 +188,7 @@ model SKU {
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime?       @default(now()) @updatedAt @map("updated_at")
 
-  @@map("SKU")
+  @@map("sku")
 }
 
 model Pharmacy {
@@ -202,7 +202,7 @@ model Pharmacy {
   updatedAt      DateTime?       @default(now()) @updatedAt @map("updated_at")
   PharmacyStock  PharmacyStock[]
 
-  @@map("Pharmacy")
+  @@map("pharmacy")
 }
 
 model PharmacyStock {
@@ -218,5 +218,5 @@ model PharmacyStock {
   updatedAt     DateTime?       @default(now()) @updatedAt @map("updated_at")
   StockMovement StockMovement[]
 
-  @@map("PharmacyStock")
+  @@map("pharmacy_stock")
 }
