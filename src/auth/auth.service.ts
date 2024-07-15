@@ -61,7 +61,7 @@ export class AuthService {
 
     const match = await bcrypt.compare(loginUserInput.password, password);
 
-    if (!match) throw new UnauthorizedException('Unauthorized');
+    if (!match) throw new UnauthorizedException('Invalid credentials');
 
     return {
       access_token: this.jwtService.sign({
