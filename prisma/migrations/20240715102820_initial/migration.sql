@@ -1,104 +1,39 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('SUPERADMIN', 'ADMIN', 'STAFF');
 
-  - You are about to drop the `Item` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `ItemCategory` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `ItemCategoryRelation` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Organization` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Pharmacy` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `PharmacyStock` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `SKU` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `StockMovement` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Warehouse` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `WarehouseStock` table. If the table is not empty, all the data it contains will be lost.
+-- CreateEnum
+CREATE TYPE "BaseUnit" AS ENUM ('kg', 'nos', 'strip', 'vial');
 
-*/
--- DropForeignKey
-ALTER TABLE "ItemCategory" DROP CONSTRAINT "ItemCategory_parent_category_id_fkey";
+-- CreateEnum
+CREATE TYPE "StockLevel" AS ENUM ('LOW', 'HIGH', 'POSITIVE', 'NEGATIVE');
 
--- DropForeignKey
-ALTER TABLE "ItemCategoryRelation" DROP CONSTRAINT "ItemCategoryRelation_item_category_id_fkey";
+-- CreateTable
+CREATE TABLE "users" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "name" TEXT,
+    "username" TEXT,
+    "isEmailConfirmed" BOOLEAN DEFAULT false,
+    "emailConfirmationToken" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "role_id" UUID NOT NULL,
+    "organization_id" UUID,
 
--- DropForeignKey
-ALTER TABLE "ItemCategoryRelation" DROP CONSTRAINT "ItemCategoryRelation_item_id_fkey";
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
 
--- DropForeignKey
-ALTER TABLE "Pharmacy" DROP CONSTRAINT "Pharmacy_organization_id_fkey";
+-- CreateTable
+CREATE TABLE "roles" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "name" TEXT NOT NULL,
+    "privileges" JSONB,
+    "description" TEXT,
+    "user_type" "UserRole" NOT NULL,
 
--- DropForeignKey
-ALTER TABLE "PharmacyStock" DROP CONSTRAINT "PharmacyStock_item_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "PharmacyStock" DROP CONSTRAINT "PharmacyStock_pharmacy_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "PharmacyStock" DROP CONSTRAINT "PharmacyStock_warehouse_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "SKU" DROP CONSTRAINT "SKU_item_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "SKU" DROP CONSTRAINT "SKU_organization_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "SKU" DROP CONSTRAINT "SKU_warehouseStock_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "SKU" DROP CONSTRAINT "SKU_warehouse_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "StockMovement" DROP CONSTRAINT "StockMovement_item_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "StockMovement" DROP CONSTRAINT "StockMovement_pharmacyStockId_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "StockMovement" DROP CONSTRAINT "StockMovement_warehouseStock_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "Warehouse" DROP CONSTRAINT "Warehouse_admin_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "Warehouse" DROP CONSTRAINT "Warehouse_organization_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "WarehouseStock" DROP CONSTRAINT "WarehouseStock_item_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "WarehouseStock" DROP CONSTRAINT "WarehouseStock_warehouse_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "users" DROP CONSTRAINT "users_organization_id_fkey";
-
--- RenameTable
-ALTER TABLE "Item" RENAME TO "item";
-
--- RenameTable
-ALTER TABLE "ItemCategory" RENAME TO "item_category";
-
--- RenameTable
-ALTER TABLE "ItemCategoryRelation" RENAME TO "item_category_relation";
-
--- RenameTable
-ALTER TABLE "Organization" RENAME TO "organization";
-
--- RenameTable
-ALTER TABLE "Pharmacy" RENAME TO "pharmacy";
-
--- RenameTable
-ALTER TABLE "PharmacyStock" RENAME TO "pharmacy_stock";
-
--- RenameTable
-ALTER TABLE "SKU" RENAME TO "sku";
-
--- RenameTable
-ALTER TABLE "StockMovement" RENAME TO "stock_movement";
-
--- RenameTable
-ALTER TABLE "Warehouse" RENAME TO "warehouse";
-
--- RenameTable
-ALTER TABLE "WarehouseStock" RENAME TO "warehouse_stock";
+    CONSTRAINT "roles_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "organization" (
@@ -157,14 +92,14 @@ CREATE TABLE "item_category" (
 );
 
 -- CreateTable
-CREATE TABLE "itemCategory_relation" (
+CREATE TABLE "item_category_relation" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "item_category_id" UUID,
     "item_id" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "itemCategory_relation_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "item_category_relation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -239,6 +174,9 @@ CREATE TABLE "pharmacy_stock" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "organization_name_key" ON "organization"("name");
 
 -- CreateIndex
@@ -260,6 +198,9 @@ CREATE UNIQUE INDEX "sku_warehouseStock_id_key" ON "sku"("warehouseStock_id");
 CREATE UNIQUE INDEX "pharmacy_name_key" ON "pharmacy"("name");
 
 -- AddForeignKey
+ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -272,10 +213,10 @@ ALTER TABLE "warehouse" ADD CONSTRAINT "warehouse_admin_id_fkey" FOREIGN KEY ("a
 ALTER TABLE "item_category" ADD CONSTRAINT "item_category_parent_category_id_fkey" FOREIGN KEY ("parent_category_id") REFERENCES "item_category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "itemCategory_relation" ADD CONSTRAINT "itemCategory_relation_item_category_id_fkey" FOREIGN KEY ("item_category_id") REFERENCES "item_category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "item_category_relation" ADD CONSTRAINT "item_category_relation_item_category_id_fkey" FOREIGN KEY ("item_category_id") REFERENCES "item_category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "itemCategory_relation" ADD CONSTRAINT "itemCategory_relation_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "item"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "item_category_relation" ADD CONSTRAINT "item_category_relation_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "item"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "warehouse_stock" ADD CONSTRAINT "warehouse_stock_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "item"("id") ON DELETE SET NULL ON UPDATE CASCADE;
