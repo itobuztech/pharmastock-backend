@@ -13,6 +13,9 @@ export class Warehouse {
   id: WarehouseDB['id'];
 
   @Field(() => String)
+  name: WarehouseDB['name'];
+
+  @Field(() => String)
   location: WarehouseDB['location'];
 
   @Field(() => String)
@@ -22,7 +25,7 @@ export class Warehouse {
   organization?: OrganizationDB;
 
   @Field(() => User, { nullable: true })
-  user?: UserDB;
+  admin?: UserDB;
 
   @Field(() => Date)
   createdAt: WarehouseDB['createdAt'];

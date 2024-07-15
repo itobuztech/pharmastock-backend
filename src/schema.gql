@@ -25,6 +25,7 @@ input CreateItemInput {
   hsnCode: String
   instructions: String!
   mrpBaseUnit: Float
+  name: String!
   wholesalePrice: Float
 }
 
@@ -52,13 +53,18 @@ input CreatePharmacyStockInput {
   warehouseId: String!
 }
 
+input CreateSkuNameInput {
+  itemId: String!
+  organizationId: String!
+  warehouseId: String!
+}
+
 input CreateStockMovementInput {
   batchName: String
   expiry: DateTime
   itemId: String!
   pharmacyStockId: String
   qty: Float!
-  sku: String
   warehouseStockId: String
 }
 
@@ -76,6 +82,7 @@ input CreateWarehouseInput {
   adminId: String
   area: String!
   location: String!
+  name: String!
   organizationId: String
 }
 
@@ -83,6 +90,7 @@ input CreateWarehouseStockInput {
   batchName: String!
   expiry: DateTime!
   itemId: String!
+  organizationId: String!
   qty: Float!
   sku: String!
   stockLevel: String
@@ -146,6 +154,10 @@ type ForgotPasswordResponse {
   token: String!
 }
 
+type GenerateSku {
+  sku: String!
+}
+
 type Item {
   Category: [ItemCategory!]
   baseUnit: BaseUnit!
@@ -154,6 +166,7 @@ type Item {
   id: String!
   instructions: String!
   mrpBaseUnit: Float
+  name: String!
   updatedAt: DateTime
   wholesalePrice: Float
 }
@@ -218,6 +231,7 @@ type Mutation {
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
   forgotPassword(forgotPasswordInput: ForgotPasswordInput!): ForgotPasswordResponse!
+  generateSKU(generateSkuNameInput: CreateSkuNameInput!): GenerateSku!
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
   signup(signupUserInput: CreateUserInput!): SignupResponse!
@@ -318,6 +332,7 @@ type Query {
   organizations(paginationArgs: PaginationArgs): PaginatedOrganizations
   pharmacies(paginationArgs: PaginationArgs): [Pharmacy!]
   pharmacy(id: String!): Pharmacy!
+  sku(itemId: String!, organizationId: String!, warehouseId: String!): Sku!
   stockMovement(id: String!): StockMovement!
   stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
   user(email: String!): User!
@@ -337,11 +352,15 @@ type SignupResponse {
   success: String!
 }
 
-enum StockLevel {
-  HIGH
-  LOW
-  NEGATIVE
-  POSITIVE
+type Sku {
+  createdAt: DateTime!
+  id: String!
+  sku: String!
+  stockLevel: String!
+  stockStatus: String
+  stocklevelMax: String
+  stocklevelMin: String
+  updatedAt: DateTime
 }
 
 type StockMovement {
@@ -352,7 +371,6 @@ type StockMovement {
   itemId: String!
   pharmacyStockId: String
   qty: Float!
-  sku: String!
   updatedAt: DateTime
   warehouseStockId: String
 }
@@ -374,6 +392,7 @@ input UpdateItemInput {
   id: String!
   instructions: String
   mrpBaseUnit: Float
+  name: String
   wholesalePrice: Float
 }
 
@@ -406,6 +425,7 @@ input UpdateWarehouseInput {
   area: String
   id: String!
   location: String
+  name: String
   organizationId: String
 }
 
@@ -433,24 +453,22 @@ type ValidateForgotPasswordResponse {
 }
 
 type Warehouse {
+  admin: User
   area: String!
   createdAt: DateTime!
   id: String!
   location: String!
+  name: String!
   organization: Organization
   updatedAt: DateTime
-  user: User
 }
 
 type WarehouseStock {
+  SKU: Sku!
   createdAt: DateTime!
   finalQty: Float!
   id: String!
-  item: Item
-  stockLevel: StockLevel
-  stockStatus: String
-  stocklevelMax: Float
-  stocklevelMin: Float
+  item: Item!
   updatedAt: DateTime
-  warehouse: Warehouse
+  warehouse: Warehouse!
 }

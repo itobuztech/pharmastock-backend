@@ -78,6 +78,17 @@ export class ItemService {
 
   async create(createItemInput: CreateItemInput) {
     try {
+      if (createItemInput.name) {
+        const unique = await this.prisma.item.findFirst({
+          where: {
+            name: createItemInput.name,
+          },
+        });
+
+        if (unique) {
+          throw new Error('Item name alerady present!');
+        }
+      }
       let catArr = [];
       // Check if the category ID that is provided is valid or not. STARTS!
       if (createItemInput.category) {
@@ -107,6 +118,7 @@ export class ItemService {
           mrp_base_unit: createItemInput.mrpBaseUnit,
           wholesale_price: createItemInput.wholesalePrice,
           hsn_code: createItemInput.hsnCode,
+          name: createItemInput.name,
         },
       });
 
@@ -156,6 +168,17 @@ export class ItemService {
   }
 
   async updateItem(id: string, data) {
+    if (data.name) {
+      const unique = await this.prisma.item.findFirst({
+        where: {
+          name: data.name,
+        },
+      });
+
+      if (unique) {
+        throw new Error('Item name alerady present!');
+      }
+    }
     let catArr = [];
 
     if (data.category) {

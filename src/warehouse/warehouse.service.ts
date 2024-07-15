@@ -6,7 +6,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class WarehouseService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
+  constructor(private prisma: PrismaService, private readonly logger: Logger) { }
 
   async findAll(
     paginationArgs?: PaginationArgs,
@@ -43,9 +43,22 @@ export class WarehouseService {
 
   async create(createWarehouseInput: CreateWarehouseInput) {
     try {
+      if (createWarehouseInput.name) {
+        const unique = await this.prisma.warehouse.findFirst({
+          where: {
+            name: createWarehouseInput.name,
+          },
+        });
+
+        if (unique) {
+          throw new Error('Warehouse name alerady present!');
+        }
+      }
+
       let data: any = {
         location: createWarehouseInput.location,
         area: createWarehouseInput.area,
+        name: createWarehouseInput.name,
       };
 
       if (createWarehouseInput?.organizationId) {
@@ -83,6 +96,17 @@ export class WarehouseService {
   }
 
   async updateWarehouse(id: string, data) {
+    if (data.name) {
+      const unique = await this.prisma.warehouse.findFirst({
+        where: {
+          name: data.name,
+        },
+      });
+
+      if (unique) {
+        throw new Error('Warehouse name alerady present!');
+      }
+    }
     const warehouse = await this.prisma.warehouse.update({
       where: {
         id,

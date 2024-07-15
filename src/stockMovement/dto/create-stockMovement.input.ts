@@ -19,7 +19,4 @@ export class CreateStockMovementInput {
 
   @Field(() => Date, { nullable: true })
   expiry: Date;
-
-  @Field({ nullable: true })
-  sku?: String;
 }
