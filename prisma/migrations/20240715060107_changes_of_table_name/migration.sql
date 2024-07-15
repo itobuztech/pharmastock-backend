@@ -70,35 +70,35 @@ ALTER TABLE "WarehouseStock" DROP CONSTRAINT "WarehouseStock_warehouse_id_fkey";
 -- DropForeignKey
 ALTER TABLE "users" DROP CONSTRAINT "users_organization_id_fkey";
 
--- DropTable
-DROP TABLE "Item";
+-- RenameTable
+ALTER TABLE "Item" RENAME TO "item";
 
--- DropTable
-DROP TABLE "ItemCategory";
+-- RenameTable
+ALTER TABLE "ItemCategory" RENAME TO "item_category";
 
--- DropTable
-DROP TABLE "ItemCategoryRelation";
+-- RenameTable
+ALTER TABLE "ItemCategoryRelation" RENAME TO "item_category_relation";
 
--- DropTable
-DROP TABLE "Organization";
+-- RenameTable
+ALTER TABLE "Organization" RENAME TO "organization";
 
--- DropTable
-DROP TABLE "Pharmacy";
+-- RenameTable
+ALTER TABLE "Pharmacy" RENAME TO "pharmacy";
 
--- DropTable
-DROP TABLE "PharmacyStock";
+-- RenameTable
+ALTER TABLE "PharmacyStock" RENAME TO "pharmacy_stock";
 
--- DropTable
-DROP TABLE "SKU";
+-- RenameTable
+ALTER TABLE "SKU" RENAME TO "sku";
 
--- DropTable
-DROP TABLE "StockMovement";
+-- RenameTable
+ALTER TABLE "StockMovement" RENAME TO "stock_movement";
 
--- DropTable
-DROP TABLE "Warehouse";
+-- RenameTable
+ALTER TABLE "Warehouse" RENAME TO "warehouse";
 
--- DropTable
-DROP TABLE "WarehouseStock";
+-- RenameTable
+ALTER TABLE "WarehouseStock" RENAME TO "warehouse_stock";
 
 -- CreateTable
 CREATE TABLE "organization" (
