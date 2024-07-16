@@ -3,7 +3,7 @@ import { BaseUnit } from '../base-unit.enum';
 
 @InputType()
 export class CreateItemInput {
-  @Field()
+  @Field(() => BaseUnit)
   baseUnit: BaseUnit;
 
   @Field()

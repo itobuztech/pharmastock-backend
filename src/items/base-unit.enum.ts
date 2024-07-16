@@ -1,10 +1,10 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum BaseUnit {
-  KG = 'kg',
-  NOS = 'nos',
-  STRIP = 'strip',
-  VIAL = 'vial',
+  kg = 'kg',
+  nos = 'nos',
+  strip = 'strip',
+  vial = 'vial',
 }
 
 registerEnumType(BaseUnit, {

@@ -8,10 +8,10 @@ type AccountTypeResponse {
 }
 
 enum BaseUnit {
-  KG
-  NOS
-  STRIP
-  VIAL
+  kg
+  nos
+  strip
+  vial
 }
 
 input CreateItemCategoryInput {
@@ -20,7 +20,7 @@ input CreateItemCategoryInput {
 }
 
 input CreateItemInput {
-  baseUnit: String!
+  baseUnit: BaseUnit!
   category: [String!]
   hsnCode: String
   instructions: String!
@@ -159,7 +159,7 @@ type GenerateSku {
 }
 
 type Item {
-  Category: [ItemCategory!]
+  Category: [ItemCategoryRel!]
   baseUnit: BaseUnit!
   createdAt: DateTime!
   hsnCode: String!
@@ -177,6 +177,13 @@ type ItemCategory {
   id: String!
   name: String!
   parentCategory: ItemParentCategory
+  updatedAt: DateTime
+}
+
+type ItemCategoryRel {
+  createdAt: DateTime!
+  id: String!
+  name: String!
   updatedAt: DateTime
 }
 
@@ -391,7 +398,7 @@ input UpdateItemCategoryInput {
 }
 
 input UpdateItemInput {
-  baseUnit: String
+  baseUnit: BaseUnit
   category: [String!]
   hsnCode: String
   id: String!

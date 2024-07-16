@@ -3,6 +3,7 @@ import { CreateItemInput } from './dto/create-item.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Item } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
+import { BaseUnit } from './base-unit.enum';
 
 @Injectable()
 export class ItemService {
@@ -78,6 +79,8 @@ export class ItemService {
 
   async create(createItemInput: CreateItemInput) {
     try {
+      // HANDELING INPUTS. STARTS
+      // ITEM NAME UNIQUENESS CHECK. STARTS.
       if (createItemInput.name) {
         const unique = await this.prisma.item.findFirst({
           where: {
@@ -89,6 +92,8 @@ export class ItemService {
           throw new Error('Item name alerady present!');
         }
       }
+      // ITEM NAME UNIQUENESS CHECK. ENDS.
+      // HANDELING INPUTS. ENDS
       let catArr = [];
       // Check if the category ID that is provided is valid or not. STARTS!
       if (createItemInput.category) {
@@ -168,10 +173,28 @@ export class ItemService {
   }
 
   async updateItem(id: string, data) {
+    // HANDLEING THE INPUT. STARTS.
+    if (data.hsnCode) {
+      data.hsn_code = data.hsnCode;
+      delete data.hsnCode;
+    }
+    if (data.mrpBaseUnit) {
+      data.mrp_base_unit = data.mrpBaseUnit;
+      delete data.mrpBaseUnit;
+    }
+    if (data.wholesalePrice) {
+      data.wholesale_price = data.wholesalePrice;
+      delete data.wholesalePrice;
+    }
+    // HANDLEING THE INPUT. ENDS.
+
     if (data.name) {
       const unique = await this.prisma.item.findFirst({
         where: {
           name: data.name,
+          NOT: {
+            id,
+          },
         },
       });
 
@@ -282,6 +305,22 @@ export class ItemService {
   }
 
   async deleteItem(id: string) {
+    const categoryRelation = await this.prisma.itemCategoryRelation.findMany({
+      where: {
+        itemId: id,
+      },
+    });
+
+    if (categoryRelation) {
+      categoryRelation.forEach(async (cr) => {
+        await this.prisma.itemCategoryRelation.delete({
+          where: {
+            id: cr.id,
+          },
+        });
+      });
+    }
+
     const deleted = await this.prisma.item.delete({
       where: {
         id,
