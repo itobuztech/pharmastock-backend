@@ -465,6 +465,7 @@ type ValidateForgotPasswordResponse {
 }
 
 type Warehouse {
+  admin: User
   area: String!
   createdAt: DateTime!
   id: String!
@@ -472,7 +473,6 @@ type Warehouse {
   name: String!
   organization: Organization
   updatedAt: DateTime
-  user: User
 }
 
 type WarehouseStock {
