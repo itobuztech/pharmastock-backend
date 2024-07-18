@@ -205,12 +205,6 @@ export class ItemService {
     let catArr = [];
 
     if (data.category) {
-      this.prisma.itemCategoryRelation.deleteMany({
-        where: {
-          itemId: id,
-        },
-      });
-
       const categories = data.category;
 
       for (const cat of categories) {
@@ -226,6 +220,12 @@ export class ItemService {
 
         catArr.push(category);
       }
+
+      await this.prisma.itemCategoryRelation.deleteMany({
+        where: {
+          itemId: id,
+        },
+      });
     } else {
       const itemCatRelation = await this.prisma.itemCategoryRelation.findMany({
         where: {
@@ -252,7 +252,7 @@ export class ItemService {
       }
     }
 
-    let itemData = data;
+    let itemData = { ...data };
 
     delete itemData.category;
 
@@ -305,25 +305,12 @@ export class ItemService {
   }
 
   async deleteItem(id: string) {
-    const categoryRelation = await this.prisma.itemCategoryRelation.findMany({
-      where: {
-        itemId: id,
-      },
-    });
-
-    if (categoryRelation) {
-      categoryRelation.forEach(async (cr) => {
-        await this.prisma.itemCategoryRelation.delete({
-          where: {
-            id: cr.id,
-          },
-        });
-      });
-    }
-
     const deleted = await this.prisma.item.delete({
       where: {
         id,
+      },
+      include: {
+        ItemCategoryRelation: true,
       },
     });
 

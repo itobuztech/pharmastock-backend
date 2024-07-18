@@ -213,10 +213,10 @@ ALTER TABLE "warehouse" ADD CONSTRAINT "warehouse_admin_id_fkey" FOREIGN KEY ("a
 ALTER TABLE "item_category" ADD CONSTRAINT "item_category_parent_category_id_fkey" FOREIGN KEY ("parent_category_id") REFERENCES "item_category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "item_category_relation" ADD CONSTRAINT "item_category_relation_item_category_id_fkey" FOREIGN KEY ("item_category_id") REFERENCES "item_category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "item_category_relation" ADD CONSTRAINT "item_category_relation_item_category_id_fkey" FOREIGN KEY ("item_category_id") REFERENCES "item_category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "item_category_relation" ADD CONSTRAINT "item_category_relation_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "item"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "item_category_relation" ADD CONSTRAINT "item_category_relation_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "item"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "warehouse_stock" ADD CONSTRAINT "warehouse_stock_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "item"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -22,11 +22,11 @@ input CreateItemCategoryInput {
 input CreateItemInput {
   baseUnit: BaseUnit!
   category: [String!]
-  hsnCode: String
+  hsnCode: String!
   instructions: String!
-  mrpBaseUnit: Float
+  mrpBaseUnit: Float!
   name: String!
-  wholesalePrice: Float
+  wholesalePrice: Float!
 }
 
 input CreateOrganizationInput {

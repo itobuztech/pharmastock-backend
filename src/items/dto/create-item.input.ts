@@ -12,14 +12,14 @@ export class CreateItemInput {
   @Field()
   name: string;
 
-  @Field({ nullable: true })
-  mrpBaseUnit?: number;
+  @Field()
+  mrpBaseUnit: number;
 
-  @Field({ nullable: true })
-  wholesalePrice?: number;
+  @Field()
+  wholesalePrice: number;
 
-  @Field({ nullable: true })
-  hsnCode?: string;
+  @Field()
+  hsnCode: string;
 
   @Field((type) => [String], { nullable: true })
   category?: string[];

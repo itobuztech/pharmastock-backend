@@ -122,9 +122,9 @@ model ItemCategory {
 model ItemCategoryRelation {
   id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   itemCategoryId String?       @map("item_category_id") @db.Uuid
-  itemCategory   ItemCategory? @relation(fields: [itemCategoryId], references: [id])
+  itemCategory   ItemCategory? @relation(fields: [itemCategoryId], references: [id], onDelete: Cascade)
   itemId         String?       @map("item_id") @db.Uuid
-  item           Item?         @relation(fields: [itemId], references: [id])
+  item           Item?         @relation(fields: [itemId], references: [id], onDelete: Cascade)
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime?     @default(now()) @updatedAt @map("updated_at")
 

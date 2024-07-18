@@ -134,25 +134,12 @@ export class ItemCategoryService {
   }
 
   async deleteItemCategory(id: string) {
-    const ItemRelation = await this.prisma.itemCategoryRelation.findMany({
-      where: {
-        itemCategoryId: id,
-      },
-    });
-
-    if (ItemRelation) {
-      ItemRelation.forEach(async (ir) => {
-        await this.prisma.itemCategoryRelation.delete({
-          where: {
-            id: ir.id,
-          },
-        });
-      });
-    }
-
     const deleted = await this.prisma.itemCategory.delete({
       where: {
         id,
+      },
+      include: {
+        ItemCategoryRelation: true,
       },
     });
 
