@@ -13,8 +13,6 @@ export class ItemCategoryService {
   ): Promise<{ itemCategories: ItemCategory[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      console.log('gg');
-
       const totalCount = await this.prisma.itemCategory.count();
       const itemCategories: any = await this.prisma.itemCategory.findMany({
         skip,
@@ -139,6 +137,9 @@ export class ItemCategoryService {
     const deleted = await this.prisma.itemCategory.delete({
       where: {
         id,
+      },
+      include: {
+        ItemCategoryRelation: true,
       },
     });
 
