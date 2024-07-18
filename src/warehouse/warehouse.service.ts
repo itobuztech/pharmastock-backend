@@ -6,7 +6,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class WarehouseService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) { }
+  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
     paginationArgs?: PaginationArgs,
@@ -100,6 +100,9 @@ export class WarehouseService {
       const unique = await this.prisma.warehouse.findFirst({
         where: {
           name: data.name,
+          NOT: {
+            id,
+          },
         },
       });
 
