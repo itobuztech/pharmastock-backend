@@ -8,10 +8,10 @@ type AccountTypeResponse {
 }
 
 enum BaseUnit {
-  kg
-  nos
-  strip
-  vial
+  KG
+  NUMBER
+  STRIP
+  VIAL
 }
 
 input CreateItemCategoryInput {
