@@ -38,6 +38,31 @@ export class WarehouseStockService {
       throw error;
     }
   }
+  async findAllByWarehouseId(
+    warehouseId: string,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ warehouseStocks: WarehouseStock[]; total: number }> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    try {
+      const totalCount = await this.prisma.warehouseStock.count();
+      const warehouseStocks = await this.prisma.warehouseStock.findMany({
+        where: {
+          warehouseId: warehouseId,
+        },
+        skip,
+        take,
+        include: {
+          warehouse: true,
+          item: true,
+          SKU: true,
+        },
+      });
+
+      return { warehouseStocks, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async findOne(id: string): Promise<WarehouseStock> {
     const warehouseStock: any = await this.prisma.warehouseStock.findFirst({
