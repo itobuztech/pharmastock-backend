@@ -66,6 +66,7 @@ export class WarehouseStockService {
           id: createWarehouseStockInput?.itemId,
         },
       });
+      console.log(itemCheck);
 
       if (!itemCheck) throw new Error('No Item present with this ID!');
 
@@ -107,6 +108,18 @@ export class WarehouseStockService {
         },
       });
       // CHECKING IF THE WAREHOUSE STOCK ALREADY PRESENT OR NOT, FOR THE ID. ENDS
+
+      // CHECKING FOR UNIQUE BATCHNAME IN SKU MOVEMENT.STARTS.
+      const batchName = await this.prisma.stockMovement.findFirst({
+        where: {
+          batch_name: createWarehouseStockInput.batchName,
+        },
+      });
+
+      if (batchName) {
+        throw new Error('Batch Name already present!');
+      }
+      // CHECKING FOR UNIQUE BATCHNAME IN SKU MOVEMENT.ENDS.
 
       // CREATING OR UPDATING THE WAREHOUSE STOCK. STARTS
       let warehouseStock;
