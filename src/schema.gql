@@ -352,6 +352,7 @@ type Query {
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
   warehouseStocks(paginationArgs: PaginationArgs): PaginatedWarehouseStocks
+  warehouseStocksByWarehouse(paginationArgs: PaginationArgs, warehouseId: String!): PaginatedWarehouseStocks
   warehouses(paginationArgs: PaginationArgs): PaginatedWarehouses
 }
 

@@ -106,8 +106,24 @@ export class PharmacyStockService {
       const existingStock = await this.prisma.warehouseStock.findFirst({
         where: {
           itemId: createPharmacyStockInput?.itemId,
+          warehouseId: createPharmacyStockInput?.warehouseId,
         },
       });
+
+      if (!existingStock) {
+        throw new Error(
+          'There is no existing Stock with this item and warehouse. Please try after sometime!',
+        );
+      }
+
+      const checkingNegativeValue =
+        existingStock.final_qty - createPharmacyStockInput.qty < 0;
+
+      if (checkingNegativeValue) {
+        throw new Error(
+          `There is only ${existingStock.final_qty} number of items in stock!`,
+        );
+      }
 
       const warehouseStock = await this.prisma.warehouseStock.update({
         where: {
@@ -129,6 +145,7 @@ export class PharmacyStockService {
       const existingPharmacyStock = await this.prisma.pharmacyStock.findFirst({
         where: {
           itemId: createPharmacyStockInput?.itemId,
+          pharmacyId: createPharmacyStockInput?.pharmacyId,
         },
       });
       // CHECKING IF THE PHARMACY STOCK ALREADY PRESENT OR NOT, FOR THE ID. ENDS
@@ -176,19 +193,81 @@ export class PharmacyStockService {
       }
       // CREATING OR UPDATING THE PHARMACY STOCK. ENDS
 
-      // Creation of Stock Movement data.STARTS
-      const createStockMovement: CreateStockMovementInput = {
-        itemId: createPharmacyStockInput?.itemId,
-        qty: createPharmacyStockInput.qty,
-        batchName: null,
-        expiry: null,
-        pharmacyStockId: pharmacyStock.id || existingPharmacyStock.id,
-      };
-      // Creation of Stock Movement data.ENDS
+      // SELECTING THE BATCH NAME. STARTS.
+      const batchNameExisting = await this.prisma.stockMovement.findMany({
+        where: {
+          warehouseStockId: existingStock.id,
+          // pharmacyStockId: null,
+        },
+        orderBy: {
+          expiry: 'asc',
+        },
+      });
 
-      // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! STARTS
-      await this.stockMovementService.create(createStockMovement);
-      // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! ENDS
+      const copiedBatchNameExisting = JSON.parse(
+        JSON.stringify(batchNameExisting),
+      );
+
+      let chkqty = createPharmacyStockInput.qty;
+
+      const rowArr = [];
+      for (const row of copiedBatchNameExisting) {
+        if (chkqty <= 0) return;
+
+        const qtyArr = await this.prisma.stockMovement.findMany({
+          where: {
+            batch_name: row.batch_name,
+            warehouseStockId: null,
+          },
+        });
+
+        let qtyValArr = [];
+        if (qtyArr && qtyArr.length > 0) {
+          qtyValArr = qtyArr.map((qtV) => {
+            return qtV.qty;
+          });
+        }
+
+        let qtyValTotal = 0;
+        if (qtyValArr.length > 0) {
+          qtyValTotal = qtyValArr.reduce(
+            (accumulator, currentValue) => accumulator + currentValue,
+            0,
+          );
+        }
+
+        if (row.qty != qtyValTotal) {
+          row.qty = row.qty - qtyValTotal;
+          if (chkqty < row.qty) {
+            row.qty = chkqty;
+            chkqty = 0;
+          } else {
+            chkqty = chkqty - row.qty;
+          }
+
+          rowArr.push({
+            ...row,
+          });
+        }
+      }
+
+      for (const rowArrVal of rowArr) {
+        // Creation of Stock Movement data.STARTS
+        const createStockMovement: CreateStockMovementInput = {
+          itemId: createPharmacyStockInput?.itemId,
+          qty: rowArrVal.qty,
+          batchName: rowArrVal.batch_name,
+          expiry: rowArrVal.expiry,
+          pharmacyStockId: pharmacyStock.id || existingPharmacyStock.id,
+        };
+        // Creation of Stock Movement data.ENDS
+
+        // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! STARTS
+        await this.stockMovementService.create(createStockMovement);
+        // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! ENDS
+      }
+
+      // SELECTING THE BATCH NAME. ENDS.
 
       return pharmacyStock;
     } catch (error) {

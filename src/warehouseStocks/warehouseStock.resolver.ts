@@ -48,6 +48,26 @@ export class WarehouseStockResolver {
     }
   }
 
+  @Query(() => PaginatedWarehouseStocks, {
+    name: 'warehouseStocksByWarehouse',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async findAllByWarehouseId(
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+    @Args('warehouseId') warehouseId: string,
+  ): Promise<PaginatedWarehouseStocks> {
+    try {
+      return await this.warehouseStockService.findAllByWarehouseId(
+        warehouseId,
+        paginationArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
   @Query(() => WarehouseStock, { name: 'warehouseStock' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
