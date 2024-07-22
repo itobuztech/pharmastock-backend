@@ -16,6 +16,9 @@ import { User } from './entities/user.entity';
 import { UserRole } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
+import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { PrivilegesList } from '../privileges/user-privileges';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -26,11 +29,11 @@ class PaginatedUsers extends TotalCount {
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Query(() => PaginatedUsers, { name: 'users', nullable: true })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPERADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.VIEW])
   findAll(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedUsers> {
@@ -38,8 +41,8 @@ export class UsersResolver {
   }
 
   @Query(() => User, { name: 'user' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPERADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.VIEW])
   findOne(@Args('email') email: string): Promise<User> {
     return this.usersService.findOne(email);
   }
