@@ -483,6 +483,8 @@ type WarehouseStock {
   finalQty: Float!
   id: String!
   item: Item!
+  totalMrpBaseUnit: Float
+  totalWholesalePrice: Float
   updatedAt: DateTime
   warehouse: Warehouse!
 }

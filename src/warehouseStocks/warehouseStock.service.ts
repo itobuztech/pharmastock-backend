@@ -17,20 +17,33 @@ export class WarehouseStockService {
     private readonly stockMovementService: StockMovementService,
   ) {}
 
-  async findAll(
-    paginationArgs?: PaginationArgs,
-  ): Promise<{ warehouseStocks: WarehouseStock[]; total: number }> {
+  async findAll(paginationArgs?: PaginationArgs): Promise<{
+    warehouseStocks: WarehouseStock[];
+    total: number;
+  }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
       const totalCount = await this.prisma.warehouseStock.count();
-      const warehouseStocks = await this.prisma.warehouseStock.findMany({
+      const warehouseStocks: any = await this.prisma.warehouseStock.findMany({
         skip,
         take,
         include: {
-          warehouse: true,
+          warehouse: {
+            include: {
+              organization: true,
+            },
+          },
           item: true,
           SKU: true,
         },
+      });
+
+      warehouseStocks.forEach((wS) => {
+        const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
+        const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
+
+        wS['totalMrpBaseUnit'] = finalMrp_base_unit;
+        wS['totalWholesalePrice'] = finalWholesale_price;
       });
 
       return { warehouseStocks, total: totalCount };

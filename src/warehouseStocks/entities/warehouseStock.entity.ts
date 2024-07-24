@@ -31,4 +31,10 @@ export class WarehouseStock {
 
   @Field(() => Date, { nullable: true })
   updatedAt: WarehouseStockDB['updatedAt'] | null;
+
+  @Field(() => Number, { nullable: true })
+  totalWholesalePrice?: number;
+
+  @Field(() => Number, { nullable: true })
+  totalMrpBaseUnit?: number;
 }
