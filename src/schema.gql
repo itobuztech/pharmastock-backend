@@ -348,6 +348,7 @@ type Query {
   stockMovement(id: String!): StockMovement!
   stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
   user(email: String!): User!
+  userById(id: String!): User!
   users(paginationArgs: PaginationArgs): PaginatedUsers
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
