@@ -324,7 +324,7 @@ type PharmacyStock {
   createdAt: DateTime!
   finalQty: Int!
   id: String!
-  item: Item!
+  item: Item
   pharmacy: Pharmacy
   totalMrpBaseUnit: Float
   totalWholesalePrice: Float
