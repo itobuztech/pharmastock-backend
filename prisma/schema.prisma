@@ -18,9 +18,9 @@ model User {
   createdAt              DateTime      @default(now()) @map("created_at")
   updatedAt              DateTime?     @default(now()) @updatedAt @map("updated_at")
   roleId                 String        @map("role_id") @db.Uuid
-  role                   Role          @relation(fields: [roleId], references: [id])
+  role                   Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
   organizationId         String?       @map("organization_id") @db.Uuid
-  organization           Organization? @relation(fields: [organizationId], references: [id])
+  organization           Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   Warehouse              Warehouse[]
 
   @@map("users")
@@ -68,9 +68,9 @@ model Warehouse {
   location       String?
   area           String
   organizationId String?          @map("organization_id") @db.Uuid
-  organization   Organization?    @relation(fields: [organizationId], references: [id])
+  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   adminId        String?          @map("admin_id") @db.Uuid
-  admin          User?            @relation(fields: [adminId], references: [id])
+  admin          User?            @relation(fields: [adminId], references: [id], onDelete: Cascade)
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime?        @default(now()) @updatedAt @map("updated_at")
   WarehouseStock WarehouseStock[]
@@ -110,7 +110,7 @@ model ItemCategory {
   id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                 String
   parentCategoryId     String?                @map("parent_category_id") @db.Uuid
-  parent               ItemCategory?          @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
+  parent               ItemCategory?          @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id], onDelete: Cascade)
   children             ItemCategory[]         @relation("CategoryHierarchy")
   createdAt            DateTime               @default(now()) @map("created_at")
   updatedAt            DateTime?              @default(now()) @updatedAt @map("updated_at")
@@ -156,12 +156,12 @@ enum StockLevel {
 model StockMovement {
   id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   warehouseStockId String?         @map("warehouseStock_id") @db.Uuid
-  warehouseStock   WarehouseStock? @relation(fields: [warehouseStockId], references: [id])
+  warehouseStock   WarehouseStock? @relation(fields: [warehouseStockId], references: [id], onDelete: Cascade)
   qty              Int
   itemId           String          @map("item_id") @db.Uuid
-  item             Item            @relation(fields: [itemId], references: [id])
+  item             Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
   pharmacyStockId  String?         @map("pharmacyStockId_id") @db.Uuid
-  pharmacyStock    PharmacyStock?  @relation(fields: [pharmacyStockId], references: [id])
+  pharmacyStock    PharmacyStock?  @relation(fields: [pharmacyStockId], references: [id], onDelete: Cascade)
   batch_name       String?
   expiry           DateTime?
   createdAt        DateTime        @default(now()) @map("created_at")
@@ -196,7 +196,7 @@ model Pharmacy {
   name           String          @unique @db.VarChar(255)
   location       String?
   organizationId String?         @map("organization_id") @db.Uuid
-  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  organization   Organization?   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   contact_info   String          @db.VarChar(12)
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime?       @default(now()) @updatedAt @map("updated_at")
@@ -208,11 +208,11 @@ model Pharmacy {
 model PharmacyStock {
   id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   itemId        String          @map("item_id") @db.Uuid
-  item          Item            @relation(fields: [itemId], references: [id])
+  item          Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
   warehouseId   String          @map("warehouse_id") @db.Uuid
-  warehouse     Warehouse       @relation(fields: [warehouseId], references: [id])
+  warehouse     Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   pharmacyId    String          @map("pharmacy_id") @db.Uuid
-  pharmacy      Pharmacy        @relation(fields: [pharmacyId], references: [id])
+  pharmacy      Pharmacy        @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
   final_qty     Int
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime?       @default(now()) @updatedAt @map("updated_at")
