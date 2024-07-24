@@ -1,10 +1,12 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
   PharmacyStock as PharmacyStockDB,
+  Item as ItemDB,
   Warehouse as WarehouseDB,
   Pharmacy as PharmacyDB,
 } from '@prisma/client';
 import { Warehouse } from '../../warehouse/entities/warehouse.entity';
+import { Item } from '../../items/entities/item.entity';
 import { Pharmacy } from '../../pharmacy/entities/pharmacy.entity';
 
 @ObjectType()
@@ -12,8 +14,8 @@ export class PharmacyStock {
   @Field(() => String)
   id: PharmacyStockDB['id'];
 
-  @Field(() => String)
-  itemId: PharmacyStockDB['itemId'];
+  @Field(() => Item)
+  item?: ItemDB;
 
   @Field(() => Warehouse, { nullable: true })
   warehouse?: WarehouseDB;
@@ -29,4 +31,10 @@ export class PharmacyStock {
 
   @Field(() => Date, { nullable: true })
   updatedAt: PharmacyStockDB['updatedAt'] | null;
+
+  @Field(() => Number, { nullable: true })
+  totalWholesalePrice?: number;
+
+  @Field(() => Number, { nullable: true })
+  totalMrpBaseUnit?: number;
 }
