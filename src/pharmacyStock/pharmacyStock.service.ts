@@ -87,6 +87,7 @@ export class PharmacyStockService {
       include: {
         warehouse: true,
         pharmacy: true,
+        item: true,
       },
     });
 
