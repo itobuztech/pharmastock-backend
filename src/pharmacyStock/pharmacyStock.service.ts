@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Catch, Injectable, Logger } from '@nestjs/common';
 import { CreatePharmacyStockInput } from './dto/create-pharmacyStock.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { PharmacyStock } from '@prisma/client';
@@ -202,6 +202,7 @@ export class PharmacyStockService {
           include: {
             warehouse: true,
             pharmacy: true,
+            item: true,
           },
         });
 
@@ -224,6 +225,7 @@ export class PharmacyStockService {
           include: {
             warehouse: true,
             pharmacy: true,
+            item: true,
           },
         });
 
@@ -235,7 +237,6 @@ export class PharmacyStockService {
         // UPDATING THE STOCK!ENDS
       }
       // CREATING OR UPDATING THE PHARMACY STOCK. ENDS
-
       // SELECTING THE BATCH NAME. STARTS.
       const batchNameExisting = await this.prisma.stockMovement.findMany({
         where: {
@@ -255,7 +256,7 @@ export class PharmacyStockService {
 
       const rowArr = [];
       for (const row of copiedBatchNameExisting) {
-        if (chkqty <= 0) return;
+        if (chkqty <= 0) break;
 
         const qtyArr = await this.prisma.stockMovement.findMany({
           where: {

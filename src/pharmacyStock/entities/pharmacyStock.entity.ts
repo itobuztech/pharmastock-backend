@@ -14,7 +14,7 @@ export class PharmacyStock {
   @Field(() => String)
   id: PharmacyStockDB['id'];
 
-  @Field(() => Item)
+  @Field(() => Item, { nullable: true })
   item?: ItemDB;
 
   @Field(() => Warehouse, { nullable: true })
