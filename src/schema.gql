@@ -324,8 +324,10 @@ type PharmacyStock {
   createdAt: DateTime!
   finalQty: Int!
   id: String!
-  itemId: String!
+  item: Item!
   pharmacy: Pharmacy
+  totalMrpBaseUnit: Float
+  totalWholesalePrice: Float
   updatedAt: DateTime
   warehouse: Warehouse
 }
@@ -344,6 +346,7 @@ type Query {
   organizations(paginationArgs: PaginationArgs): PaginatedOrganizations
   pharmacies(paginationArgs: PaginationArgs): PaginatedPharmacies
   pharmacy(id: String!): Pharmacy!
+  pharmacyStocksByPharmacy(paginationArgs: PaginationArgs, pharmacyId: String!): PaginatedPharmacyStocks
   sku(itemId: String!, organizationId: String!, warehouseId: String!): Sku!
   stockMovement(id: String!): StockMovement!
   stockMovements(paginationArgs: PaginationArgs): [StockMovement!]

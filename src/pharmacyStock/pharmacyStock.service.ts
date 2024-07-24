@@ -26,8 +26,51 @@ export class PharmacyStockService {
         take,
         include: {
           warehouse: true,
+          item: true,
           pharmacy: true,
         },
+      });
+
+      pharmacyStocks.forEach((pS) => {
+        const finalMrp_base_unit = pS.item.mrp_base_unit * pS.final_qty;
+        const finalWholesale_price = pS.item.wholesale_price * pS.final_qty;
+
+        pS['totalMrpBaseUnit'] = finalMrp_base_unit;
+        pS['totalWholesalePrice'] = finalWholesale_price;
+      });
+
+      return { pharmacyStocks, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findAllByPharmacyId(
+    pharmacyId: string,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ pharmacyStocks: PharmacyStock[]; total: number }> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    try {
+      const totalCount = await this.prisma.pharmacyStock.count();
+      const pharmacyStocks = await this.prisma.pharmacyStock.findMany({
+        where: {
+          pharmacyId: pharmacyId,
+        },
+        skip,
+        take,
+        include: {
+          warehouse: true,
+          item: true,
+          pharmacy: true,
+        },
+      });
+
+      pharmacyStocks.forEach((pS) => {
+        const finalMrp_base_unit = pS.item.mrp_base_unit * pS.final_qty;
+        const finalWholesale_price = pS.item.wholesale_price * pS.final_qty;
+
+        pS['totalMrpBaseUnit'] = finalMrp_base_unit;
+        pS['totalWholesalePrice'] = finalWholesale_price;
       });
 
       return { pharmacyStocks, total: totalCount };

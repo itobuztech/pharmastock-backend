@@ -24,7 +24,7 @@ export class WarehouseStockService {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
       const totalCount = await this.prisma.warehouseStock.count();
-      const warehouseStocks: any = await this.prisma.warehouseStock.findMany({
+      const warehouseStocks = await this.prisma.warehouseStock.findMany({
         skip,
         take,
         include: {
@@ -65,10 +65,22 @@ export class WarehouseStockService {
         skip,
         take,
         include: {
-          warehouse: true,
+          warehouse: {
+            include: {
+              organization: true,
+            },
+          },
           item: true,
           SKU: true,
         },
+      });
+
+      warehouseStocks.forEach((wS) => {
+        const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
+        const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
+
+        wS['totalMrpBaseUnit'] = finalMrp_base_unit;
+        wS['totalWholesalePrice'] = finalWholesale_price;
       });
 
       return { warehouseStocks, total: totalCount };
