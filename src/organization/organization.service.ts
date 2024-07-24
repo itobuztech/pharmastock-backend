@@ -87,6 +87,9 @@ export class OrganizationService {
       const unique = await this.prisma.organization.findFirst({
         where: {
           name: data.name,
+          NOT: {
+            id,
+          },
         },
       });
 

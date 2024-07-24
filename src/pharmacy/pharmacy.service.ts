@@ -123,17 +123,19 @@ export class PharmacyService {
     // Check if the contact info length is not more than 12. Ends.
 
     //Check if the name of the pharmacy is unique or not. Starts.
-    const uniquePharmacy = await this.prisma.pharmacy.findFirst({
-      where: {
-        name: data.name,
-        NOT: {
-          id,
+    if (data.name) {
+      const uniquePharmacy = await this.prisma.pharmacy.findFirst({
+        where: {
+          name: data.name,
+          NOT: {
+            id,
+          },
         },
-      },
-    });
+      });
 
-    if (uniquePharmacy) {
-      throw new Error('Pharmacy name alerady present!');
+      if (uniquePharmacy) {
+        throw new Error('Pharmacy name alerady present!');
+      }
     }
     //Check if the name of the pharmacy is unique or not. Ends.
     // Handeling Inputs. Ends.
