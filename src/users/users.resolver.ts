@@ -29,7 +29,7 @@ class PaginatedUsers extends TotalCount {
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Query(() => PaginatedUsers, { name: 'users', nullable: true })
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
@@ -45,6 +45,13 @@ export class UsersResolver {
   @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.VIEW])
   findOne(@Args('email') email: string): Promise<User> {
     return this.usersService.findOne(email);
+  }
+
+  @Query(() => User, { name: 'userById' })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.VIEW])
+  findOneById(@Args('id') id: string): Promise<User> {
+    return this.usersService.findOneById(id);
   }
 
   @Mutation(() => User)
