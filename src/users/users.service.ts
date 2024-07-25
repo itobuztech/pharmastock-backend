@@ -9,24 +9,11 @@ import { CreateUserInput } from './dto/create-user.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Role, Prisma } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
+import { UserSearchObject } from '../types/extended-types';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
-
-  // async findAll(
-  //   paginationArgs?: PaginationArgs,
-  // ): Promise<{ users: User[]; total: number }> {
-  //   const { skip = 0, take = 10 } = paginationArgs || {};
-  //   const totalCount = await this.prisma.user.count();
-  //   const users = await this.prisma.user.findMany({
-  //     skip,
-  //     take,
-  //     include: { organization: true, role: true },
-  //   });
-
-  //   return { users, total: totalCount };
-  // }
 
   async findAll(
     searchText?: string,
@@ -56,7 +43,7 @@ export class UsersService {
         where: whereClause,
       });
 
-      let searchObject: any = {
+      let searchObject: UserSearchObject = {
         where: whereClause,
         include: { organization: true, role: true },
       };

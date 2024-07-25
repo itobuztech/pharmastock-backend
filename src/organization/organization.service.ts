@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateOrganizationInput } from './dto/create-organization.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, Organization, Role, UserRole } from '@prisma/client';
+import { Prisma, Organization } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
-import { TotalCount } from '../pagination/toalCount.entity';
+import { OrganizationSearchObject } from '../types/extended-types';
 
 @Injectable()
 export class OrganizationService {
@@ -33,7 +33,7 @@ export class OrganizationService {
         where: whereClause,
       });
 
-      let searchObject: any = {
+      let searchObject: OrganizationSearchObject = {
         where: whereClause,
       };
       if (pagination) {

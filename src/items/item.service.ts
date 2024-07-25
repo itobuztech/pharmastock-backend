@@ -5,6 +5,7 @@ import { Item } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { BaseUnit } from './base-unit.enum';
 import { Prisma } from '@prisma/client';
+import { ItemSearchObject } from '../types/extended-types';
 
 @Injectable()
 export class ItemService {
@@ -33,7 +34,7 @@ export class ItemService {
         where: whereClause,
       });
 
-      let searchObject: any = {
+      let searchObject: ItemSearchObject = {
         where: whereClause,
         include: {
           ItemCategoryRelation: {

@@ -8,6 +8,7 @@ import { StockMovementService } from '../stockMovement/stockMovement.service';
 import { CreateStockMovementInput } from 'src/stockMovement/dto/create-stockMovement.input';
 import { CreateSkuNameInput } from './dto/create-skuName.input';
 import { Sku } from './entities/sku.entity';
+import { WarehouseStockSearchObject } from '../types/extended-types';
 
 @Injectable()
 export class WarehouseStockService {
@@ -55,7 +56,7 @@ export class WarehouseStockService {
         where: whereClause,
       });
 
-      let searchObject: any = {
+      let searchObject: WarehouseStockSearchObject = {
         where: whereClause,
         include: {
           warehouse: {

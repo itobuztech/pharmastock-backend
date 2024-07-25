@@ -3,6 +3,7 @@ import { CreateWarehouseInput } from './dto/create-warehouse.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, Warehouse } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
+import { WarehouseSearchObject } from '../types/extended-types';
 
 @Injectable()
 export class WarehouseService {
@@ -36,7 +37,7 @@ export class WarehouseService {
         where: whereClause,
       });
 
-      let searchObject: any = {
+      let searchObject: WarehouseSearchObject = {
         where: whereClause,
         include: {
           organization: true,

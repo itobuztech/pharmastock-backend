@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateItemCategoryInput } from './dto/create-itemCategory.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { ItemCategory } from '@prisma/client';
+import { ItemCategory, Prisma } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
+import { ItemCategorySearchObject } from '../types/extended-types';
 
 @Injectable()
 export class ItemCategoryService {
@@ -24,7 +25,7 @@ export class ItemCategoryService {
         },
       });
 
-      let searchObject: any = {
+      let searchObject: ItemCategorySearchObject = {
         where: {
           name: {
             contains: searchText,
