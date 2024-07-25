@@ -347,6 +347,14 @@ type Query {
   pharmacies(paginationArgs: PaginationArgs): PaginatedPharmacies
   pharmacy(id: String!): Pharmacy!
   pharmacyStocksByPharmacy(paginationArgs: PaginationArgs, pharmacyId: String!): PaginatedPharmacyStocks
+  searchItemCategories(paginationArgs: PaginationArgs, searchText: String!): PaginatedItemCategories
+  searchItems(paginationArgs: PaginationArgs, searchText: String!): PaginatedItems
+  searchOrganizations(paginationArgs: PaginationArgs, searchText: String!): PaginatedOrganizations
+  searchPharmacies(paginationArgs: PaginationArgs, searchText: String!): PaginatedPharmacies
+  searchPharmacyStocks(paginationArgs: PaginationArgs, searchText: String!): PaginatedPharmacyStocks
+  searchUsers(paginationArgs: PaginationArgs, searchText: String!): PaginatedUsers
+  searchWarehouseStocks(paginationArgs: PaginationArgs, searchText: String!): PaginatedWarehouseStocks
+  searchWarehouses(paginationArgs: PaginationArgs, searchText: String!): PaginatedWarehouses
   sku(itemId: String!, organizationId: String!, warehouseId: String!): Sku!
   stockMovement(id: String!): StockMovement!
   stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
@@ -363,6 +371,13 @@ type Query {
 input ResetPasswordInput {
   newPassword: String!
   oldPassword: String!
+}
+
+type Role {
+  id: String!
+  name: String!
+  privileges: String!
+  userType: String!
 }
 
 type SignupResponse {
@@ -454,6 +469,7 @@ type User {
   isEmailConfirmed: Boolean!
   name: String
   organization: Organization
+  role: Role
   updatedAt: DateTime
   username: String!
 }

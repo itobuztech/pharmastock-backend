@@ -9,7 +9,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserInput } from './dto/create-user.input';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { UseGuards } from '@nestjs/common';
+import { BadRequestException, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { User } from './entities/user.entity';
@@ -40,24 +40,53 @@ export class UsersResolver {
     return this.usersService.findAll(paginationArgs);
   }
 
+  @Query(() => PaginatedUsers, {
+    name: 'searchUsers',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async search(
+    @Args('searchText') searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<PaginatedUsers> {
+    try {
+      return await this.usersService.searchUsers(searchText, paginationArgs);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
   @Query(() => User, { name: 'user' })
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.VIEW])
   findOne(@Args('email') email: string): Promise<User> {
-    return this.usersService.findOne(email);
+    try {
+      return this.usersService.findOne(email);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
 
   @Query(() => User, { name: 'userById' })
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.VIEW])
   findOneById(@Args('id') id: string): Promise<User> {
-    return this.usersService.findOneById(id);
+    try {
+      return this.usersService.findOneById(id);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
 
   @Mutation(() => User)
   create(
     @Args('createUserInput') createUserInput: CreateUserInput,
   ): Promise<User> {
-    return this.usersService.create(createUserInput);
+    try {
+      return this.usersService.create(createUserInput);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
 }

@@ -3,6 +3,7 @@ import { CreatePharmacyInput } from './dto/create-pharmacy.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Pharmacy } from '@prisma/client';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PharmacyService {
@@ -17,6 +18,41 @@ export class PharmacyService {
       const pharmacies = await this.prisma.pharmacy.findMany({
         skip,
         take,
+        include: {
+          organization: true,
+        },
+      });
+
+      return { pharmacies, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchPharmacies(
+    searchText: string,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ pharmacies: Pharmacy[]; total: number }> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    try {
+      const whereClause: Prisma.PharmacyWhereInput = {
+        OR: [
+          { name: { contains: searchText, mode: 'insensitive' } },
+          { location: { contains: searchText, mode: 'insensitive' } },
+          {
+            organization: {
+              name: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+        ],
+      };
+      const totalCount = await this.prisma.pharmacy.count({
+        where: whereClause,
+      });
+      const pharmacies = await this.prisma.pharmacy.findMany({
+        skip,
+        take,
+        where: whereClause,
         include: {
           organization: true,
         },

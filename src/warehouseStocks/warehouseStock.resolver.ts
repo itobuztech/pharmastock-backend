@@ -49,6 +49,26 @@ export class WarehouseStockResolver {
   }
 
   @Query(() => PaginatedWarehouseStocks, {
+    name: 'searchWarehouseStocks',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async search(
+    @Args('searchText') searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<PaginatedWarehouseStocks> {
+    try {
+      return await this.warehouseStockService.searchWarehouseStocks(
+        searchText,
+        paginationArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
+  @Query(() => PaginatedWarehouseStocks, {
     name: 'warehouseStocksByWarehouse',
     nullable: true,
   })

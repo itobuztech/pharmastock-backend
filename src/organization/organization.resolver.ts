@@ -46,6 +46,26 @@ export class OrganizationResolver {
     }
   }
 
+  @Query(() => PaginatedOrganizations, {
+    name: 'searchOrganizations',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async search(
+    @Args('searchText') searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<PaginatedOrganizations> {
+    try {
+      return await this.organizationService.searchOrganizations(
+        searchText,
+        paginationArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
   @Query(() => Organization, { name: 'organizationByName' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)

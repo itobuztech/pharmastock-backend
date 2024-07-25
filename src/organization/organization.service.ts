@@ -13,13 +13,47 @@ export class OrganizationService {
     paginationArgs?: PaginationArgs,
   ): Promise<{ organizations: Organization[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
-    const totalCount = await this.prisma.organization.count();
-    const organizations = await this.prisma.organization.findMany({
-      skip,
-      take,
-    });
+    try {
+      const totalCount = await this.prisma.organization.count();
+      const organizations = await this.prisma.organization.findMany({
+        skip,
+        take,
+      });
 
-    return { organizations, total: totalCount };
+      return { organizations, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchOrganizations(
+    searchText: string,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ organizations: Organization[]; total: number }> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    try {
+      const whereClause: Prisma.OrganizationWhereInput = {
+        OR: [
+          { name: { contains: searchText, mode: 'insensitive' } },
+          { description: { contains: searchText, mode: 'insensitive' } },
+          { address: { contains: searchText, mode: 'insensitive' } },
+          { city: { contains: searchText, mode: 'insensitive' } },
+        ],
+      };
+
+      const totalCount = await this.prisma.organization.count({
+        where: whereClause,
+      });
+      const organizations = await this.prisma.organization.findMany({
+        skip,
+        take,
+        where: whereClause,
+      });
+
+      return { organizations, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findOne(id: string): Promise<Organization> {

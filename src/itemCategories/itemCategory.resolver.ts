@@ -46,6 +46,26 @@ export class ItemCategoryResolver {
     }
   }
 
+  @Query(() => PaginatedItemCategories, {
+    name: 'searchItemCategories',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async search(
+    @Args('searchText') searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<PaginatedItemCategories> {
+    try {
+      return await this.itemCategoryService.searchItemCategory(
+        searchText,
+        paginationArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
   @Query(() => ItemCategory, { name: 'itemCategory' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)

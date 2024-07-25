@@ -49,6 +49,61 @@ export class ItemCategoryService {
     }
   }
 
+  async searchItemCategory(
+    searchText: string,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ itemCategories: ItemCategory[]; total: number }> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    try {
+      const totalCount = await this.prisma.itemCategory.count({
+        where: {
+          name: {
+            contains: searchText,
+            mode: 'insensitive',
+          },
+        },
+      });
+      const itemCategories: any = await this.prisma.itemCategory.findMany({
+        skip,
+        take,
+        where: {
+          name: {
+            contains: searchText,
+            mode: 'insensitive',
+          },
+        },
+        include: {
+          ItemCategoryRelation: {
+            include: {
+              item: true,
+            },
+          },
+          parent: true,
+        },
+      });
+
+      if (itemCategories) {
+        itemCategories.forEach((ic) => {
+          if (ic.ItemCategoryRelation) {
+            const relationArr = ic.ItemCategoryRelation;
+            const items = [];
+            relationArr.forEach((rel) => {
+              items.push(rel.item);
+            });
+            ic.Item = items;
+          }
+          if (ic.parent) {
+            ic.parentCategory = ic.parent;
+          }
+        });
+      }
+
+      return { itemCategories, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findOne(id: string): Promise<ItemCategory> {
     const itemCategory: any = await this.prisma.itemCategory.findFirst({
       where: {

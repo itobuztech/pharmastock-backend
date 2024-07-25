@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateWarehouseStockInput } from './dto/create-warehouseStock.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { WarehouseStock } from '@prisma/client';
+import { Prisma, WarehouseStock } from '@prisma/client';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 import { StockMovementService } from '../stockMovement/stockMovement.service';
@@ -51,6 +51,67 @@ export class WarehouseStockService {
       throw error;
     }
   }
+
+  async searchWarehouseStocks(
+    searchText: string,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{
+    warehouseStocks: WarehouseStock[];
+    total: number;
+  }> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    try {
+      const whereClause: Prisma.WarehouseStockWhereInput = {
+        OR: [
+          {
+            warehouse: {
+              name: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+          {
+            SKU: {
+              sku: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+          {
+            item: {
+              name: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+        ],
+      };
+      const totalCount = await this.prisma.warehouseStock.count({
+        where: whereClause,
+      });
+      const warehouseStocks = await this.prisma.warehouseStock.findMany({
+        skip,
+        take,
+        where: whereClause,
+        include: {
+          warehouse: {
+            include: {
+              organization: true,
+            },
+          },
+          item: true,
+          SKU: true,
+        },
+      });
+
+      warehouseStocks.forEach((wS) => {
+        const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
+        const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
+
+        wS['totalMrpBaseUnit'] = finalMrp_base_unit;
+        wS['totalWholesalePrice'] = finalWholesale_price;
+      });
+
+      return { warehouseStocks, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findAllByWarehouseId(
     warehouseId: string,
     paginationArgs?: PaginationArgs,

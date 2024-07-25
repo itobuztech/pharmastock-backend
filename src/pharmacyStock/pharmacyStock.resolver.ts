@@ -46,6 +46,26 @@ export class PharmacyStockResolver {
   }
 
   @Query(() => PaginatedPharmacyStocks, {
+    name: 'searchPharmacyStocks',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async search(
+    @Args('searchText') searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<PaginatedPharmacyStocks> {
+    try {
+      return await this.PharmacyStockService.searchPharmacyStocks(
+        searchText,
+        paginationArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
+  @Query(() => PaginatedPharmacyStocks, {
     name: 'pharmacyStocksByPharmacy',
     nullable: true,
   })

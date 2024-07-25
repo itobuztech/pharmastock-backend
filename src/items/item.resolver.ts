@@ -45,6 +45,23 @@ export class ItemResolver {
     }
   }
 
+  @Query(() => PaginatedItems, {
+    name: 'searchItems',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async search(
+    @Args('searchText') searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<PaginatedItems> {
+    try {
+      return await this.itemService.searchItems(searchText, paginationArgs);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
   @Query(() => Item, { name: 'item' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)

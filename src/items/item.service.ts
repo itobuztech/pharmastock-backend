@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Item } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { BaseUnit } from './base-unit.enum';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ItemService {
@@ -42,6 +43,55 @@ export class ItemService {
 
       return { items, total: totalCount };
       // return item;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchItems(
+    searchText: string,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ items: Item[]; total: number }> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    try {
+      const whereClause: Prisma.ItemWhereInput = {
+        OR: [
+          { name: { contains: searchText, mode: 'insensitive' } },
+          { instructions: { contains: searchText, mode: 'insensitive' } },
+          { hsn_code: { contains: searchText, mode: 'insensitive' } },
+        ],
+      };
+
+      const totalCount = await this.prisma.item.count({
+        where: whereClause,
+      });
+      const items: any = await this.prisma.item.findMany({
+        skip,
+        take,
+        where: whereClause,
+        include: {
+          ItemCategoryRelation: {
+            include: {
+              itemCategory: true,
+            },
+          },
+        },
+      });
+
+      if (items) {
+        items.forEach((it) => {
+          if (it.ItemCategoryRelation) {
+            const relationArr = it.ItemCategoryRelation;
+            const categories = [];
+            relationArr.forEach((rel) => {
+              categories.push(rel.itemCategory);
+            });
+            it.Category = categories;
+          }
+        });
+      }
+
+      return { items, total: totalCount };
     } catch (error) {
       throw error;
     }
