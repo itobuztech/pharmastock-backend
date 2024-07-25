@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Pharmacy } from '@prisma/client';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
 import { Prisma } from '@prisma/client';
+import { PharmacySearchObject } from '../types/extended-types';
 
 @Injectable()
 export class PharmacyService {
@@ -36,7 +37,7 @@ export class PharmacyService {
         where: whereClause,
       });
 
-      let searchObject: any = {
+      let searchObject: PharmacySearchObject = {
         where: whereClause,
         include: {
           organization: true,

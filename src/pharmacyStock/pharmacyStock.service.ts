@@ -6,6 +6,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 
 import { StockMovementService } from '../stockMovement/stockMovement.service';
 import { CreateStockMovementInput } from 'src/stockMovement/dto/create-stockMovement.input';
+import { PharmacyStockSearchObject } from '../types/extended-types';
 
 @Injectable()
 export class PharmacyStockService {
@@ -50,7 +51,7 @@ export class PharmacyStockService {
         where: whereClause,
       });
 
-      let searchObject: any = {
+      let searchObject: PharmacyStockSearchObject = {
         where: whereClause,
         include: {
           warehouse: true,
