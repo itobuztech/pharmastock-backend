@@ -11,63 +11,29 @@ export class ItemService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ items: Item[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.item.count();
-      const items: any = await this.prisma.item.findMany({
-        skip,
-        take,
-        include: {
-          ItemCategoryRelation: {
-            include: {
-              itemCategory: true,
-            },
-          },
-        },
-      });
+      let whereClause: Prisma.ItemWhereInput | {} = {};
 
-      if (items) {
-        items.forEach((it) => {
-          if (it.ItemCategoryRelation) {
-            const relationArr = it.ItemCategoryRelation;
-            const categories = [];
-            relationArr.forEach((rel) => {
-              categories.push(rel.itemCategory);
-            });
-            it.Category = categories;
-          }
-        });
+      if (searchText) {
+        whereClause = {
+          OR: [
+            { name: { contains: searchText, mode: 'insensitive' } },
+            { instructions: { contains: searchText, mode: 'insensitive' } },
+            { hsn_code: { contains: searchText, mode: 'insensitive' } },
+          ],
+        };
       }
-
-      return { items, total: totalCount };
-      // return item;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async searchItems(
-    searchText: string,
-    paginationArgs?: PaginationArgs,
-  ): Promise<{ items: Item[]; total: number }> {
-    const { skip = 0, take = 10 } = paginationArgs || {};
-    try {
-      const whereClause: Prisma.ItemWhereInput = {
-        OR: [
-          { name: { contains: searchText, mode: 'insensitive' } },
-          { instructions: { contains: searchText, mode: 'insensitive' } },
-          { hsn_code: { contains: searchText, mode: 'insensitive' } },
-        ],
-      };
 
       const totalCount = await this.prisma.item.count({
         where: whereClause,
       });
-      const items: any = await this.prisma.item.findMany({
-        skip,
-        take,
+
+      let searchObject: any = {
         where: whereClause,
         include: {
           ItemCategoryRelation: {
@@ -76,7 +42,23 @@ export class ItemService {
             },
           },
         },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: {
+            ItemCategoryRelation: {
+              include: {
+                itemCategory: true,
+              },
+            },
+          },
+        };
+      }
+
+      const items: any = await this.prisma.item.findMany(searchObject);
 
       if (items) {
         items.forEach((it) => {

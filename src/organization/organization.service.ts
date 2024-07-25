@@ -10,45 +10,43 @@ export class OrganizationService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ organizations: Organization[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.organization.count();
-      const organizations = await this.prisma.organization.findMany({
-        skip,
-        take,
-      });
+      let whereClause: Prisma.OrganizationWhereInput | {} = {};
 
-      return { organizations, total: totalCount };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async searchOrganizations(
-    searchText: string,
-    paginationArgs?: PaginationArgs,
-  ): Promise<{ organizations: Organization[]; total: number }> {
-    const { skip = 0, take = 10 } = paginationArgs || {};
-    try {
-      const whereClause: Prisma.OrganizationWhereInput = {
-        OR: [
-          { name: { contains: searchText, mode: 'insensitive' } },
-          { description: { contains: searchText, mode: 'insensitive' } },
-          { address: { contains: searchText, mode: 'insensitive' } },
-          { city: { contains: searchText, mode: 'insensitive' } },
-        ],
-      };
+      if (searchText) {
+        whereClause = {
+          OR: [
+            { name: { contains: searchText, mode: 'insensitive' } },
+            { description: { contains: searchText, mode: 'insensitive' } },
+            { address: { contains: searchText, mode: 'insensitive' } },
+            { city: { contains: searchText, mode: 'insensitive' } },
+          ],
+        };
+      }
 
       const totalCount = await this.prisma.organization.count({
         where: whereClause,
       });
-      const organizations = await this.prisma.organization.findMany({
-        skip,
-        take,
+
+      let searchObject: any = {
         where: whereClause,
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+        };
+      }
+
+      const organizations = await this.prisma.organization.findMany(
+        searchObject,
+      );
 
       return { organizations, total: totalCount };
     } catch (error) {

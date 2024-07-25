@@ -34,28 +34,14 @@ export class WarehouseResolver {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedWarehouses> {
     try {
-      return await this.warehouseService.findAll(paginationArgs);
-    } catch (e) {
-      throw new BadRequestException(e);
-    }
-  }
-
-  @Query(() => PaginatedWarehouses, {
-    name: 'searchWarehouses',
-    nullable: true,
-  })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  async search(
-    @Args('searchText') searchText: string,
-    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<PaginatedWarehouses> {
-    try {
-      return await this.warehouseService.searchWarehouses(
+      return await this.warehouseService.findAll(
         searchText,
+        pagination,
         paginationArgs,
       );
     } catch (e) {

@@ -14,48 +14,62 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 export class UsersService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
+  // async findAll(
+  //   paginationArgs?: PaginationArgs,
+  // ): Promise<{ users: User[]; total: number }> {
+  //   const { skip = 0, take = 10 } = paginationArgs || {};
+  //   const totalCount = await this.prisma.user.count();
+  //   const users = await this.prisma.user.findMany({
+  //     skip,
+  //     take,
+  //     include: { organization: true, role: true },
+  //   });
+
+  //   return { users, total: totalCount };
+  // }
+
   async findAll(
-    paginationArgs?: PaginationArgs,
-  ): Promise<{ users: User[]; total: number }> {
-    const { skip = 0, take = 10 } = paginationArgs || {};
-    const totalCount = await this.prisma.user.count();
-    const users = await this.prisma.user.findMany({
-      skip,
-      take,
-      include: { organization: true, role: true },
-    });
-
-    return { users, total: totalCount };
-  }
-
-  async searchUsers(
-    searchText: string,
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ users: User[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const whereClause: Prisma.UserWhereInput = {
-        OR: [
-          { name: { contains: searchText, mode: 'insensitive' } },
-          { username: { contains: searchText, mode: 'insensitive' } },
-          { email: { contains: searchText, mode: 'insensitive' } },
-          {
-            organization: {
-              name: { contains: searchText, mode: 'insensitive' },
+      let whereClause: Prisma.UserWhereInput | {} = {};
+
+      if (searchText) {
+        whereClause = {
+          OR: [
+            { name: { contains: searchText, mode: 'insensitive' } },
+            { username: { contains: searchText, mode: 'insensitive' } },
+            { email: { contains: searchText, mode: 'insensitive' } },
+            {
+              organization: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-        ],
-      };
+          ],
+        };
+      }
 
       const totalCount = await this.prisma.user.count({
         where: whereClause,
       });
-      const users = await this.prisma.user.findMany({
-        skip,
-        take,
+
+      let searchObject: any = {
         where: whereClause,
         include: { organization: true, role: true },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: { organization: true, role: true },
+        };
+      }
+
+      const users = await this.prisma.user.findMany(searchObject);
 
       return { users, total: totalCount };
     } catch (error) {

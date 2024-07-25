@@ -16,76 +16,66 @@ export class PharmacyStockService {
   ) {}
 
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ pharmacyStocks: PharmacyStock[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.pharmacyStock.count();
-      const pharmacyStocks = await this.prisma.pharmacyStock.findMany({
-        skip,
-        take,
-        include: {
-          warehouse: true,
-          item: true,
-          pharmacy: true,
-        },
-      });
+      let whereClause: Prisma.PharmacyStockWhereInput | {} = {};
 
-      pharmacyStocks.forEach((pS) => {
-        const finalMrp_base_unit = pS.item.mrp_base_unit * pS.final_qty;
-        const finalWholesale_price = pS.item.wholesale_price * pS.final_qty;
-
-        pS['totalMrpBaseUnit'] = finalMrp_base_unit;
-        pS['totalWholesalePrice'] = finalWholesale_price;
-      });
-
-      return { pharmacyStocks, total: totalCount };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async searchPharmacyStocks(
-    searchText: string,
-    paginationArgs?: PaginationArgs,
-  ): Promise<{ pharmacyStocks: PharmacyStock[]; total: number }> {
-    const { skip = 0, take = 10 } = paginationArgs || {};
-    try {
-      const whereClause: Prisma.PharmacyStockWhereInput = {
-        OR: [
-          {
-            warehouse: {
-              name: { contains: searchText, mode: 'insensitive' },
+      if (searchText) {
+        whereClause = {
+          OR: [
+            {
+              warehouse: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-          {
-            pharmacy: {
-              name: { contains: searchText, mode: 'insensitive' },
+            {
+              pharmacy: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-          {
-            item: {
-              name: { contains: searchText, mode: 'insensitive' },
+            {
+              item: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-        ],
-      };
+          ],
+        };
+      }
 
       const totalCount = await this.prisma.pharmacyStock.count({
         where: whereClause,
       });
-      const pharmacyStocks = await this.prisma.pharmacyStock.findMany({
-        skip,
-        take,
+
+      let searchObject: any = {
         where: whereClause,
         include: {
           warehouse: true,
           item: true,
           pharmacy: true,
         },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: {
+            warehouse: true,
+            item: true,
+            pharmacy: true,
+          },
+        };
+      }
 
-      pharmacyStocks.forEach((pS) => {
+      const pharmacyStocks = await this.prisma.pharmacyStock.findMany(
+        searchObject,
+      );
+
+      pharmacyStocks.forEach((pS: any) => {
         const finalMrp_base_unit = pS.item.mrp_base_unit * pS.final_qty;
         const finalWholesale_price = pS.item.wholesale_price * pS.final_qty;
 

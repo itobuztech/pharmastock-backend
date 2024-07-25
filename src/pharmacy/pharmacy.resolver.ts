@@ -37,28 +37,14 @@ export class PharmacyResolver {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedPharmacies> {
     try {
-      return await this.pharmacyService.findAll(paginationArgs);
-    } catch (e) {
-      throw new BadRequestException(e);
-    }
-  }
-
-  @Query(() => PaginatedPharmacies, {
-    name: 'searchPharmacies',
-    nullable: true,
-  })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  async search(
-    @Args('searchText') searchText: string,
-    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<PaginatedPharmacies> {
-    try {
-      return await this.pharmacyService.searchPharmacies(
+      return await this.pharmacyService.findAll(
         searchText,
+        pagination,
         paginationArgs,
       );
     } catch (e) {

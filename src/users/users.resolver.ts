@@ -35,25 +35,14 @@ export class UsersResolver {
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.VIEW])
   findAll(
-    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-  ): Promise<PaginatedUsers> {
-    return this.usersService.findAll(paginationArgs);
-  }
-
-  @Query(() => PaginatedUsers, {
-    name: 'searchUsers',
-    nullable: true,
-  })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  async search(
-    @Args('searchText') searchText: string,
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedUsers> {
     try {
-      return await this.usersService.searchUsers(searchText, paginationArgs);
-    } catch (e) {
-      throw new BadRequestException(e);
+      return this.usersService.findAll(searchText, pagination, paginationArgs);
+    } catch (error) {
+      throw new BadRequestException(error);
     }
   }
 

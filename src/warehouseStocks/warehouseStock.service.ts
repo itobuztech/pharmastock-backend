@@ -17,43 +17,9 @@ export class WarehouseStockService {
     private readonly stockMovementService: StockMovementService,
   ) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<{
-    warehouseStocks: WarehouseStock[];
-    total: number;
-  }> {
-    const { skip = 0, take = 10 } = paginationArgs || {};
-    try {
-      const totalCount = await this.prisma.warehouseStock.count();
-      const warehouseStocks = await this.prisma.warehouseStock.findMany({
-        skip,
-        take,
-        include: {
-          warehouse: {
-            include: {
-              organization: true,
-            },
-          },
-          item: true,
-          SKU: true,
-        },
-      });
-
-      warehouseStocks.forEach((wS) => {
-        const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
-        const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
-
-        wS['totalMrpBaseUnit'] = finalMrp_base_unit;
-        wS['totalWholesalePrice'] = finalWholesale_price;
-      });
-
-      return { warehouseStocks, total: totalCount };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async searchWarehouseStocks(
-    searchText: string,
+  async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{
     warehouseStocks: WarehouseStock[];
@@ -61,31 +27,35 @@ export class WarehouseStockService {
   }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const whereClause: Prisma.WarehouseStockWhereInput = {
-        OR: [
-          {
-            warehouse: {
-              name: { contains: searchText, mode: 'insensitive' },
+      let whereClause: Prisma.WarehouseStockWhereInput | {} = {};
+
+      if (searchText) {
+        whereClause = {
+          OR: [
+            {
+              warehouse: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-          {
-            SKU: {
-              sku: { contains: searchText, mode: 'insensitive' },
+            {
+              SKU: {
+                sku: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-          {
-            item: {
-              name: { contains: searchText, mode: 'insensitive' },
+            {
+              item: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-        ],
-      };
+          ],
+        };
+      }
+
       const totalCount = await this.prisma.warehouseStock.count({
         where: whereClause,
       });
-      const warehouseStocks = await this.prisma.warehouseStock.findMany({
-        skip,
-        take,
+
+      let searchObject: any = {
         where: whereClause,
         include: {
           warehouse: {
@@ -96,9 +66,29 @@ export class WarehouseStockService {
           item: true,
           SKU: true,
         },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: {
+            warehouse: {
+              include: {
+                organization: true,
+              },
+            },
+            item: true,
+            SKU: true,
+          },
+        };
+      }
 
-      warehouseStocks.forEach((wS) => {
+      const warehouseStocks = await this.prisma.warehouseStock.findMany(
+        searchObject,
+      );
+
+      warehouseStocks.forEach((wS: any) => {
         const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
         const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
 
@@ -156,7 +146,11 @@ export class WarehouseStockService {
         id,
       },
       include: {
-        warehouse: true,
+        warehouse: {
+          include: {
+            organization: true,
+          },
+        },
         item: true,
         SKU: true,
       },
