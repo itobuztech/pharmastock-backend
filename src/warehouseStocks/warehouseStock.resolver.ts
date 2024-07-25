@@ -20,6 +20,7 @@ import { TotalCount } from '../pagination/toalCount.entity';
 import { CreateSkuNameInput } from './dto/create-skuName.input';
 import { GenerateSku } from './entities/generate-sku.entity';
 import { Sku } from './entities/sku.entity';
+import { FilterWarehouseStockInputs } from './dto/filter-warehouseStock.input';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -42,12 +43,15 @@ export class WarehouseStockResolver {
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+    @Args('filterArgs', { nullable: true })
+    filterArgs: FilterWarehouseStockInputs,
   ): Promise<PaginatedWarehouseStocks> {
     try {
       return await this.warehouseStockService.findAll(
         searchText,
         pagination,
         paginationArgs,
+        filterArgs,
       );
     } catch (e) {
       throw new BadRequestException(e);

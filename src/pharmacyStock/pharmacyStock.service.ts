@@ -7,6 +7,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 import { StockMovementService } from '../stockMovement/stockMovement.service';
 import { CreateStockMovementInput } from 'src/stockMovement/dto/create-stockMovement.input';
 import { PharmacyStockSearchObject } from '../types/extended-types';
+import { FilterPharmacyStockInputs } from './dto/filter-pharmacyStock.input';
 
 @Injectable()
 export class PharmacyStockService {
@@ -20,31 +21,83 @@ export class PharmacyStockService {
     searchText?: string,
     pagination?: Boolean,
     paginationArgs?: PaginationArgs,
+    filterArgs?: FilterPharmacyStockInputs,
   ): Promise<{ pharmacyStocks: PharmacyStock[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.PharmacyStockWhereInput | {} = {};
+      let whereClause: Prisma.PharmacyStockWhereInput = {};
 
       if (searchText) {
-        whereClause = {
-          OR: [
-            {
-              warehouse: {
-                name: { contains: searchText, mode: 'insensitive' },
-              },
+        whereClause.OR = [
+          {
+            warehouse: {
+              name: { contains: searchText, mode: 'insensitive' },
             },
-            {
-              pharmacy: {
-                name: { contains: searchText, mode: 'insensitive' },
-              },
+          },
+          {
+            pharmacy: {
+              name: { contains: searchText, mode: 'insensitive' },
             },
-            {
-              item: {
-                name: { contains: searchText, mode: 'insensitive' },
-              },
+          },
+          {
+            item: {
+              name: { contains: searchText, mode: 'insensitive' },
             },
-          ],
-        };
+          },
+        ];
+      }
+
+      if (filterArgs) {
+        // Prepare filter conditions
+        const filterConditions: Prisma.PharmacyStockWhereInput[] = [];
+
+        // Add quantity filter if provided
+        if (filterArgs.qty) {
+          filterConditions.push({
+            final_qty: { lte: filterArgs.qty },
+          });
+        }
+
+        // Add date range filter if provided
+        if (filterArgs.startDate && filterArgs.endDate) {
+          filterConditions.push({
+            OR: [
+              {
+                createdAt: {
+                  gte: filterArgs.startDate,
+                  lte: filterArgs.endDate,
+                },
+              },
+              {
+                updatedAt: {
+                  gte: filterArgs.startDate,
+                  lte: filterArgs.endDate,
+                },
+              },
+            ],
+          });
+        }
+
+        // Map remaining filter arguments
+        Object.keys(filterArgs).forEach((key) => {
+          if (key !== 'startDate' && key !== 'endDate' && key !== 'qty') {
+            const value = filterArgs[key];
+            filterConditions.push({
+              [key]: typeof value === 'number' ? { lte: value } : value,
+            });
+          }
+        });
+
+        // Combine search and filter conditions
+        if (whereClause.OR) {
+          whereClause = {
+            AND: [{ OR: whereClause.OR }, ...filterConditions],
+          };
+        } else {
+          whereClause = {
+            AND: filterConditions,
+          };
+        }
       }
 
       const totalCount = await this.prisma.pharmacyStock.count({

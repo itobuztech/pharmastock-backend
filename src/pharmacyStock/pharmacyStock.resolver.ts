@@ -17,6 +17,7 @@ import { UserRole } from '@prisma/client';
 import { DeletePharmacyStockInput } from './dto/delete-pharmacyStock.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
+import { FilterPharmacyStockInputs } from './dto/filter-pharmacyStock.input';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -39,12 +40,15 @@ export class PharmacyStockResolver {
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+    @Args('filterArgs', { nullable: true })
+    filterArgs: FilterPharmacyStockInputs,
   ): Promise<PaginatedPharmacyStocks> {
     try {
       return await this.PharmacyStockService.findAll(
         searchText,
         pagination,
         paginationArgs,
+        filterArgs,
       );
     } catch (e) {
       throw new BadRequestException(e);
