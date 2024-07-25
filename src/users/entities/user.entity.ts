@@ -1,7 +1,12 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { User as UserDB, Organization as OrganizationDB } from '@prisma/client';
+import {
+  User as UserDB,
+  Organization as OrganizationDB,
+  Role as RoleDB,
+} from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { Organization } from '../../organization/entities/organization.entity';
+import { Role } from './role.entity';
 
 @ObjectType()
 export class User {
@@ -34,4 +39,7 @@ export class User {
 
   @Field(() => Organization, { nullable: true })
   organization?: OrganizationDB;
+
+  @Field(() => Role, { nullable: true })
+  role?: Role;
 }

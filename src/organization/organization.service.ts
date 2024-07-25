@@ -10,16 +10,48 @@ export class OrganizationService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ organizations: Organization[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
-    const totalCount = await this.prisma.organization.count();
-    const organizations = await this.prisma.organization.findMany({
-      skip,
-      take,
-    });
+    try {
+      let whereClause: Prisma.OrganizationWhereInput | {} = {};
 
-    return { organizations, total: totalCount };
+      if (searchText) {
+        whereClause = {
+          OR: [
+            { name: { contains: searchText, mode: 'insensitive' } },
+            { description: { contains: searchText, mode: 'insensitive' } },
+            { address: { contains: searchText, mode: 'insensitive' } },
+            { city: { contains: searchText, mode: 'insensitive' } },
+          ],
+        };
+      }
+
+      const totalCount = await this.prisma.organization.count({
+        where: whereClause,
+      });
+
+      let searchObject: any = {
+        where: whereClause,
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+        };
+      }
+
+      const organizations = await this.prisma.organization.findMany(
+        searchObject,
+      );
+
+      return { organizations, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findOne(id: string): Promise<Organization> {

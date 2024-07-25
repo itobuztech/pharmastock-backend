@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateWarehouseInput } from './dto/create-warehouse.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { Warehouse } from '@prisma/client';
+import { Prisma, Warehouse } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
@@ -9,16 +9,53 @@ export class WarehouseService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ warehouses: Warehouse[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.warehouse.count();
-      const warehouses = await this.prisma.warehouse.findMany({
-        skip,
-        take,
-        include: { organization: true, admin: true },
+      let whereClause: Prisma.WarehouseWhereInput | {} = {};
+
+      if (searchText) {
+        whereClause = {
+          OR: [
+            { name: { contains: searchText, mode: 'insensitive' } },
+            { location: { contains: searchText, mode: 'insensitive' } },
+            { area: { contains: searchText, mode: 'insensitive' } },
+            {
+              organization: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
+            },
+          ],
+        };
+      }
+
+      const totalCount = await this.prisma.warehouse.count({
+        where: whereClause,
       });
+
+      let searchObject: any = {
+        where: whereClause,
+        include: {
+          organization: true,
+          admin: true,
+        },
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: {
+            organization: true,
+            admin: true,
+          },
+        };
+      }
+
+      const warehouses = await this.prisma.warehouse.findMany(searchObject);
 
       return { warehouses, total: totalCount };
     } catch (error) {

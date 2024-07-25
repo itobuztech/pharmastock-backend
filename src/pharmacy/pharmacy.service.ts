@@ -3,24 +3,57 @@ import { CreatePharmacyInput } from './dto/create-pharmacy.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Pharmacy } from '@prisma/client';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PharmacyService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ pharmacies: Pharmacy[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.pharmacy.count();
-      const pharmacies = await this.prisma.pharmacy.findMany({
-        skip,
-        take,
+      let whereClause: Prisma.PharmacyWhereInput | {} = {};
+
+      if (searchText) {
+        whereClause = {
+          OR: [
+            { name: { contains: searchText, mode: 'insensitive' } },
+            { location: { contains: searchText, mode: 'insensitive' } },
+            {
+              organization: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
+            },
+          ],
+        };
+      }
+
+      const totalCount = await this.prisma.pharmacy.count({
+        where: whereClause,
+      });
+
+      let searchObject: any = {
+        where: whereClause,
         include: {
           organization: true,
         },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: {
+            organization: true,
+          },
+        };
+      }
+
+      const pharmacies = await this.prisma.pharmacy.findMany(searchObject);
 
       return { pharmacies, total: totalCount };
     } catch (error) {

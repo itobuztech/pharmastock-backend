@@ -4,20 +4,37 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Item } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { BaseUnit } from './base-unit.enum';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ItemService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ items: Item[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.item.count();
-      const items: any = await this.prisma.item.findMany({
-        skip,
-        take,
+      let whereClause: Prisma.ItemWhereInput | {} = {};
+
+      if (searchText) {
+        whereClause = {
+          OR: [
+            { name: { contains: searchText, mode: 'insensitive' } },
+            { instructions: { contains: searchText, mode: 'insensitive' } },
+            { hsn_code: { contains: searchText, mode: 'insensitive' } },
+          ],
+        };
+      }
+
+      const totalCount = await this.prisma.item.count({
+        where: whereClause,
+      });
+
+      let searchObject: any = {
+        where: whereClause,
         include: {
           ItemCategoryRelation: {
             include: {
@@ -25,7 +42,23 @@ export class ItemService {
             },
           },
         },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: {
+            ItemCategoryRelation: {
+              include: {
+                itemCategory: true,
+              },
+            },
+          },
+        };
+      }
+
+      const items: any = await this.prisma.item.findMany(searchObject);
 
       if (items) {
         items.forEach((it) => {
@@ -41,7 +74,6 @@ export class ItemService {
       }
 
       return { items, total: totalCount };
-      // return item;
     } catch (error) {
       throw error;
     }

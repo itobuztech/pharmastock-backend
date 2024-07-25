@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateWarehouseStockInput } from './dto/create-warehouseStock.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { WarehouseStock } from '@prisma/client';
+import { Prisma, WarehouseStock } from '@prisma/client';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
 
 import { StockMovementService } from '../stockMovement/stockMovement.service';
@@ -17,16 +17,46 @@ export class WarehouseStockService {
     private readonly stockMovementService: StockMovementService,
   ) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<{
+  async findAll(
+    searchText?: string,
+    pagination?: Boolean,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{
     warehouseStocks: WarehouseStock[];
     total: number;
   }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.warehouseStock.count();
-      const warehouseStocks = await this.prisma.warehouseStock.findMany({
-        skip,
-        take,
+      let whereClause: Prisma.WarehouseStockWhereInput | {} = {};
+
+      if (searchText) {
+        whereClause = {
+          OR: [
+            {
+              warehouse: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
+            },
+            {
+              SKU: {
+                sku: { contains: searchText, mode: 'insensitive' },
+              },
+            },
+            {
+              item: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
+            },
+          ],
+        };
+      }
+
+      const totalCount = await this.prisma.warehouseStock.count({
+        where: whereClause,
+      });
+
+      let searchObject: any = {
+        where: whereClause,
         include: {
           warehouse: {
             include: {
@@ -36,9 +66,29 @@ export class WarehouseStockService {
           item: true,
           SKU: true,
         },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: {
+            warehouse: {
+              include: {
+                organization: true,
+              },
+            },
+            item: true,
+            SKU: true,
+          },
+        };
+      }
 
-      warehouseStocks.forEach((wS) => {
+      const warehouseStocks = await this.prisma.warehouseStock.findMany(
+        searchObject,
+      );
+
+      warehouseStocks.forEach((wS: any) => {
         const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
         const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
 
@@ -51,6 +101,7 @@ export class WarehouseStockService {
       throw error;
     }
   }
+
   async findAllByWarehouseId(
     warehouseId: string,
     paginationArgs?: PaginationArgs,
@@ -95,7 +146,11 @@ export class WarehouseStockService {
         id,
       },
       include: {
-        warehouse: true,
+        warehouse: {
+          include: {
+            organization: true,
+          },
+        },
         item: true,
         SKU: true,
       },

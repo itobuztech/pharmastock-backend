@@ -32,14 +32,23 @@ class PaginatedItems extends TotalCount {
 export class ItemResolver {
   constructor(private readonly itemService: ItemService) {}
 
-  @Query(() => PaginatedItems, { name: 'items', nullable: true })
+  @Query(() => PaginatedItems, {
+    name: 'items',
+    nullable: true,
+  })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedItems> {
     try {
-      return await this.itemService.findAll(paginationArgs);
+      return await this.itemService.findAll(
+        searchText,
+        pagination,
+        paginationArgs,
+      );
     } catch (e) {
       throw new BadRequestException(e);
     }

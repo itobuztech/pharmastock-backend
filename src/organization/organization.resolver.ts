@@ -37,10 +37,16 @@ export class OrganizationResolver {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedOrganizations> {
     try {
-      return await this.organizationService.findAll(paginationArgs);
+      return await this.organizationService.findAll(
+        searchText,
+        pagination,
+        paginationArgs,
+      );
     } catch (e) {
       throw new BadRequestException(e);
     }

@@ -334,17 +334,17 @@ type PharmacyStock {
 
 type Query {
   PharmacyStock(id: String!): PharmacyStock!
-  PharmacyStocks(paginationArgs: PaginationArgs): PaginatedPharmacyStocks
+  PharmacyStocks(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacyStocks
   account: AccountTypeResponse!
   getpermissions: JSON!
   item(id: String!): Item!
-  itemCategories(paginationArgs: PaginationArgs): PaginatedItemCategories
+  itemCategories(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedItemCategories
   itemCategory(id: String!): ItemCategory!
-  items(paginationArgs: PaginationArgs): PaginatedItems
+  items(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedItems
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
-  organizations(paginationArgs: PaginationArgs): PaginatedOrganizations
-  pharmacies(paginationArgs: PaginationArgs): PaginatedPharmacies
+  organizations(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedOrganizations
+  pharmacies(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacies
   pharmacy(id: String!): Pharmacy!
   pharmacyStocksByPharmacy(paginationArgs: PaginationArgs, pharmacyId: String!): PaginatedPharmacyStocks
   sku(itemId: String!, organizationId: String!, warehouseId: String!): Sku!
@@ -352,17 +352,24 @@ type Query {
   stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
   user(email: String!): User!
   userById(id: String!): User!
-  users(paginationArgs: PaginationArgs): PaginatedUsers
+  users(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedUsers
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
-  warehouseStocks(paginationArgs: PaginationArgs): PaginatedWarehouseStocks
+  warehouseStocks(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedWarehouseStocks
   warehouseStocksByWarehouse(paginationArgs: PaginationArgs, warehouseId: String!): PaginatedWarehouseStocks
-  warehouses(paginationArgs: PaginationArgs): PaginatedWarehouses
+  warehouses(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedWarehouses
 }
 
 input ResetPasswordInput {
   newPassword: String!
   oldPassword: String!
+}
+
+type Role {
+  id: String!
+  name: String!
+  privileges: String!
+  userType: String!
 }
 
 type SignupResponse {
@@ -454,6 +461,7 @@ type User {
   isEmailConfirmed: Boolean!
   name: String
   organization: Organization
+  role: Role
   updatedAt: DateTime
   username: String!
 }

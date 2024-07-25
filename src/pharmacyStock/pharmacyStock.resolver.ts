@@ -36,10 +36,16 @@ export class PharmacyStockResolver {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findAll(
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedPharmacyStocks> {
     try {
-      return await this.PharmacyStockService.findAll(paginationArgs);
+      return await this.PharmacyStockService.findAll(
+        searchText,
+        pagination,
+        paginationArgs,
+      );
     } catch (e) {
       throw new BadRequestException(e);
     }

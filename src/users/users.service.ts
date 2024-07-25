@@ -7,25 +7,74 @@ import {
 } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, Role } from '@prisma/client';
+import { User, Role, Prisma } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
+  // async findAll(
+  //   paginationArgs?: PaginationArgs,
+  // ): Promise<{ users: User[]; total: number }> {
+  //   const { skip = 0, take = 10 } = paginationArgs || {};
+  //   const totalCount = await this.prisma.user.count();
+  //   const users = await this.prisma.user.findMany({
+  //     skip,
+  //     take,
+  //     include: { organization: true, role: true },
+  //   });
+
+  //   return { users, total: totalCount };
+  // }
+
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ users: User[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
-    const totalCount = await this.prisma.user.count();
-    const users = await this.prisma.user.findMany({
-      skip,
-      take,
-      include: { organization: true },
-    });
+    try {
+      let whereClause: Prisma.UserWhereInput | {} = {};
 
-    return { users, total: totalCount };
+      if (searchText) {
+        whereClause = {
+          OR: [
+            { name: { contains: searchText, mode: 'insensitive' } },
+            { username: { contains: searchText, mode: 'insensitive' } },
+            { email: { contains: searchText, mode: 'insensitive' } },
+            {
+              organization: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
+            },
+          ],
+        };
+      }
+
+      const totalCount = await this.prisma.user.count({
+        where: whereClause,
+      });
+
+      let searchObject: any = {
+        where: whereClause,
+        include: { organization: true, role: true },
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: { organization: true, role: true },
+        };
+      }
+
+      const users = await this.prisma.user.findMany(searchObject);
+
+      return { users, total: totalCount };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findOne(email: string): Promise<User & { role: Partial<Role> }> {
@@ -34,12 +83,7 @@ export class UsersService {
         email,
       },
       include: {
-        role: {
-          select: {
-            privileges: true,
-            userType: true,
-          },
-        },
+        role: true,
         organization: true,
       },
     });
@@ -54,12 +98,7 @@ export class UsersService {
           emailConfirmationToken,
         },
         include: {
-          role: {
-            select: {
-              privileges: true,
-              userType: true,
-            },
-          },
+          role: true,
           organization: true,
         },
       });
@@ -131,12 +170,7 @@ export class UsersService {
       return await this.prisma.user.create({
         data,
         include: {
-          role: {
-            select: {
-              privileges: true,
-              userType: true,
-            },
-          },
+          role: true,
           organization: true,
         },
       });
@@ -145,23 +179,17 @@ export class UsersService {
     }
   }
 
-  async findOneById(
-    id: string,
-  ): Promise<User & { role: Pick<Role, 'userType' | 'privileges'> }> {
-    return await this.prisma.user.findFirst({
+  async findOneById(id: string): Promise<User & { role: Partial<Role> }> {
+    const user = await this.prisma.user.findFirst({
       where: {
         id,
       },
       include: {
-        role: {
-          select: {
-            userType: true,
-            privileges: true,
-          },
-        },
+        role: true,
         organization: true,
       },
     });
+    return user;
   }
 
   async updateUser(id: string, data) {
@@ -170,7 +198,7 @@ export class UsersService {
         id,
       },
       data,
-      include: { organization: true },
+      include: { organization: true, role: true },
     });
   }
 }

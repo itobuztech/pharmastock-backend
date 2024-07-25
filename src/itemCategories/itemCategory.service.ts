@@ -9,14 +9,28 @@ export class ItemCategoryService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
   async findAll(
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ itemCategories: ItemCategory[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.itemCategory.count();
-      const itemCategories: any = await this.prisma.itemCategory.findMany({
-        skip,
-        take,
+      const totalCount = await this.prisma.itemCategory.count({
+        where: {
+          name: {
+            contains: searchText,
+            mode: 'insensitive',
+          },
+        },
+      });
+
+      let searchObject: any = {
+        where: {
+          name: {
+            contains: searchText,
+            mode: 'insensitive',
+          },
+        },
         include: {
           ItemCategoryRelation: {
             include: {
@@ -25,7 +39,31 @@ export class ItemCategoryService {
           },
           parent: true,
         },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: {
+            name: {
+              contains: searchText,
+              mode: 'insensitive',
+            },
+          },
+          include: {
+            ItemCategoryRelation: {
+              include: {
+                item: true,
+              },
+            },
+            parent: true,
+          },
+        };
+      }
+
+      const itemCategories: any = await this.prisma.itemCategory.findMany(
+        searchObject,
+      );
 
       if (itemCategories) {
         itemCategories.forEach((ic) => {
