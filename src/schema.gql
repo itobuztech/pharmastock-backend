@@ -141,6 +141,24 @@ input DeleteWarehouseStockInput {
   id: String!
 }
 
+input FilterItemInputs {
+  baseUnit: BaseUnit
+  mrpBaseUnit: Int
+  wholeSalePrice: Int
+}
+
+input FilterPharmacyStockInputs {
+  endDate: DateTime
+  qty: Int
+  startDate: DateTime
+}
+
+input FilterWarehouseStockInputs {
+  endDate: DateTime
+  qty: Int
+  startDate: DateTime
+}
+
 input ForgotPasswordConfirmationInput {
   confirmationToken: String!
   newPassword: String!
@@ -334,13 +352,13 @@ type PharmacyStock {
 
 type Query {
   PharmacyStock(id: String!): PharmacyStock!
-  PharmacyStocks(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacyStocks
+  PharmacyStocks(filterArgs: FilterPharmacyStockInputs, pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacyStocks
   account: AccountTypeResponse!
   getpermissions: JSON!
   item(id: String!): Item!
   itemCategories(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedItemCategories
   itemCategory(id: String!): ItemCategory!
-  items(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedItems
+  items(filterArgs: FilterItemInputs, pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedItems
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
   organizations(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedOrganizations
@@ -355,7 +373,7 @@ type Query {
   users(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedUsers
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
-  warehouseStocks(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedWarehouseStocks
+  warehouseStocks(filterArgs: FilterWarehouseStockInputs, pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedWarehouseStocks
   warehouseStocksByWarehouse(paginationArgs: PaginationArgs, warehouseId: String!): PaginatedWarehouseStocks
   warehouses(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedWarehouses
 }

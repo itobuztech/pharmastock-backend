@@ -20,6 +20,7 @@ import { DeleteItemInput } from './dto/delete-item.input';
 import { DeleteItemCategoryRelationInput } from './dto/delete-item-category-relation.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
+import { FilterItemInputs } from './dto/filter-item.input';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -42,12 +43,14 @@ export class ItemResolver {
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+    @Args('filterArgs', { nullable: true }) filterArgs: FilterItemInputs,
   ): Promise<PaginatedItems> {
     try {
       return await this.itemService.findAll(
         searchText,
         pagination,
         paginationArgs,
+        filterArgs,
       );
     } catch (e) {
       throw new BadRequestException(e);

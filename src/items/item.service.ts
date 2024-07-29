@@ -6,6 +6,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 import { BaseUnit } from './base-unit.enum';
 import { Prisma } from '@prisma/client';
 import { ItemSearchObject } from '../types/extended-types';
+import { FilterItemInputs } from './dto/filter-item.input';
 
 @Injectable()
 export class ItemService {
@@ -15,19 +16,46 @@ export class ItemService {
     searchText?: string,
     pagination?: Boolean,
     paginationArgs?: PaginationArgs,
+    filterArgs?: FilterItemInputs,
   ): Promise<{ items: Item[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.ItemWhereInput | {} = {};
+      let whereClause: Prisma.ItemWhereInput = {};
 
       if (searchText) {
-        whereClause = {
-          OR: [
-            { name: { contains: searchText, mode: 'insensitive' } },
-            { instructions: { contains: searchText, mode: 'insensitive' } },
-            { hsn_code: { contains: searchText, mode: 'insensitive' } },
-          ],
-        };
+        whereClause.OR = [
+          { name: { contains: searchText, mode: 'insensitive' } },
+          { instructions: { contains: searchText, mode: 'insensitive' } },
+          { hsn_code: { contains: searchText, mode: 'insensitive' } },
+        ];
+      }
+
+      if (filterArgs) {
+        if (filterArgs.mrpBaseUnit) {
+          filterArgs['mrp_base_unit'] = filterArgs.mrpBaseUnit;
+          delete filterArgs.mrpBaseUnit;
+        }
+        if (filterArgs.wholeSalePrice) {
+          filterArgs['wholesale_price'] = filterArgs.wholeSalePrice;
+          delete filterArgs.wholeSalePrice;
+        }
+
+        const filterConditions = Object.keys(filterArgs).map((key) => {
+          const value = filterArgs[key];
+          return typeof value === 'number'
+            ? { [key]: { lte: value } }
+            : { [key]: value };
+        });
+
+        if (whereClause.OR) {
+          whereClause = {
+            AND: [{ OR: whereClause.OR }, ...filterConditions],
+          };
+        } else {
+          whereClause = {
+            AND: filterConditions,
+          };
+        }
       }
 
       const totalCount = await this.prisma.item.count({
