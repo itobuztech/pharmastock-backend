@@ -73,8 +73,9 @@ export class ItemService {
         where: whereClause,
         include: {
           ItemCategoryRelation: {
+            where: { status: true },
             include: {
-              itemCategory: true,
+              itemCategory: { where: { status: true } },
             },
           },
         },
@@ -86,8 +87,9 @@ export class ItemService {
           where: whereClause,
           include: {
             ItemCategoryRelation: {
+              where: { status: true },
               include: {
-                itemCategory: true,
+                itemCategory: { where: { status: true } },
               },
             },
           },
@@ -127,7 +129,7 @@ export class ItemService {
         ItemCategoryRelation: {
           where: { status: true },
           include: {
-            itemCategory: true,
+            itemCategory: { where: { status: true } },
           },
         },
       },
@@ -391,7 +393,7 @@ export class ItemService {
         },
         data: { status: false },
         include: {
-          ItemCategoryRelation: true,
+          ItemCategoryRelation: { where: { status: true } },
         },
       });
 
