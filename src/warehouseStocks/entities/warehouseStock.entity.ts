@@ -26,6 +26,9 @@ export class WarehouseStock {
   @Field(() => Number, { name: 'finalQty' })
   final_qty: WarehouseStockDB['final_qty'];
 
+  @Field(() => Boolean)
+  status: WarehouseStockDB['status'];
+
   @Field(() => Date)
   createdAt: WarehouseStockDB['createdAt'];
 

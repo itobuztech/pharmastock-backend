@@ -20,7 +20,7 @@ export class ItemService {
   ): Promise<{ items: Item[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.ItemWhereInput = {};
+      let whereClause: Prisma.ItemWhereInput = { status: true };
 
       if (searchText) {
         whereClause.OR = [
@@ -97,8 +97,11 @@ export class ItemService {
       const items: any = await this.prisma.item.findMany(searchObject);
 
       if (items) {
-        items.forEach((it) => {
-          if (it.ItemCategoryRelation) {
+        items.forEach((it, i) => {
+          if (
+            it.ItemCategoryRelation &&
+            it.ItemCategoryRelation[i].status === true
+          ) {
             const relationArr = it.ItemCategoryRelation;
             const categories = [];
             relationArr.forEach((rel) => {
@@ -122,6 +125,7 @@ export class ItemService {
       },
       include: {
         ItemCategoryRelation: {
+          where: { status: true },
           include: {
             itemCategory: true,
           },
@@ -152,6 +156,7 @@ export class ItemService {
       if (createItemInput.name) {
         const unique = await this.prisma.item.findFirst({
           where: {
+            status: true,
             name: createItemInput.name,
           },
         });
@@ -170,6 +175,7 @@ export class ItemService {
         for (const cat of categories) {
           const category = await this.prisma.itemCategory.findFirst({
             where: {
+              status: true,
               id: cat,
             },
           });
@@ -259,6 +265,7 @@ export class ItemService {
     if (data.name) {
       const unique = await this.prisma.item.findFirst({
         where: {
+          status: true,
           name: data.name,
           NOT: {
             id,
@@ -278,6 +285,7 @@ export class ItemService {
       for (const cat of categories) {
         const category = await this.prisma.itemCategory.findFirst({
           where: {
+            status: true,
             id: cat,
           },
         });
@@ -289,14 +297,16 @@ export class ItemService {
         catArr.push(category);
       }
 
-      await this.prisma.itemCategoryRelation.deleteMany({
+      await this.prisma.itemCategoryRelation.updateMany({
         where: {
           itemId: id,
         },
+        data: { status: false },
       });
     } else {
       const itemCatRelation = await this.prisma.itemCategoryRelation.findMany({
         where: {
+          status: true,
           itemId: id,
         },
       });
@@ -308,6 +318,7 @@ export class ItemService {
       for (const itCatRel of itemCatRelation) {
         const category = await this.prisma.itemCategory.findFirst({
           where: {
+            status: true,
             id: itCatRel.itemCategoryId,
           },
         });
@@ -373,33 +384,63 @@ export class ItemService {
   }
 
   async deleteItem(id: string) {
-    const deleted = await this.prisma.item.delete({
-      where: {
-        id,
-      },
-      include: {
-        ItemCategoryRelation: true,
-      },
-    });
+    try {
+      const deleted = await this.prisma.item.update({
+        where: {
+          id,
+        },
+        data: { status: false },
+        include: {
+          ItemCategoryRelation: true,
+        },
+      });
 
-    if (!deleted) {
-      throw new Error('Could not delete the Item. Please try after sometime!');
+      if (!deleted) {
+        throw new Error(
+          'Could not delete the Item. Please try after sometime!',
+        );
+      }
+
+      if (deleted) {
+        try {
+          await this.prisma.itemCategoryRelation.updateMany({
+            where: {
+              itemId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.warehouseStock.updateMany({
+            where: {
+              itemId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.pharmacyStock.updateMany({
+            where: {
+              itemId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.stockMovement.updateMany({
+            where: {
+              itemId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.sKU.updateMany({
+            where: {
+              itemId: id,
+            },
+            data: { status: false },
+          });
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+
+      return deleted;
+    } catch (error) {
+      throw new Error(error);
     }
-    return deleted;
-  }
-
-  async deleteItemCategoryRelation(id: string) {
-    const deleted = await this.prisma.itemCategoryRelation.delete({
-      where: {
-        id,
-      },
-    });
-
-    if (!deleted) {
-      throw new Error(
-        'Could not delete the Item and Category Relation. Please try after sometime!',
-      );
-    }
-    return deleted;
   }
 }

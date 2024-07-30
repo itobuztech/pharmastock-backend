@@ -17,7 +17,7 @@ export class PharmacyService {
   ): Promise<{ pharmacies: Pharmacy[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.PharmacyWhereInput | {} = {};
+      let whereClause: Prisma.PharmacyWhereInput = { status: true };
 
       if (searchText) {
         whereClause = {
@@ -92,6 +92,7 @@ export class PharmacyService {
       //Check if the name of the pharmacy is unique or not. Starts.
       const uniquePharmacy = await this.prisma.pharmacy.findFirst({
         where: {
+          status: true,
           name: createPharmacyInput.name,
         },
       });
@@ -160,6 +161,7 @@ export class PharmacyService {
     if (data.name) {
       const uniquePharmacy = await this.prisma.pharmacy.findFirst({
         where: {
+          status: true,
           name: data.name,
           NOT: {
             id,
@@ -219,17 +221,36 @@ export class PharmacyService {
   }
 
   async deletePharmacy(id: string) {
-    const deleted = await this.prisma.pharmacy.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      const deleted = await this.prisma.pharmacy.update({
+        where: {
+          id,
+        },
+        data: { status: false },
+      });
 
-    if (!deleted) {
-      throw new Error(
-        'Could not delete the Pharmacy. Please try after sometime!',
-      );
+      if (!deleted) {
+        throw new Error(
+          'Could not delete the Pharmacy. Please try after sometime!',
+        );
+      }
+
+      if (deleted) {
+        try {
+          await this.prisma.pharmacyStock.updateMany({
+            where: {
+              pharmacyId: id,
+            },
+            data: { status: false },
+          });
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+
+      return deleted;
+    } catch (error) {
+      throw new Error(error);
     }
-    return deleted;
   }
 }

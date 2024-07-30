@@ -16,7 +16,7 @@ export class WarehouseService {
   ): Promise<{ warehouses: Warehouse[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.WarehouseWhereInput | {} = {};
+      let whereClause: Prisma.WarehouseWhereInput = { status: true };
 
       if (searchText) {
         whereClause = {
@@ -84,6 +84,7 @@ export class WarehouseService {
       if (createWarehouseInput.name) {
         const unique = await this.prisma.warehouse.findFirst({
           where: {
+            status: true,
             name: createWarehouseInput.name,
           },
         });
@@ -137,6 +138,7 @@ export class WarehouseService {
     if (data.name) {
       const unique = await this.prisma.warehouse.findFirst({
         where: {
+          status: true,
           name: data.name,
           NOT: {
             id,
@@ -166,17 +168,48 @@ export class WarehouseService {
   }
 
   async deleteWarehouse(id: string) {
-    const deleted = await this.prisma.warehouse.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      const deleted = await this.prisma.warehouse.update({
+        where: {
+          id,
+        },
+        data: { status: false },
+      });
 
-    if (!deleted) {
-      throw new Error(
-        'Could not delete the Warehouse. Please try after sometime!',
-      );
+      if (!deleted) {
+        throw new Error(
+          'Could not delete the Warehouse. Please try after sometime!',
+        );
+      }
+
+      if (deleted) {
+        try {
+          await this.prisma.warehouseStock.updateMany({
+            where: {
+              warehouseId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.pharmacyStock.updateMany({
+            where: {
+              warehouseId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.sKU.updateMany({
+            where: {
+              warehouseId: id,
+            },
+            data: { status: false },
+          });
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+
+      return deleted;
+    } catch (error) {
+      throw new Error(error);
     }
-    return deleted;
   }
 }

@@ -18,6 +18,7 @@ export class ItemCategoryService {
     try {
       const totalCount = await this.prisma.itemCategory.count({
         where: {
+          status: true,
           name: {
             contains: searchText,
             mode: 'insensitive',
@@ -27,6 +28,7 @@ export class ItemCategoryService {
 
       let searchObject: ItemCategorySearchObject = {
         where: {
+          status: true,
           name: {
             contains: searchText,
             mode: 'insensitive',
@@ -34,6 +36,7 @@ export class ItemCategoryService {
         },
         include: {
           ItemCategoryRelation: {
+            where: { status: true },
             include: {
               item: true,
             },
@@ -46,6 +49,7 @@ export class ItemCategoryService {
           skip,
           take,
           where: {
+            status: true,
             name: {
               contains: searchText,
               mode: 'insensitive',
@@ -53,6 +57,7 @@ export class ItemCategoryService {
           },
           include: {
             ItemCategoryRelation: {
+              where: { status: true },
               include: {
                 item: true,
               },
@@ -67,7 +72,7 @@ export class ItemCategoryService {
       );
 
       if (itemCategories) {
-        itemCategories.forEach((ic) => {
+        itemCategories.forEach((ic, i) => {
           if (ic.ItemCategoryRelation) {
             const relationArr = ic.ItemCategoryRelation;
             const items = [];
@@ -95,6 +100,7 @@ export class ItemCategoryService {
       },
       include: {
         ItemCategoryRelation: {
+          where: { status: true },
           include: {
             item: true,
           },
@@ -173,20 +179,35 @@ export class ItemCategoryService {
   }
 
   async deleteItemCategory(id: string) {
-    const deleted = await this.prisma.itemCategory.delete({
-      where: {
-        id,
-      },
-      include: {
-        ItemCategoryRelation: true,
-      },
-    });
+    try {
+      const deleted = await this.prisma.itemCategory.update({
+        where: {
+          id,
+        },
+        data: { status: false },
+        include: {
+          ItemCategoryRelation: true,
+        },
+      });
 
-    if (!deleted) {
-      throw new Error(
-        'Could not delete the Item Category. Please try after sometime!',
-      );
+      if (!deleted) {
+        throw new Error(
+          'Could not delete the Item Category. Please try after sometime!',
+        );
+      }
+
+      if (deleted) {
+        await this.prisma.itemCategoryRelation.updateMany({
+          where: {
+            itemCategoryId: id,
+          },
+          data: { status: false },
+        });
+      }
+
+      return deleted;
+    } catch (error) {
+      throw new Error(error);
     }
-    return deleted;
   }
 }

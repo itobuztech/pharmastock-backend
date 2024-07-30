@@ -25,7 +25,7 @@ export class PharmacyStockService {
   ): Promise<{ pharmacyStocks: PharmacyStock[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.PharmacyStockWhereInput = {};
+      let whereClause: Prisma.PharmacyStockWhereInput = { status: true };
 
       if (searchText) {
         whereClause.OR = [
@@ -249,6 +249,7 @@ export class PharmacyStockService {
         where: {
           itemId: createPharmacyStockInput?.itemId,
           warehouseId: createPharmacyStockInput?.warehouseId,
+          status: true,
         },
       });
 
@@ -286,6 +287,7 @@ export class PharmacyStockService {
       // CHECKING IF THE PHARMACY STOCK ALREADY PRESENT OR NOT, FOR THE ID. STARTS
       const existingPharmacyStock = await this.prisma.pharmacyStock.findFirst({
         where: {
+          status: true,
           itemId: createPharmacyStockInput?.itemId,
           pharmacyId: createPharmacyStockInput?.pharmacyId,
         },
@@ -361,6 +363,7 @@ export class PharmacyStockService {
           where: {
             batch_name: row.batch_name,
             warehouseStockId: null,
+            status: true,
           },
         });
 
@@ -419,17 +422,36 @@ export class PharmacyStockService {
   }
 
   async deletePharmacyStock(id: string) {
-    const deleted = await this.prisma.pharmacyStock.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      const deleted = await this.prisma.pharmacyStock.update({
+        where: {
+          id,
+        },
+        data: { status: false },
+      });
 
-    if (!deleted) {
-      throw new Error(
-        'Could not delete the Pharmacy Stock. Please try after sometime!',
-      );
+      if (!deleted) {
+        throw new Error(
+          'Could not delete the Pharmacy Stock. Please try after sometime!',
+        );
+      }
+
+      if (deleted) {
+        try {
+          await this.prisma.stockMovement.updateMany({
+            where: {
+              pharmacyStockId: id,
+            },
+            data: { status: false },
+          });
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+
+      return deleted;
+    } catch (error) {
+      throw new Error(error);
     }
-    return deleted;
   }
 }

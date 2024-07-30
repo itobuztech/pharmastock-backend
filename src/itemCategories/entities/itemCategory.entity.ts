@@ -11,6 +11,9 @@ export class ItemCategory {
   @Field(() => String)
   name: ItemCategoryDB['name'];
 
+  @Field(() => Boolean)
+  status: ItemCategoryDB['status'];
+
   @Field(() => ItemParentCategory, { nullable: true })
   parentCategory?: ItemParentCategory;
 

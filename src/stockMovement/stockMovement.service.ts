@@ -88,17 +88,23 @@ export class StockMovementService {
   }
 
   async deleteStockMovement(id: string) {
-    const deleted = await this.prisma.stockMovement.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      const deleted = await this.prisma.stockMovement.update({
+        where: {
+          id,
+        },
+        data: { status: false },
+      });
 
-    if (!deleted) {
-      throw new Error(
-        'Could not delete the Stock Movement. Please try after sometime!',
-      );
+      if (!deleted) {
+        throw new Error(
+          'Could not delete the Stock Movement. Please try after sometime!',
+        );
+      }
+
+      return deleted;
+    } catch (error) {
+      throw new Error(error);
     }
-    return deleted;
   }
 }

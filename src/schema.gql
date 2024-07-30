@@ -109,10 +109,6 @@ input DeleteItemCategoryInput {
   id: String!
 }
 
-input DeleteItemCategoryRelationInput {
-  id: String!
-}
-
 input DeleteItemInput {
   id: String!
 }
@@ -185,6 +181,7 @@ type Item {
   instructions: String!
   mrpBaseUnit: Float
   name: String!
+  status: Boolean!
   updatedAt: DateTime
   wholesalePrice: Float
 }
@@ -195,6 +192,7 @@ type ItemCategory {
   id: String!
   name: String!
   parentCategory: ItemParentCategory
+  status: Boolean!
   updatedAt: DateTime
 }
 
@@ -202,14 +200,6 @@ type ItemCategoryRel {
   createdAt: DateTime!
   id: String!
   name: String!
-  updatedAt: DateTime
-}
-
-type ItemCategoryRelation {
-  createdAt: DateTime!
-  id: String!
-  itemCategoryId: String!
-  itemId: String!
   updatedAt: DateTime
 }
 
@@ -248,7 +238,6 @@ type Mutation {
   createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
   deleteItem(deleteItemInput: DeleteItemInput!): Item!
   deleteItemCategory(deleteItemCategoryInput: DeleteItemCategoryInput!): ItemCategory!
-  deleteItemCategoryRelation(deleteItemCategoryRelationInput: DeleteItemCategoryRelationInput!): ItemCategoryRelation!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
   deletePharmacyStock(deletePharmacyStockInput: DeletePharmacyStockInput!): PharmacyStock!
@@ -280,6 +269,7 @@ type Organization {
   description: String!
   id: String!
   name: String!
+  status: Boolean!
   updatedAt: DateTime
 }
 
@@ -335,6 +325,7 @@ type Pharmacy {
   location: String!
   name: String!
   organization: Organization
+  status: Boolean!
   updatedAt: DateTime
 }
 
@@ -344,6 +335,7 @@ type PharmacyStock {
   id: String!
   item: Item
   pharmacy: Pharmacy
+  status: Boolean!
   totalMrpBaseUnit: Float
   totalWholesalePrice: Float
   updatedAt: DateTime
@@ -398,6 +390,7 @@ type Sku {
   createdAt: DateTime!
   id: String!
   sku: String!
+  status: Boolean!
   stockLevel: String!
   stockStatus: String
   stocklevelMax: String
@@ -503,6 +496,7 @@ type Warehouse {
   location: String!
   name: String!
   organization: Organization
+  status: Boolean!
   updatedAt: DateTime
 }
 
@@ -512,6 +506,7 @@ type WarehouseStock {
   finalQty: Float!
   id: String!
   item: Item!
+  status: Boolean!
   totalMrpBaseUnit: Float
   totalWholesalePrice: Float
   updatedAt: DateTime

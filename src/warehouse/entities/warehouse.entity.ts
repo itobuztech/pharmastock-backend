@@ -27,6 +27,9 @@ export class Warehouse {
   @Field(() => User, { nullable: true })
   admin?: UserDB;
 
+  @Field(() => Boolean)
+  status: WarehouseDB['status'];
+
   @Field(() => Date)
   createdAt: WarehouseDB['createdAt'];
 
