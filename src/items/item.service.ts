@@ -31,13 +31,20 @@ export class ItemService {
       }
 
       if (filterArgs) {
-        if (filterArgs.mrpBaseUnit) {
+        if (filterArgs.mrpBaseUnit !== null) {
           filterArgs['mrp_base_unit'] = filterArgs.mrpBaseUnit;
           delete filterArgs.mrpBaseUnit;
+        } else {
+          delete filterArgs.mrpBaseUnit;
         }
-        if (filterArgs.wholeSalePrice) {
+        if (filterArgs.wholeSalePrice !== null) {
           filterArgs['wholesale_price'] = filterArgs.wholeSalePrice;
           delete filterArgs.wholeSalePrice;
+        } else {
+          delete filterArgs.wholeSalePrice;
+        }
+        if (filterArgs.baseUnit === null) {
+          delete filterArgs.baseUnit;
         }
 
         const filterConditions = Object.keys(filterArgs).map((key) => {
