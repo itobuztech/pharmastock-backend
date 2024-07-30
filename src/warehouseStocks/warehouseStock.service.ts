@@ -113,12 +113,15 @@ export class WarehouseStockService {
         where: whereClause,
         include: {
           warehouse: {
+            where: {
+              status: true,
+            },
             include: {
-              organization: true,
+              organization: { where: { status: true } },
             },
           },
-          item: true,
-          SKU: true,
+          item: { where: { status: true } },
+          SKU: { where: { status: true } },
         },
       };
       if (pagination) {
@@ -129,11 +132,11 @@ export class WarehouseStockService {
           include: {
             warehouse: {
               include: {
-                organization: true,
+                organization: { where: { status: true } },
               },
             },
-            item: true,
-            SKU: true,
+            item: { where: { status: true } },
+            SKU: { where: { status: true } },
           },
         };
       }
@@ -172,11 +175,11 @@ export class WarehouseStockService {
         include: {
           warehouse: {
             include: {
-              organization: true,
+              organization: { where: { status: true } },
             },
           },
-          item: true,
-          SKU: true,
+          item: { where: { status: true } },
+          SKU: { where: { status: true } },
         },
       });
 
@@ -202,11 +205,11 @@ export class WarehouseStockService {
       include: {
         warehouse: {
           include: {
-            organization: true,
+            organization: { where: { status: true } },
           },
         },
-        item: true,
-        SKU: true,
+        item: { where: { status: true } },
+        SKU: { where: { status: true } },
       },
     });
 
@@ -300,9 +303,9 @@ export class WarehouseStockService {
         warehouseStock = await this.prisma.warehouseStock.create({
           data,
           include: {
-            warehouse: true,
-            item: true,
-            SKU: true,
+            warehouse: { where: { status: true } },
+            item: { where: { status: true } },
+            SKU: { where: { status: true } },
           },
         });
 
@@ -400,9 +403,9 @@ export class WarehouseStockService {
             final_qty: existingStock.final_qty + createWarehouseStockInput.qty,
           },
           include: {
-            warehouse: true,
-            item: true,
-            SKU: true,
+            warehouse: { where: { status: true } },
+            item: { where: { status: true } },
+            SKU: { where: { status: true } },
           },
         });
 
