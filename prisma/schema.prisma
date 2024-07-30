@@ -21,6 +21,7 @@ model User {
   role                   Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
   organizationId         String?       @map("organization_id") @db.Uuid
   organization           Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  status                 Boolean?      @default(true)
   Warehouse              Warehouse[]
 
   @@map("users")
@@ -45,7 +46,7 @@ enum UserRole {
 
 model Organization {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String      @unique
+  name        String      
   description String
   active      Boolean     @default(true)
   address     String
@@ -55,6 +56,7 @@ model Organization {
   updatedAt   DateTime?   @default(now()) @updatedAt @map("updated_at")
   User        User[]
   contact     String
+  status      Boolean?    @default(true)
   Warehouse   Warehouse[]
   Pharmacy    Pharmacy[]
   SKU         SKU[]
@@ -64,7 +66,7 @@ model Organization {
 
 model Warehouse {
   id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String           @unique
+  name           String          
   location       String?
   area           String
   organizationId String?          @map("organization_id") @db.Uuid
@@ -73,6 +75,7 @@ model Warehouse {
   admin          User?            @relation(fields: [adminId], references: [id], onDelete: Cascade)
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime?        @default(now()) @updatedAt @map("updated_at")
+  status         Boolean?         @default(true)
   WarehouseStock WarehouseStock[]
   PharmacyStock  PharmacyStock[]
   SKU            SKU[]
@@ -82,7 +85,7 @@ model Warehouse {
 
 model Item {
   id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                 String                 @unique
+  name                 String               
   baseUnit             BaseUnit               @map("base_unit")
   instructions         String
   mrp_base_unit        Int
@@ -90,6 +93,7 @@ model Item {
   hsn_code             String
   createdAt            DateTime               @default(now()) @map("created_at")
   updatedAt            DateTime?              @default(now()) @updatedAt @map("updated_at")
+  status               Boolean?               @default(true)
   WarehouseStock       WarehouseStock[]
   PharmacyStock        PharmacyStock[]
   StockMovement        StockMovement[]
@@ -114,6 +118,7 @@ model ItemCategory {
   children             ItemCategory[]         @relation("CategoryHierarchy")
   createdAt            DateTime               @default(now()) @map("created_at")
   updatedAt            DateTime?              @default(now()) @updatedAt @map("updated_at")
+  status               Boolean?               @default(true)
   ItemCategoryRelation ItemCategoryRelation[]
 
   @@map("item_category")
@@ -127,6 +132,7 @@ model ItemCategoryRelation {
   item           Item?         @relation(fields: [itemId], references: [id], onDelete: Cascade)
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime?     @default(now()) @updatedAt @map("updated_at")
+  status         Boolean?      @default(true)
 
   @@map("item_category_relation")
 }
@@ -140,6 +146,7 @@ model WarehouseStock {
   warehouse     Warehouse?      @relation(fields: [warehouseId], references: [id])
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime?       @default(now()) @updatedAt @map("updated_at")
+  status        Boolean?        @default(true)
   StockMovement StockMovement[]
   SKU           SKU?
 
@@ -166,13 +173,14 @@ model StockMovement {
   expiry           DateTime?
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime?       @default(now()) @updatedAt @map("updated_at")
+  status           Boolean?        @default(true)
 
   @@map("stock_movement")
 }
 
 model SKU {
   id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sku              String         @unique
+  sku              String         
   itemId           String         @map("item_id") @db.Uuid
   item             Item           @relation(fields: [itemId], references: [id], onDelete: Cascade)
   organizationId   String         @map("organization_id") @db.Uuid
@@ -187,19 +195,21 @@ model SKU {
   stockLevel       StockLevel?    @map("stock_level")
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime?      @default(now()) @updatedAt @map("updated_at")
+  status           Boolean?       @default(true)
 
   @@map("sku")
 }
 
 model Pharmacy {
   id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String          @unique @db.VarChar(255)
+  name           String          @db.VarChar(255)
   location       String?
   organizationId String?         @map("organization_id") @db.Uuid
   organization   Organization?   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   contact_info   String          @db.VarChar(12)
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime?       @default(now()) @updatedAt @map("updated_at")
+  status         Boolean?        @default(true)
   PharmacyStock  PharmacyStock[]
 
   @@map("pharmacy")
@@ -216,6 +226,7 @@ model PharmacyStock {
   final_qty     Int
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime?       @default(now()) @updatedAt @map("updated_at")
+  status        Boolean?        @default(true)
   StockMovement StockMovement[]
 
   @@map("pharmacy_stock")

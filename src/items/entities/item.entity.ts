@@ -26,6 +26,9 @@ export class Item {
   @Field(() => String, { name: 'hsnCode' })
   hsn_code: ItemDB['hsn_code'];
 
+  @Field(() => Boolean)
+  status: ItemDB['status'];
+
   @Field(() => Date)
   createdAt: ItemDB['createdAt'];
 

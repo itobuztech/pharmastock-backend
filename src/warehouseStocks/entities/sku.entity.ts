@@ -21,6 +21,9 @@ export class Sku {
   @Field(() => String)
   stockLevel?: skuDB['stockLevel'];
 
+  @Field(() => Boolean)
+  status: skuDB['status'];
+
   @Field(() => Date)
   createdAt: skuDB['createdAt'];
 

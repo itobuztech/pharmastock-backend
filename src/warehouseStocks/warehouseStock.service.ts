@@ -30,7 +30,7 @@ export class WarehouseStockService {
   }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.WarehouseStockWhereInput = {};
+      let whereClause: Prisma.WarehouseStockWhereInput = { status: true };
 
       if (searchText) {
         whereClause.OR = [
@@ -271,6 +271,7 @@ export class WarehouseStockService {
       // CHECKING FOR UNIQUE BATCHNAME IN SKU MOVEMENT.STARTS.
       const batchName = await this.prisma.stockMovement.findFirst({
         where: {
+          status: true,
           batch_name: createWarehouseStockInput.batchName,
         },
       });
@@ -287,6 +288,7 @@ export class WarehouseStockService {
         // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT. STARTS.
         const Sku = await this.prisma.sKU.findFirst({
           where: {
+            status: true,
             sku: createWarehouseStockInput.sku,
           },
         });
@@ -346,6 +348,7 @@ export class WarehouseStockService {
         // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT IN OTHER ROWS. STARTS.
         const Sku = await this.prisma.sKU.findFirst({
           where: {
+            status: true,
             sku: createWarehouseStockInput.sku,
             NOT: {
               warehouseStockId: existingStock?.id,
@@ -432,18 +435,43 @@ export class WarehouseStockService {
   }
 
   async deleteWarehouseStock(id: string) {
-    const deleted = await this.prisma.warehouseStock.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      const deleted = await this.prisma.warehouseStock.update({
+        where: {
+          id,
+        },
+        data: { status: false },
+      });
 
-    if (!deleted) {
-      throw new Error(
-        'Could not delete the WarehouseStock. Please try after sometime!',
-      );
+      if (!deleted) {
+        throw new Error(
+          'Could not delete the Warehouse Stock. Please try after sometime!',
+        );
+      }
+
+      if (deleted) {
+        try {
+          await this.prisma.stockMovement.updateMany({
+            where: {
+              warehouseStockId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.sKU.updateMany({
+            where: {
+              warehouseStockId: id,
+            },
+            data: { status: false },
+          });
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+
+      return deleted;
+    } catch (error) {
+      throw new Error(error);
     }
-    return deleted;
   }
 
   async generateSKU(createSkuNameInput: CreateSkuNameInput) {
@@ -501,6 +529,7 @@ export class WarehouseStockService {
     try {
       const sku = await this.prisma.sKU.findFirst({
         where: {
+          status: true,
           itemId,
           warehouseId,
           organizationId,

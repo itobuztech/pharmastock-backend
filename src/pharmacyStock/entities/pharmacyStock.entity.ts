@@ -26,6 +26,9 @@ export class PharmacyStock {
   @Field(() => Int, { name: 'finalQty' })
   final_qty: PharmacyStockDB['final_qty'];
 
+  @Field(() => Boolean)
+  status: PharmacyStockDB['status'];
+
   @Field(() => Date)
   createdAt: PharmacyStockDB['createdAt'];
 

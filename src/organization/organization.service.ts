@@ -16,7 +16,7 @@ export class OrganizationService {
   ): Promise<{ organizations: Organization[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.OrganizationWhereInput | {} = {};
+      let whereClause: Prisma.OrganizationWhereInput = { status: true };
 
       if (searchText) {
         whereClause = {
@@ -71,6 +71,7 @@ export class OrganizationService {
   async create(createOrganizationInput: CreateOrganizationInput) {
     const unique = await this.prisma.organization.findFirst({
       where: {
+        status: true,
         name: createOrganizationInput.name,
       },
     });
@@ -118,6 +119,7 @@ export class OrganizationService {
     if (data.name) {
       const unique = await this.prisma.organization.findFirst({
         where: {
+          status: true,
           name: data.name,
           NOT: {
             id,
@@ -147,17 +149,48 @@ export class OrganizationService {
   }
 
   async deleteOrganization(id: string) {
-    const deleted = await this.prisma.organization.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      const deleted = await this.prisma.organization.update({
+        where: {
+          id,
+        },
+        data: { status: false },
+      });
 
-    if (!deleted) {
-      throw new Error(
-        'Could not delete the Organization. Please try after sometime!',
-      );
+      if (!deleted) {
+        throw new Error(
+          'Could not delete the Organization. Please try after sometime!',
+        );
+      }
+
+      if (deleted) {
+        try {
+          await this.prisma.warehouse.updateMany({
+            where: {
+              organizationId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.pharmacy.updateMany({
+            where: {
+              organizationId: id,
+            },
+            data: { status: false },
+          });
+          await this.prisma.sKU.updateMany({
+            where: {
+              organizationId: id,
+            },
+            data: { status: false },
+          });
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+
+      return deleted;
+    } catch (error) {
+      throw new Error(error);
     }
-    return deleted;
   }
 }

@@ -22,6 +22,9 @@ export class Pharmacy {
   @Field(() => String, { nullable: true, name: 'contactInfo' })
   contact_info?: PharmacyDB['contact_info'];
 
+  @Field(() => Boolean)
+  status: PharmacyDB['status'];
+
   @Field(() => Date)
   createdAt: PharmacyDB['createdAt'];
 

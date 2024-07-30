@@ -112,18 +112,18 @@ export class ItemResolver {
     }
   }
 
-  @Mutation(() => ItemCategoryRelation)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  async deleteItemCategoryRelation(
-    @Args('deleteItemCategoryRelationInput')
-    deleteItemCategoryRelationInput: DeleteItemCategoryRelationInput,
-  ) {
-    try {
-      const { id } = deleteItemCategoryRelationInput;
-      return await this.itemService.deleteItemCategoryRelation(id);
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
+  // @Mutation(() => ItemCategoryRelation)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.ADMIN)
+  // async deleteItemCategoryRelation(
+  //   @Args('deleteItemCategoryRelationInput')
+  //   deleteItemCategoryRelationInput: DeleteItemCategoryRelationInput,
+  // ) {
+  //   try {
+  //     const { id } = deleteItemCategoryRelationInput;
+  //     return await this.itemService.deleteItemCategoryRelation(id);
+  //   } catch (error) {
+  //     throw new BadRequestException(error);
+  //   }
+  // }
 }
