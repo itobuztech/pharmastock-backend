@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { PharmacyService } from './pharmacy.service';
 import { CreatePharmacyInput } from './dto/create-pharmacy.input';
@@ -40,12 +41,14 @@ export class PharmacyResolver {
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.VIEW])
   async findAll(
+    @Context() ctx: any,
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedPharmacies> {
     try {
       return await this.pharmacyService.findAll(
+        ctx,
         searchText,
         pagination,
         paginationArgs,

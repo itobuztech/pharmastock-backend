@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { WarehouseStockService } from './warehouseStock.service';
 import { CreateWarehouseStockInput } from './dto/create-warehouseStock.input';
@@ -24,6 +25,7 @@ import { FilterWarehouseStockInputs } from './dto/filter-warehouseStock.input';
 import { PermissionsGuardOR } from 'src/auth/guards/permissions-or.guard';
 import { PrivilegesList } from 'src/privileges/user-privileges';
 import { Permissions } from 'src/auth/decorators/permissions.decorator';
+import { AccountService } from '../account/account.service';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -34,7 +36,10 @@ class PaginatedWarehouseStocks extends TotalCount {
 
 @Resolver(() => WarehouseStock)
 export class WarehouseStockResolver {
-  constructor(private readonly warehouseStockService: WarehouseStockService) {}
+  constructor(
+    private readonly warehouseStockService: WarehouseStockService,
+    private readonly accountService: AccountService,
+  ) {}
 
   @Query(() => PaginatedWarehouseStocks, {
     name: 'warehouseStocks',
@@ -46,6 +51,7 @@ export class WarehouseStockResolver {
     PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
   ])
   async findAll(
+    @Context() ctx: any,
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
@@ -54,6 +60,7 @@ export class WarehouseStockResolver {
   ): Promise<PaginatedWarehouseStocks> {
     try {
       return await this.warehouseStockService.findAll(
+        ctx,
         searchText,
         pagination,
         paginationArgs,

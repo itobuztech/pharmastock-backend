@@ -10,6 +10,7 @@ import { CreateSkuNameInput } from './dto/create-skuName.input';
 import { Sku } from './entities/sku.entity';
 import { WarehouseStockSearchObject } from '../types/extended-types';
 import { FilterPharmacyStockInputs } from 'src/pharmacyStock/dto/filter-pharmacyStock.input';
+import { AccountService } from '../account/account.service';
 
 @Injectable()
 export class WarehouseStockService {
@@ -17,9 +18,11 @@ export class WarehouseStockService {
     private prisma: PrismaService,
     private readonly logger: Logger,
     private readonly stockMovementService: StockMovementService,
+    private readonly accountService: AccountService,
   ) {}
 
   async findAll(
+    ctx,
     searchText?: string,
     pagination?: Boolean,
     paginationArgs?: PaginationArgs,
@@ -30,7 +33,17 @@ export class WarehouseStockService {
   }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.WarehouseStockWhereInput = { status: true };
+      const loggedinUser = await this.accountService.findOne(ctx);
+      const loggedinUserRole = loggedinUser?.role;
+      const organizationId = loggedinUser?.user?.organizationId;
+
+      let whereClause: Prisma.WarehouseStockWhereInput = {
+        status: true,
+      };
+
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        whereClause['organizationId'] = organizationId;
+      }
 
       if (searchText) {
         whereClause.OR = [

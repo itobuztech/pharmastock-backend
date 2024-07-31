@@ -6,6 +6,13 @@ import { UsersService } from '../users/users.service';
 
 @Module({
   imports: [],
-  providers: [AccountResolver, AccountService, PrismaService, Logger, UsersService]
+  providers: [
+    AccountResolver,
+    AccountService,
+    PrismaService,
+    Logger,
+    UsersService,
+  ],
+  exports: [AccountService],
 })
-export class AccountModule { }
+export class AccountModule {}

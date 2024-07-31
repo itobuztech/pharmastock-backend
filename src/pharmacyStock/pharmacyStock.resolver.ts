@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { PharmacyStockService } from './pharmacyStock.service';
 import { CreatePharmacyStockInput } from './dto/create-pharmacyStock.input';
@@ -43,6 +44,7 @@ export class PharmacyStockResolver {
     PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
   ])
   async findAll(
+    @Context() ctx: any,
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
@@ -51,6 +53,7 @@ export class PharmacyStockResolver {
   ): Promise<PaginatedPharmacyStocks> {
     try {
       return await this.PharmacyStockService.findAll(
+        ctx,
         searchText,
         pagination,
         paginationArgs,

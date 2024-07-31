@@ -5,19 +5,35 @@ import { Pharmacy } from '@prisma/client';
 import { PaginationArgs } from 'src/pagination/pagination.dto';
 import { Prisma } from '@prisma/client';
 import { PharmacySearchObject } from '../types/extended-types';
+import { AccountService } from '../account/account.service';
 
 @Injectable()
 export class PharmacyService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly logger: Logger,
+    private readonly accountService: AccountService,
+  ) {}
 
   async findAll(
+    ctx,
     searchText?: string,
     pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ pharmacies: Pharmacy[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.PharmacyWhereInput = { status: true };
+      const loggedinUser = await this.accountService.findOne(ctx);
+      const loggedinUserRole = loggedinUser?.role;
+      const organizationId = loggedinUser?.user?.organizationId;
+
+      let whereClause: Prisma.PharmacyWhereInput = {
+        status: true,
+      };
+
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        whereClause['organizationId'] = organizationId;
+      }
 
       if (searchText) {
         whereClause = {

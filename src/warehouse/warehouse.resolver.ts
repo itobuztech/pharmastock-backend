@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { WarehouseService } from './warehouse.service';
 import { CreateWarehouseInput } from './dto/create-warehouse.input';
@@ -37,12 +38,14 @@ export class WarehouseResolver {
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.VIEW])
   async findAll(
+    @Context() ctx: any,
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedWarehouses> {
     try {
       return await this.warehouseService.findAll(
+        ctx,
         searchText,
         pagination,
         paginationArgs,
