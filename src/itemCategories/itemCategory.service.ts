@@ -38,10 +38,10 @@ export class ItemCategoryService {
           ItemCategoryRelation: {
             where: { status: true },
             include: {
-              item: { where: { status: true } },
+              item: true,
             },
           },
-          parent: { where: { status: true } },
+          parent: true,
         },
       };
       if (pagination) {
@@ -59,10 +59,10 @@ export class ItemCategoryService {
             ItemCategoryRelation: {
               where: { status: true },
               include: {
-                item: { where: { status: true } },
+                item: true,
               },
             },
-            parent: { where: { status: true } },
+            parent: true,
           },
         };
       }
@@ -102,10 +102,10 @@ export class ItemCategoryService {
         ItemCategoryRelation: {
           where: { status: true },
           include: {
-            item: { where: { status: true } },
+            item: true,
           },
         },
-        parent: { where: { status: true } },
+        parent: true,
       },
     });
 
@@ -186,7 +186,7 @@ export class ItemCategoryService {
         },
         data: { status: false },
         include: {
-          ItemCategoryRelation: { where: { status: true } },
+          ItemCategoryRelation: true,
         },
       });
 

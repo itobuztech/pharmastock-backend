@@ -117,12 +117,12 @@ export class PharmacyStockService {
         where: whereClause,
       });
 
-      let searchObject: PharmacyStockSearchObject | {} = {
+      let searchObject: PharmacyStockSearchObject = {
         where: whereClause,
         include: {
-          warehouse: { where: { status: true } },
-          item: { where: { status: true } },
-          pharmacy: { where: { status: true } },
+          warehouse: true,
+          item: true,
+          pharmacy: true,
         },
       };
       if (pagination) {
@@ -131,9 +131,9 @@ export class PharmacyStockService {
           take,
           where: whereClause,
           include: {
-            warehouse: { where: { status: true } },
-            item: { where: { status: true } },
-            pharmacy: { where: { status: true } },
+            warehouse: true,
+            item: true,
+            pharmacy: true,
           },
         };
       }
