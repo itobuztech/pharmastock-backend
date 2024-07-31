@@ -18,6 +18,9 @@ import { DeletePharmacyStockInput } from './dto/delete-pharmacyStock.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
 import { FilterPharmacyStockInputs } from './dto/filter-pharmacyStock.input';
+import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { PrivilegesList } from '../privileges/user-privileges';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -34,8 +37,11 @@ export class PharmacyStockResolver {
     name: 'PharmacyStocks',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async findAll(
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
@@ -59,8 +65,11 @@ export class PharmacyStockResolver {
     name: 'pharmacyStocksByPharmacy',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async findAllByPharmacyId(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
     @Args('pharmacyId') pharmacyId: string,
@@ -76,8 +85,11 @@ export class PharmacyStockResolver {
   }
 
   @Query(() => PharmacyStock, { name: 'PharmacyStock' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async findOne(@Args('id') id: string): Promise<PharmacyStock> {
     try {
       return await this.PharmacyStockService.findOne(id);
@@ -87,8 +99,11 @@ export class PharmacyStockResolver {
   }
 
   @Mutation(() => PharmacyStock)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE,
+  ])
   async createPharmacyStock(
     @Args('createPharmacyStockInput')
     createPharmacyStockInput: CreatePharmacyStockInput,
@@ -101,8 +116,8 @@ export class PharmacyStockResolver {
   }
 
   @Mutation(() => PharmacyStock)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.DELETE])
   async deletePharmacyStock(
     @Args('deletePharmacyStockInput')
     deletePharmacyStockInput: DeletePharmacyStockInput,

@@ -31,13 +31,16 @@ export class ItemService {
       }
 
       if (filterArgs) {
-        if (filterArgs.mrpBaseUnit !== null) {
+        if (filterArgs.mrpBaseUnit !== null || filterArgs.mrpBaseUnit !== 0) {
           filterArgs['mrp_base_unit'] = filterArgs.mrpBaseUnit;
           delete filterArgs.mrpBaseUnit;
         } else {
           delete filterArgs.mrpBaseUnit;
         }
-        if (filterArgs.wholeSalePrice !== null) {
+        if (
+          filterArgs.wholeSalePrice !== null ||
+          filterArgs.wholeSalePrice !== 0
+        ) {
           filterArgs['wholesale_price'] = filterArgs.wholeSalePrice;
           delete filterArgs.wholeSalePrice;
         } else {

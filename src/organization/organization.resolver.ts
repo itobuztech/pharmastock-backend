@@ -18,6 +18,9 @@ import { UpdateOrganizationInput } from './dto/update-organization.input';
 import { DeleteOrganizationInput } from './dto/delete-organization.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
+import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { PrivilegesList } from '../privileges/user-privileges';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -34,8 +37,8 @@ export class OrganizationResolver {
     name: 'organizations',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ORGANIZATION_MANAGEMENT.CAPABILITIES.VIEW])
   async findAll(
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
@@ -53,8 +56,8 @@ export class OrganizationResolver {
   }
 
   @Query(() => Organization, { name: 'organizationByName' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ORGANIZATION_MANAGEMENT.CAPABILITIES.VIEW])
   async findOne(@Args('name') name: string): Promise<Organization> {
     try {
       return await this.organizationService.findOne(name);
@@ -64,8 +67,8 @@ export class OrganizationResolver {
   }
 
   @Query(() => Organization, { name: 'organization' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ORGANIZATION_MANAGEMENT.CAPABILITIES.VIEW])
   async findOneById(@Args('id') id: string): Promise<Organization> {
     try {
       return await this.organizationService.findOne(id);
@@ -75,8 +78,8 @@ export class OrganizationResolver {
   }
 
   @Mutation(() => Organization)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ORGANIZATION_MANAGEMENT.CAPABILITIES.CREATE])
   async createOrganization(
     @Args('createOrganizationInput')
     createOrganizationInput: CreateOrganizationInput,
@@ -89,8 +92,8 @@ export class OrganizationResolver {
   }
 
   @Mutation(() => Organization)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ORGANIZATION_MANAGEMENT.CAPABILITIES.EDIT])
   async updateOrganization(
     @Args('updateOrganizationInput')
     updateOrganizationInput: UpdateOrganizationInput,
@@ -104,8 +107,8 @@ export class OrganizationResolver {
   }
 
   @Mutation(() => Organization)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ORGANIZATION_MANAGEMENT.CAPABILITIES.DELETE])
   async deleteOrganization(
     @Args('deleteOrganizationInput')
     deleteOrganizationInput: DeleteOrganizationInput,
