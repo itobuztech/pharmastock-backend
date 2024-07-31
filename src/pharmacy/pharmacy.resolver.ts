@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { PharmacyService } from './pharmacy.service';
 import { CreatePharmacyInput } from './dto/create-pharmacy.input';
@@ -16,8 +17,11 @@ import { Pharmacy } from './entities/pharmacy.entity';
 import { UserRole } from '@prisma/client';
 import { UpdatePharmacyInput } from './dto/update-pharmacy.input';
 import { DeletePharmacyInput } from './dto/delete-pharmacy.input';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
+import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { PrivilegesList } from '../privileges/user-privileges';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -34,15 +38,17 @@ export class PharmacyResolver {
     name: 'pharmacies',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.VIEW])
   async findAll(
+    @Context() ctx: any,
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedPharmacies> {
     try {
       return await this.pharmacyService.findAll(
+        ctx,
         searchText,
         pagination,
         paginationArgs,
@@ -53,8 +59,8 @@ export class PharmacyResolver {
   }
 
   @Query(() => Pharmacy, { name: 'pharmacy' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.VIEW])
   async findOne(@Args('id') id: string): Promise<Pharmacy> {
     try {
       return await this.pharmacyService.findOne(id);
@@ -64,8 +70,8 @@ export class PharmacyResolver {
   }
 
   @Mutation(() => Pharmacy)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.CREATE])
   async createPharmacy(
     @Args('createPharmacyInput')
     createPharmacyInput: CreatePharmacyInput,
@@ -78,8 +84,8 @@ export class PharmacyResolver {
   }
 
   @Mutation(() => Pharmacy)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.EDIT])
   async updatePharmacy(
     @Args('updatePharmacyInput')
     updatePharmacyInput: UpdatePharmacyInput,
@@ -93,8 +99,8 @@ export class PharmacyResolver {
   }
 
   @Mutation(() => Pharmacy)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.DELETE])
   async deletePharmacy(
     @Args('deletePharmacyInput')
     deletePharmacyInput: DeletePharmacyInput,

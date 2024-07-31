@@ -21,6 +21,9 @@ import { DeleteItemCategoryRelationInput } from './dto/delete-item-category-rela
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
 import { FilterItemInputs } from './dto/filter-item.input';
+import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { PrivilegesList } from '../privileges/user-privileges';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -37,8 +40,8 @@ export class ItemResolver {
     name: 'items',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.VIEW])
   async findAll(
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
@@ -58,8 +61,8 @@ export class ItemResolver {
   }
 
   @Query(() => Item, { name: 'item' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.VIEW])
   async findOne(@Args('id') id: string): Promise<Item> {
     try {
       return await this.itemService.findOne(id);
@@ -69,8 +72,8 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.CREATE])
   async createItem(
     @Args('createItemInput')
     createItemInput: CreateItemInput,
@@ -83,8 +86,8 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.EDIT])
   async updateItem(
     @Args('updateItemInput')
     updateItemInput: UpdateItemInput,
@@ -98,8 +101,8 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.DELETE])
   async deleteItem(
     @Args('deleteItemInput')
     deleteItemInput: DeleteItemInput,
@@ -111,19 +114,4 @@ export class ItemResolver {
       throw new BadRequestException(error);
     }
   }
-
-  // @Mutation(() => ItemCategoryRelation)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(UserRole.ADMIN)
-  // async deleteItemCategoryRelation(
-  //   @Args('deleteItemCategoryRelationInput')
-  //   deleteItemCategoryRelationInput: DeleteItemCategoryRelationInput,
-  // ) {
-  //   try {
-  //     const { id } = deleteItemCategoryRelationInput;
-  //     return await this.itemService.deleteItemCategoryRelation(id);
-  //   } catch (error) {
-  //     throw new BadRequestException(error);
-  //   }
-  // }
 }

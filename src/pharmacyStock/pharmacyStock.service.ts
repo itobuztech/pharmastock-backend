@@ -8,6 +8,7 @@ import { StockMovementService } from '../stockMovement/stockMovement.service';
 import { CreateStockMovementInput } from 'src/stockMovement/dto/create-stockMovement.input';
 import { PharmacyStockSearchObject } from '../types/extended-types';
 import { FilterPharmacyStockInputs } from './dto/filter-pharmacyStock.input';
+import { AccountService } from '../account/account.service';
 
 @Injectable()
 export class PharmacyStockService {
@@ -15,9 +16,11 @@ export class PharmacyStockService {
     private prisma: PrismaService,
     private readonly logger: Logger,
     private readonly stockMovementService: StockMovementService,
+    private readonly accountService: AccountService,
   ) {}
 
   async findAll(
+    ctx,
     searchText?: string,
     pagination?: Boolean,
     paginationArgs?: PaginationArgs,
@@ -25,7 +28,17 @@ export class PharmacyStockService {
   ): Promise<{ pharmacyStocks: PharmacyStock[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.PharmacyStockWhereInput = { status: true };
+      const loggedinUser = await this.accountService.findOne(ctx);
+      const loggedinUserRole = loggedinUser?.role;
+      const organizationId = loggedinUser?.user?.organizationId;
+
+      let whereClause: Prisma.PharmacyStockWhereInput = {
+        status: true,
+      };
+
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        whereClause['organizationId'] = organizationId;
+      }
 
       if (searchText) {
         whereClause.OR = [

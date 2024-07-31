@@ -8,15 +8,21 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { StockMovement } from './entities/stockMovement.entity';
 import { UserRole } from '@prisma/client';
 import { DeleteStockMovementInput } from './dto/delete-stockMovement.input';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { PrivilegesList } from '../privileges/user-privileges';
 
 @Resolver(() => StockMovement)
 export class StockMovementResolver {
   constructor(private readonly stockMovementService: StockMovementService) {}
 
   @Query(() => [StockMovement], { name: 'stockMovements', nullable: true })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async findAll(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<StockMovement[]> {
@@ -28,8 +34,11 @@ export class StockMovementResolver {
   }
 
   @Query(() => StockMovement, { name: 'stockMovement' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async findOne(@Args('id') id: string): Promise<StockMovement> {
     try {
       return await this.stockMovementService.findOne(id);
@@ -39,8 +48,11 @@ export class StockMovementResolver {
   }
 
   @Mutation(() => StockMovement)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE,
+  ])
   async createStockMovement(
     @Args('createStockMovementInput')
     createStockMovementInput: CreateStockMovementInput,

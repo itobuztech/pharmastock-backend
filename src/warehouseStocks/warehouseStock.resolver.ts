@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { WarehouseStockService } from './warehouseStock.service';
 import { CreateWarehouseStockInput } from './dto/create-warehouseStock.input';
@@ -21,6 +22,10 @@ import { CreateSkuNameInput } from './dto/create-skuName.input';
 import { GenerateSku } from './entities/generate-sku.entity';
 import { Sku } from './entities/sku.entity';
 import { FilterWarehouseStockInputs } from './dto/filter-warehouseStock.input';
+import { PermissionsGuardOR } from 'src/auth/guards/permissions-or.guard';
+import { PrivilegesList } from 'src/privileges/user-privileges';
+import { Permissions } from 'src/auth/decorators/permissions.decorator';
+import { AccountService } from '../account/account.service';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -31,15 +36,22 @@ class PaginatedWarehouseStocks extends TotalCount {
 
 @Resolver(() => WarehouseStock)
 export class WarehouseStockResolver {
-  constructor(private readonly warehouseStockService: WarehouseStockService) {}
+  constructor(
+    private readonly warehouseStockService: WarehouseStockService,
+    private readonly accountService: AccountService,
+  ) {}
 
   @Query(() => PaginatedWarehouseStocks, {
     name: 'warehouseStocks',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async findAll(
+    @Context() ctx: any,
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
@@ -48,6 +60,7 @@ export class WarehouseStockResolver {
   ): Promise<PaginatedWarehouseStocks> {
     try {
       return await this.warehouseStockService.findAll(
+        ctx,
         searchText,
         pagination,
         paginationArgs,
@@ -62,8 +75,11 @@ export class WarehouseStockResolver {
     name: 'warehouseStocksByWarehouse',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async findAllByWarehouseId(
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
     @Args('warehouseId') warehouseId: string,
@@ -79,8 +95,11 @@ export class WarehouseStockResolver {
   }
 
   @Query(() => WarehouseStock, { name: 'warehouseStock' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async findOne(@Args('id') id: string): Promise<WarehouseStock> {
     try {
       return await this.warehouseStockService.findOne(id);
@@ -90,8 +109,11 @@ export class WarehouseStockResolver {
   }
 
   @Query(() => Sku, { name: 'sku' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async getSkuByOrgWarhItem(
     @Args('itemId') itemId: string,
     @Args('warehouseId') warehouseId: string,
@@ -109,8 +131,8 @@ export class WarehouseStockResolver {
   }
 
   @Mutation(() => WarehouseStock)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE])
   async createWarehouseStock(
     @Args('createWarehouseStockInput')
     createWarehouseStockInput: CreateWarehouseStockInput,
@@ -123,8 +145,8 @@ export class WarehouseStockResolver {
   }
 
   @Mutation(() => GenerateSku)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.EDIT])
   async generateSKU(
     @Args('generateSkuNameInput')
     createSkuNameInput: CreateSkuNameInput,
@@ -137,8 +159,8 @@ export class WarehouseStockResolver {
   }
 
   @Mutation(() => WarehouseStock)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.DELETE])
   async deleteWarehouseStock(
     @Args('deleteWarehouseStockInput')
     deleteWarehouseStockInput: DeleteWarehouseStockInput,

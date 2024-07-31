@@ -4,19 +4,35 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, Warehouse } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { WarehouseSearchObject } from '../types/extended-types';
+import { AccountService } from '../account/account.service';
 
 @Injectable()
 export class WarehouseService {
-  constructor(private prisma: PrismaService, private readonly logger: Logger) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly logger: Logger,
+    private readonly accountService: AccountService,
+  ) {}
 
   async findAll(
+    ctx,
     searchText?: string,
     pagination?: Boolean,
     paginationArgs?: PaginationArgs,
   ): Promise<{ warehouses: Warehouse[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.WarehouseWhereInput = { status: true };
+      const loggedinUser = await this.accountService.findOne(ctx);
+      const loggedinUserRole = loggedinUser?.role;
+      const organizationId = loggedinUser?.user?.organizationId;
+
+      let whereClause: Prisma.WarehouseWhereInput = {
+        status: true,
+      };
+
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        whereClause['organizationId'] = organizationId;
+      }
 
       if (searchText) {
         whereClause = {

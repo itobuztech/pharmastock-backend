@@ -69,6 +69,8 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.CREATE])
   create(
     @Args('createUserInput') createUserInput: CreateUserInput,
   ): Promise<User> {

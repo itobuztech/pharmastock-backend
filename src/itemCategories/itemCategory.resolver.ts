@@ -18,6 +18,9 @@ import { UpdateItemCategoryInput } from './dto/update-itemCategory.input';
 import { DeleteItemCategoryInput } from './dto/delete-itemCategory.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
+import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
+import { PrivilegesList } from '../privileges/user-privileges';
+import { Permissions } from '../auth/decorators/permissions.decorator';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -34,8 +37,8 @@ export class ItemCategoryResolver {
     name: 'itemCategories',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_CATEGORIES_MANAGEMENT.CAPABILITIES.VIEW])
   async findAll(
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
@@ -53,8 +56,8 @@ export class ItemCategoryResolver {
   }
 
   @Query(() => ItemCategory, { name: 'itemCategory' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_CATEGORIES_MANAGEMENT.CAPABILITIES.VIEW])
   async findOne(@Args('id') id: string): Promise<ItemCategory> {
     try {
       return await this.itemCategoryService.findOne(id);
@@ -64,8 +67,8 @@ export class ItemCategoryResolver {
   }
 
   @Mutation(() => ItemCategory)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_CATEGORIES_MANAGEMENT.CAPABILITIES.CREATE])
   async createItemCategory(
     @Args('createItemCategoryInput')
     createItemCategoryInput: CreateItemCategoryInput,
@@ -78,8 +81,8 @@ export class ItemCategoryResolver {
   }
 
   @Mutation(() => ItemCategory)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_CATEGORIES_MANAGEMENT.CAPABILITIES.EDIT])
   async updateItemCategory(
     @Args('updateItemCategoryInput')
     updateItemCategoryInput: UpdateItemCategoryInput,
@@ -93,8 +96,8 @@ export class ItemCategoryResolver {
   }
 
   @Mutation(() => ItemCategory)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_CATEGORIES_MANAGEMENT.CAPABILITIES.DELETE])
   async deleteItemCategory(
     @Args('deleteItemCategoryInput')
     deleteItemCategoryInput: DeleteItemCategoryInput,

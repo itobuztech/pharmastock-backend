@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { WarehouseService } from './warehouse.service';
 import { CreateWarehouseInput } from './dto/create-warehouse.input';
@@ -18,6 +19,9 @@ import { UpdateWarehouseInput } from './dto/update-warehouse.input';
 import { DeleteWarehouseInput } from './dto/delete-warehouse.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
+import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { PrivilegesList } from '../privileges/user-privileges';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -31,15 +35,17 @@ export class WarehouseResolver {
   constructor(private readonly warehouseService: WarehouseService) {}
 
   @Query(() => PaginatedWarehouses, { name: 'warehouses', nullable: true })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.VIEW])
   async findAll(
+    @Context() ctx: any,
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedWarehouses> {
     try {
       return await this.warehouseService.findAll(
+        ctx,
         searchText,
         pagination,
         paginationArgs,
@@ -50,8 +56,8 @@ export class WarehouseResolver {
   }
 
   @Query(() => Warehouse, { name: 'warehouse' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.VIEW])
   async findOne(@Args('id') id: string): Promise<Warehouse> {
     try {
       return await this.warehouseService.findOne(id);
@@ -61,8 +67,8 @@ export class WarehouseResolver {
   }
 
   @Mutation(() => Warehouse)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.CREATE])
   async createWarehouse(
     @Args('createWarehouseInput')
     createWarehouseInput: CreateWarehouseInput,
@@ -75,8 +81,8 @@ export class WarehouseResolver {
   }
 
   @Mutation(() => Warehouse)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.EDIT])
   async updateWarehouse(
     @Args('updateWarehouseInput')
     updateWarehouseInput: UpdateWarehouseInput,
@@ -90,8 +96,8 @@ export class WarehouseResolver {
   }
 
   @Mutation(() => Warehouse)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.DELETE])
   async deleteWarehouse(
     @Args('deleteWarehouseInput')
     deleteWarehouseInput: DeleteWarehouseInput,
