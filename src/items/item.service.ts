@@ -31,14 +31,14 @@ export class ItemService {
       }
 
       if (filterArgs) {
-        if (filterArgs.mrpBaseUnit !== null || filterArgs.mrpBaseUnit !== 0) {
+        if (filterArgs.mrpBaseUnit !== null && filterArgs.mrpBaseUnit !== 0) {
           filterArgs['mrp_base_unit'] = filterArgs.mrpBaseUnit;
           delete filterArgs.mrpBaseUnit;
         } else {
           delete filterArgs.mrpBaseUnit;
         }
         if (
-          filterArgs.wholeSalePrice !== null ||
+          filterArgs.wholeSalePrice !== null &&
           filterArgs.wholeSalePrice !== 0
         ) {
           filterArgs['wholesale_price'] = filterArgs.wholeSalePrice;
@@ -49,9 +49,12 @@ export class ItemService {
         if (filterArgs.baseUnit === null) {
           delete filterArgs.baseUnit;
         }
+        console.log('filterArgs=', filterArgs);
 
         const filterConditions = Object.keys(filterArgs).map((key) => {
           const value = filterArgs[key];
+          console.log('value=', value);
+
           return typeof value === 'number'
             ? { [key]: { lte: value } }
             : { [key]: value };
@@ -76,9 +79,8 @@ export class ItemService {
         where: whereClause,
         include: {
           ItemCategoryRelation: {
-            where: { status: true },
             include: {
-              itemCategory: { where: { status: true } },
+              itemCategory: true,
             },
           },
         },
@@ -90,9 +92,8 @@ export class ItemService {
           where: whereClause,
           include: {
             ItemCategoryRelation: {
-              where: { status: true },
               include: {
-                itemCategory: { where: { status: true } },
+                itemCategory: true,
               },
             },
           },
@@ -103,14 +104,11 @@ export class ItemService {
 
       if (items) {
         items.forEach((it, i) => {
-          if (
-            it.ItemCategoryRelation &&
-            it.ItemCategoryRelation[i].status === true
-          ) {
+          if (it.ItemCategoryRelation) {
             const relationArr = it.ItemCategoryRelation;
             const categories = [];
             relationArr.forEach((rel) => {
-              categories.push(rel.itemCategory);
+              if (rel.status === true) categories.push(rel.itemCategory);
             });
             it.Category = categories;
           }
@@ -130,9 +128,8 @@ export class ItemService {
       },
       include: {
         ItemCategoryRelation: {
-          where: { status: true },
           include: {
-            itemCategory: { where: { status: true } },
+            itemCategory: true,
           },
         },
       },
@@ -396,7 +393,7 @@ export class ItemService {
         },
         data: { status: false },
         include: {
-          ItemCategoryRelation: { where: { status: true } },
+          ItemCategoryRelation: true,
         },
       });
 

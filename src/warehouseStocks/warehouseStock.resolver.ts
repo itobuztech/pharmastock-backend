@@ -81,13 +81,24 @@ export class WarehouseStockResolver {
     PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
   ])
   async findAllByWarehouseId(
-    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
-    @Args('warehouseId') warehouseId: string,
+    @Context() ctx: any,
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('pagination', { nullable: true }) pagination: Boolean,
+    @Args('filterArgs', { nullable: true })
+    filterArgs: FilterWarehouseStockInputs,
+    @Args('paginationArgs', { nullable: true })
+    paginationArgs: PaginationArgs,
+    @Args('warehouseId')
+    warehouseId: string,
   ): Promise<PaginatedWarehouseStocks> {
     try {
       return await this.warehouseStockService.findAllByWarehouseId(
+        ctx,
         warehouseId,
+        searchText,
+        pagination,
         paginationArgs,
+        filterArgs,
       );
     } catch (e) {
       throw new BadRequestException(e);

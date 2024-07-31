@@ -56,8 +56,8 @@ export class WarehouseService {
       let searchObject: WarehouseSearchObject = {
         where: whereClause,
         include: {
-          organization: { where: { status: true } },
-          admin: { where: { status: true } },
+          organization: true,
+          admin: true,
         },
       };
       if (pagination) {
@@ -66,8 +66,8 @@ export class WarehouseService {
           take,
           where: whereClause,
           include: {
-            organization: { where: { status: true } },
-            admin: { where: { status: true } },
+            organization: true,
+            admin: true,
           },
         };
       }
@@ -86,8 +86,8 @@ export class WarehouseService {
         id,
       },
       include: {
-        organization: { where: { status: true } },
-        admin: { where: { status: true } },
+        organization: true,
+        admin: true,
       },
     });
 
@@ -139,8 +139,8 @@ export class WarehouseService {
       const warehouse = await this.prisma.warehouse.create({
         data,
         include: {
-          organization: { where: { status: true } },
-          admin: { where: { status: true } },
+          organization: true,
+          admin: true,
         },
       });
 
@@ -178,8 +178,8 @@ export class WarehouseService {
       },
       data,
       include: {
-        organization: { where: { status: true } },
-        admin: { where: { status: true } },
+        organization: true,
+        admin: true,
       },
     });
 

@@ -36,12 +36,11 @@ export class ItemCategoryService {
         },
         include: {
           ItemCategoryRelation: {
-            where: { status: true },
             include: {
-              item: { where: { status: true } },
+              item: true,
             },
           },
-          parent: { where: { status: true } },
+          parent: true,
         },
       };
       if (pagination) {
@@ -57,12 +56,11 @@ export class ItemCategoryService {
           },
           include: {
             ItemCategoryRelation: {
-              where: { status: true },
               include: {
-                item: { where: { status: true } },
+                item: true,
               },
             },
-            parent: { where: { status: true } },
+            parent: true,
           },
         };
       }
@@ -77,7 +75,7 @@ export class ItemCategoryService {
             const relationArr = ic.ItemCategoryRelation;
             const items = [];
             relationArr.forEach((rel) => {
-              items.push(rel.item);
+              if (rel.status === true) items.push(rel.item);
             });
             ic.Item = items;
           }
@@ -100,12 +98,11 @@ export class ItemCategoryService {
       },
       include: {
         ItemCategoryRelation: {
-          where: { status: true },
           include: {
-            item: { where: { status: true } },
+            item: true,
           },
         },
-        parent: { where: { status: true } },
+        parent: true,
       },
     });
 
@@ -186,7 +183,7 @@ export class ItemCategoryService {
         },
         data: { status: false },
         include: {
-          ItemCategoryRelation: { where: { status: true } },
+          ItemCategoryRelation: true,
         },
       });
 

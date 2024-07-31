@@ -56,7 +56,7 @@ export class PharmacyService {
       let searchObject: PharmacySearchObject = {
         where: whereClause,
         include: {
-          organization: { where: { status: true } },
+          organization: true,
         },
       };
       if (pagination) {
@@ -65,7 +65,7 @@ export class PharmacyService {
           take,
           where: whereClause,
           include: {
-            organization: { where: { status: true } },
+            organization: true,
           },
         };
       }
@@ -84,7 +84,7 @@ export class PharmacyService {
         id,
       },
       include: {
-        organization: { where: { status: true } },
+        organization: true,
       },
     });
 
@@ -148,7 +148,7 @@ export class PharmacyService {
       const pharmacy = await this.prisma.pharmacy.create({
         data,
         include: {
-          organization: { where: { status: true } },
+          organization: true,
         },
       });
 
@@ -224,7 +224,7 @@ export class PharmacyService {
         id,
       },
       data,
-      include: { organization: { where: { status: true } } },
+      include: { organization: true },
     });
 
     if (!pharmacy) {
