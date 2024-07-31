@@ -173,20 +173,112 @@ export class WarehouseStockService {
   }
 
   async findAllByWarehouseId(
+    ctx,
     warehouseId: string,
+    searchText?: string,
+    pagination?: Boolean,
     paginationArgs?: PaginationArgs,
+    filterArgs?: FilterPharmacyStockInputs,
   ): Promise<{ warehouseStocks: WarehouseStock[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.warehouseStock.count();
-      const warehouseStocks = await this.prisma.warehouseStock.findMany({
-        where: {
-          warehouseId: warehouseId,
-        },
-        skip,
-        take,
+      const loggedinUser = await this.accountService.findOne(ctx);
+      const loggedinUserRole = loggedinUser?.role;
+      const organizationId = loggedinUser?.user?.organizationId;
+
+      let whereClause: Prisma.WarehouseStockWhereInput = {
+        status: true,
+        warehouseId,
+      };
+
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        whereClause['organizationId'] = organizationId;
+      }
+
+      if (searchText) {
+        whereClause.OR = [
+          {
+            warehouse: {
+              name: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+          {
+            SKU: {
+              sku: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+          {
+            item: {
+              name: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+        ];
+      }
+
+      if (filterArgs) {
+        // Prepare filter conditions
+        const filterConditions: Prisma.WarehouseStockWhereInput[] = [];
+
+        // Add quantity filter if provided
+        if (filterArgs.qty) {
+          filterConditions.push({
+            final_qty: { lte: filterArgs.qty },
+          });
+        }
+
+        // Add date range filter if provided
+        if (filterArgs.startDate && filterArgs.endDate) {
+          filterConditions.push({
+            OR: [
+              {
+                createdAt: {
+                  gte: filterArgs.startDate,
+                  lte: filterArgs.endDate,
+                },
+              },
+              {
+                updatedAt: {
+                  gte: filterArgs.startDate,
+                  lte: filterArgs.endDate,
+                },
+              },
+            ],
+          });
+        }
+
+        // Map remaining filter arguments
+        Object.keys(filterArgs).forEach((key) => {
+          if (key !== 'startDate' && key !== 'endDate' && key !== 'qty') {
+            const value = filterArgs[key];
+            filterConditions.push({
+              [key]: typeof value === 'number' ? { lte: value } : value,
+            });
+          }
+        });
+
+        // Combine search and filter conditions
+        if (whereClause.OR) {
+          whereClause = {
+            AND: [{ OR: whereClause.OR }, ...filterConditions],
+          };
+        } else {
+          whereClause = {
+            AND: filterConditions,
+          };
+        }
+      }
+
+      const totalCount = await this.prisma.warehouseStock.count({
+        where: whereClause,
+      });
+
+      let searchObject: WarehouseStockSearchObject = {
+        where: whereClause,
         include: {
           warehouse: {
+            where: {
+              status: true,
+            },
             include: {
               organization: true,
             },
@@ -194,9 +286,29 @@ export class WarehouseStockService {
           item: true,
           SKU: true,
         },
-      });
+      };
+      if (pagination) {
+        searchObject = {
+          skip,
+          take,
+          where: whereClause,
+          include: {
+            warehouse: {
+              include: {
+                organization: true,
+              },
+            },
+            item: true,
+            SKU: true,
+          },
+        };
+      }
 
-      warehouseStocks.forEach((wS) => {
+      const warehouseStocks = await this.prisma.warehouseStock.findMany(
+        searchObject,
+      );
+
+      warehouseStocks.forEach((wS: any) => {
         const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
         const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
 
@@ -208,6 +320,37 @@ export class WarehouseStockService {
     } catch (error) {
       throw error;
     }
+    // try {
+    //   const totalCount = await this.prisma.warehouseStock.count();
+    //   const warehouseStocks = await this.prisma.warehouseStock.findMany({
+    //     where: {
+    //       warehouseId: warehouseId,
+    //     },
+    //     skip,
+    //     take,
+    //     include: {
+    //       warehouse: {
+    //         include: {
+    //           organization: true,
+    //         },
+    //       },
+    //       item: true,
+    //       SKU: true,
+    //     },
+    //   });
+
+    //   warehouseStocks.forEach((wS) => {
+    //     const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
+    //     const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
+
+    //     wS['totalMrpBaseUnit'] = finalMrp_base_unit;
+    //     wS['totalWholesalePrice'] = finalWholesale_price;
+    //   });
+
+    //   return { warehouseStocks, total: totalCount };
+    // } catch (error) {
+    //   throw error;
+    // }
   }
 
   async findOne(id: string): Promise<WarehouseStock> {

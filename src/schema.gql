@@ -366,7 +366,7 @@ type Query {
   warehouse(id: String!): Warehouse!
   warehouseStock(id: String!): WarehouseStock!
   warehouseStocks(filterArgs: FilterWarehouseStockInputs, pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedWarehouseStocks
-  warehouseStocksByWarehouse(paginationArgs: PaginationArgs, warehouseId: String!): PaginatedWarehouseStocks
+  warehouseStocksByWarehouse(filterArgs: FilterWarehouseStockInputs, pagination: Boolean, paginationArgs: PaginationArgs, searchText: String, warehouseId: String!): PaginatedWarehouseStocks
   warehouses(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedWarehouses
 }
 
