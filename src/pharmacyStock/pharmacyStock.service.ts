@@ -108,8 +108,6 @@ export class PharmacyStockService {
         }
       }
 
-      console.log('whereClause=', whereClause);
-
       let searchObject: PharmacyStockSearchObject = {
         where: whereClause,
         include: {
@@ -131,12 +129,9 @@ export class PharmacyStockService {
         };
       }
 
-      console.log('searchObject=', searchObject);
-
       let pharmacyStocks: any = await this.prisma.pharmacyStock.findMany(
         searchObject,
       );
-      console.log('pharmacyStocks=', pharmacyStocks);
 
       // Add organizationId if the user is not SUPERADMIN
       if (loggedinUserRole !== 'SUPERADMIN') {
@@ -145,14 +140,24 @@ export class PharmacyStockService {
         );
 
         pharmacyStocksFinal.forEach((pS: any) => {
-          const finalMrp_base_unit = pS.item.mrp_base_unit * pS.final_qty;
-          const finalWholesale_price = pS.item.wholesale_price * pS.final_qty;
+          const finalMrp_base_unit = pS?.item?.mrp_base_unit * pS?.final_qty;
+          const finalWholesale_price =
+            pS?.item?.wholesale_price * pS?.final_qty;
 
           pS['totalMrpBaseUnit'] = finalMrp_base_unit;
           pS['totalWholesalePrice'] = finalWholesale_price;
         });
 
         pharmacyStocks = pharmacyStocksFinal;
+      } else {
+        pharmacyStocks.forEach((pS: any) => {
+          const finalMrp_base_unit = pS?.item?.mrp_base_unit * pS?.final_qty;
+          const finalWholesale_price =
+            pS?.item?.wholesale_price * pS?.final_qty;
+
+          pS['totalMrpBaseUnit'] = finalMrp_base_unit;
+          pS['totalWholesalePrice'] = finalWholesale_price;
+        });
       }
 
       return { pharmacyStocks, total: pharmacyStocks.length };
