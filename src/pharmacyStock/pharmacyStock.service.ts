@@ -36,10 +36,6 @@ export class PharmacyStockService {
         status: true,
       };
 
-      if (loggedinUserRole !== 'SUPERADMIN') {
-        whereClause['organizationId'] = organizationId;
-      }
-
       if (searchText) {
         whereClause.OR = [
           {
@@ -61,7 +57,6 @@ export class PharmacyStockService {
       }
 
       if (filterArgs) {
-        // Prepare filter conditions
         const filterConditions: Prisma.PharmacyStockWhereInput[] = [];
 
         // Add quantity filter if provided
@@ -101,21 +96,19 @@ export class PharmacyStockService {
           }
         });
 
-        // Combine search and filter conditions
+        // Combine base conditions with search and filter conditions
         if (whereClause.OR) {
           whereClause = {
-            AND: [{ OR: whereClause.OR }, ...filterConditions],
+            AND: [whereClause, ...filterConditions],
           };
         } else {
           whereClause = {
-            AND: filterConditions,
+            AND: [whereClause, ...filterConditions],
           };
         }
       }
 
-      const totalCount = await this.prisma.pharmacyStock.count({
-        where: whereClause,
-      });
+      console.log('whereClause=', whereClause);
 
       let searchObject: PharmacyStockSearchObject = {
         where: whereClause,
@@ -138,19 +131,31 @@ export class PharmacyStockService {
         };
       }
 
-      const pharmacyStocks = await this.prisma.pharmacyStock.findMany(
+      console.log('searchObject=', searchObject);
+
+      let pharmacyStocks: any = await this.prisma.pharmacyStock.findMany(
         searchObject,
       );
+      console.log('pharmacyStocks=', pharmacyStocks);
 
-      pharmacyStocks.forEach((pS: any) => {
-        const finalMrp_base_unit = pS.item.mrp_base_unit * pS.final_qty;
-        const finalWholesale_price = pS.item.wholesale_price * pS.final_qty;
+      // Add organizationId if the user is not SUPERADMIN
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        const pharmacyStocksFinal = pharmacyStocks.filter(
+          (pS, i) => pS?.warehouse?.organization?.id === organizationId,
+        );
 
-        pS['totalMrpBaseUnit'] = finalMrp_base_unit;
-        pS['totalWholesalePrice'] = finalWholesale_price;
-      });
+        pharmacyStocksFinal.forEach((pS: any) => {
+          const finalMrp_base_unit = pS.item.mrp_base_unit * pS.final_qty;
+          const finalWholesale_price = pS.item.wholesale_price * pS.final_qty;
 
-      return { pharmacyStocks, total: totalCount };
+          pS['totalMrpBaseUnit'] = finalMrp_base_unit;
+          pS['totalWholesalePrice'] = finalWholesale_price;
+        });
+
+        pharmacyStocks = pharmacyStocksFinal;
+      }
+
+      return { pharmacyStocks, total: pharmacyStocks.length };
     } catch (error) {
       throw error;
     }

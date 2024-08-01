@@ -41,10 +41,6 @@ export class WarehouseStockService {
         status: true,
       };
 
-      if (loggedinUserRole !== 'SUPERADMIN') {
-        whereClause['organizationId'] = organizationId;
-      }
-
       if (searchText) {
         whereClause.OR = [
           {
@@ -66,7 +62,6 @@ export class WarehouseStockService {
       }
 
       if (filterArgs) {
-        // Prepare filter conditions
         const filterConditions: Prisma.WarehouseStockWhereInput[] = [];
 
         // Add quantity filter if provided
@@ -106,29 +101,23 @@ export class WarehouseStockService {
           }
         });
 
-        // Combine search and filter conditions
+        // Combine base conditions with search and filter conditions
         if (whereClause.OR) {
           whereClause = {
-            AND: [{ OR: whereClause.OR }, ...filterConditions],
+            AND: [whereClause, ...filterConditions],
           };
         } else {
           whereClause = {
-            AND: filterConditions,
+            AND: [whereClause, ...filterConditions],
           };
         }
       }
 
-      const totalCount = await this.prisma.warehouseStock.count({
-        where: whereClause,
-      });
-
+      console.log('whereClause=', whereClause);
       let searchObject: WarehouseStockSearchObject = {
         where: whereClause,
         include: {
           warehouse: {
-            where: {
-              status: true,
-            },
             include: {
               organization: true,
             },
@@ -154,19 +143,31 @@ export class WarehouseStockService {
         };
       }
 
-      const warehouseStocks = await this.prisma.warehouseStock.findMany(
+      console.log('searchObject=', searchObject);
+
+      let warehouseStocks: any = await this.prisma.warehouseStock.findMany(
         searchObject,
       );
 
-      warehouseStocks.forEach((wS: any) => {
-        const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
-        const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
+      // Add organizationId if the user is not SUPERADMIN
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        const warehouseStocksFinal = warehouseStocks.filter(
+          (wS, i) => wS?.warehouse?.organization?.id === organizationId,
+        );
 
-        wS['totalMrpBaseUnit'] = finalMrp_base_unit;
-        wS['totalWholesalePrice'] = finalWholesale_price;
-      });
+        warehouseStocksFinal.forEach((wS: any) => {
+          const finalMrp_base_unit = wS?.item?.mrp_base_unit * wS?.final_qty;
+          const finalWholesale_price =
+            wS?.item?.wholesale_price * wS?.final_qty;
 
-      return { warehouseStocks, total: totalCount };
+          wS['totalMrpBaseUnit'] = finalMrp_base_unit;
+          wS['totalWholesalePrice'] = finalWholesale_price;
+        });
+
+        warehouseStocks = warehouseStocksFinal;
+      }
+
+      return { warehouseStocks, total: warehouseStocks.length };
     } catch (error) {
       throw error;
     }
@@ -191,10 +192,6 @@ export class WarehouseStockService {
         warehouseId,
       };
 
-      if (loggedinUserRole !== 'SUPERADMIN') {
-        whereClause['organizationId'] = organizationId;
-      }
-
       if (searchText) {
         whereClause.OR = [
           {
@@ -216,7 +213,6 @@ export class WarehouseStockService {
       }
 
       if (filterArgs) {
-        // Prepare filter conditions
         const filterConditions: Prisma.WarehouseStockWhereInput[] = [];
 
         // Add quantity filter if provided
@@ -256,14 +252,14 @@ export class WarehouseStockService {
           }
         });
 
-        // Combine search and filter conditions
+        // Combine base conditions with search and filter conditions
         if (whereClause.OR) {
           whereClause = {
-            AND: [{ OR: whereClause.OR }, ...filterConditions],
+            AND: [whereClause, ...filterConditions],
           };
         } else {
           whereClause = {
-            AND: filterConditions,
+            AND: [whereClause, ...filterConditions],
           };
         }
       }
@@ -304,53 +300,31 @@ export class WarehouseStockService {
         };
       }
 
-      const warehouseStocks = await this.prisma.warehouseStock.findMany(
+      let warehouseStocks: any = await this.prisma.warehouseStock.findMany(
         searchObject,
       );
 
-      warehouseStocks.forEach((wS: any) => {
-        const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
-        const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
+      // Add organizationId if the user is not SUPERADMIN
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        const warehouseStocksFinal = warehouseStocks.filter(
+          (wS, i) => wS.warehouse.organization.id === organizationId,
+        );
 
-        wS['totalMrpBaseUnit'] = finalMrp_base_unit;
-        wS['totalWholesalePrice'] = finalWholesale_price;
-      });
+        warehouseStocksFinal.forEach((wS: any) => {
+          const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
+          const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
 
-      return { warehouseStocks, total: totalCount };
+          wS['totalMrpBaseUnit'] = finalMrp_base_unit;
+          wS['totalWholesalePrice'] = finalWholesale_price;
+        });
+
+        warehouseStocks = warehouseStocksFinal;
+      }
+
+      return { warehouseStocks, total: warehouseStocks.length };
     } catch (error) {
       throw error;
     }
-    // try {
-    //   const totalCount = await this.prisma.warehouseStock.count();
-    //   const warehouseStocks = await this.prisma.warehouseStock.findMany({
-    //     where: {
-    //       warehouseId: warehouseId,
-    //     },
-    //     skip,
-    //     take,
-    //     include: {
-    //       warehouse: {
-    //         include: {
-    //           organization: true,
-    //         },
-    //       },
-    //       item: true,
-    //       SKU: true,
-    //     },
-    //   });
-
-    //   warehouseStocks.forEach((wS) => {
-    //     const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
-    //     const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
-
-    //     wS['totalMrpBaseUnit'] = finalMrp_base_unit;
-    //     wS['totalWholesalePrice'] = finalWholesale_price;
-    //   });
-
-    //   return { warehouseStocks, total: totalCount };
-    // } catch (error) {
-    //   throw error;
-    // }
   }
 
   async findOne(id: string): Promise<WarehouseStock> {
