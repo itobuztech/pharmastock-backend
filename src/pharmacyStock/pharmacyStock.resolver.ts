@@ -22,6 +22,8 @@ import { FilterPharmacyStockInputs } from './dto/filter-pharmacyStock.input';
 import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
+import { ClearancePharmacyStockInput } from './dto/clearance-pharmacyStock.input';
+import { ClearancePharmacyStock } from './entities/clearancePharmacyStock.entity';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -113,6 +115,24 @@ export class PharmacyStockResolver {
   ): Promise<PharmacyStock> {
     try {
       return await this.PharmacyStockService.create(createPharmacyStockInput);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  @Mutation(() => [ClearancePharmacyStock])
+  // @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  // @Permissions([PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE])
+  async clearancePharmacyStock(
+    @Args('clearancePharmacyStockInput', {
+      type: () => [ClearancePharmacyStockInput],
+    })
+    clearancePharmacyStockInput: ClearancePharmacyStockInput[],
+  ): Promise<ClearancePharmacyStock[]> {
+    try {
+      return await this.PharmacyStockService.clearancePharmacyStock(
+        clearancePharmacyStockInput,
+      );
     } catch (error) {
       throw new BadRequestException(error);
     }

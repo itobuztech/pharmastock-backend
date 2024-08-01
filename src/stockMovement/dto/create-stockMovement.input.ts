@@ -11,6 +11,9 @@ export class CreateStockMovementInput {
   @Field({ nullable: true })
   pharmacyStockId?: string;
 
+  @Field({ nullable: true })
+  pharmacyStockClearanceId?: string;
+
   @Field()
   qty: number;
 
