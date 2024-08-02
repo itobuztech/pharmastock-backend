@@ -6,32 +6,52 @@ import { UsersService } from '../users/users.service';
 import { UpdateProfileInput } from './dto/update-profile.input';
 @Injectable()
 export class AccountService {
-    constructor(
-        private prisma: PrismaService,
-        private readonly usersService: UsersService,
-        private readonly logger: Logger,
-    ) { }
+  constructor(
+    private prisma: PrismaService,
+    private readonly usersService: UsersService,
+    private readonly logger: Logger,
+  ) {}
 
-    async findOne(ctx: any): Promise<any> {
-        const user = await this.usersService.findOneById(ctx.req.user.userId);
-        const { password, ...result } = user;
-        return { user: result, role: result?.role.userType };
+  async findOne(ctx: any): Promise<any> {
+    const user = await this.usersService.findOneById(ctx.req.user.userId);
+    const { password, ...result } = user;
+    return { user: result, role: result?.role.userType };
+  }
+
+  async resetPassword(
+    ctx: any,
+    resetPasswordInput: ResetPasswordInput,
+  ): Promise<boolean> {
+    const user = await this.usersService.findOneById(ctx.req.user.userId);
+    const { password, ...result } = user;
+
+    if (resetPasswordInput.newPassword !== resetPasswordInput.confirmPassword) {
+      throw new BadRequestException("New and Confirm password doesn't match");
     }
 
-    async resetPassword(ctx: any, resetPasswordInput: ResetPasswordInput): Promise<boolean> {
-        const user = await this.usersService.findOneById(ctx.req.user.userId);
-        const { password, ...result } = user;
+    const newPassword = await bcrypt.hash(resetPasswordInput.newPassword, 10);
+    const match = await bcrypt.compare(
+      resetPasswordInput.oldPassword,
+      password,
+    );
 
-        const newPassword = await bcrypt.hash(resetPasswordInput.newPassword, 10);
-        const match = await bcrypt.compare(resetPasswordInput.oldPassword, password);
-        if (match) await this.usersService.updateUser(ctx.req.user.userId, { password: newPassword });
-        else throw new BadRequestException("Password doesn't match");
+    if (match)
+      await this.usersService.updateUser(ctx.req.user.userId, {
+        password: newPassword,
+      });
+    else throw new BadRequestException("Password doesn't match");
 
-        return true;
-    }
+    return true;
+  }
 
-    async update(ctx: any, updateProfileInput: UpdateProfileInput): Promise<boolean> {
-        await this.usersService.updateUser(ctx.req.user.userId, { name: updateProfileInput.name, username: updateProfileInput.username });
-        return true;
-    }
+  async update(
+    ctx: any,
+    updateProfileInput: UpdateProfileInput,
+  ): Promise<boolean> {
+    await this.usersService.updateUser(ctx.req.user.userId, {
+      name: updateProfileInput.name,
+      username: updateProfileInput.username,
+    });
+    return true;
+  }
 }

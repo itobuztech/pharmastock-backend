@@ -389,6 +389,7 @@ type Query {
 }
 
 input ResetPasswordInput {
+  confirmPassword: String!
   newPassword: String!
   oldPassword: String!
 }
