@@ -143,9 +143,17 @@ export class WarehouseStockService {
         };
       }
 
-      let warehouseStocks: any = await this.prisma.warehouseStock.findMany(
-        searchObject,
-      );
+      let warehouseStocks: any = await this.prisma.warehouseStock.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       // Add organizationId if the user is not SUPERADMIN
       if (loggedinUserRole !== 'SUPERADMIN') {
@@ -307,9 +315,17 @@ export class WarehouseStockService {
         };
       }
 
-      let warehouseStocks: any = await this.prisma.warehouseStock.findMany(
-        searchObject,
-      );
+      let warehouseStocks: any = await this.prisma.warehouseStock.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       // Add organizationId if the user is not SUPERADMIN
       if (loggedinUserRole !== 'SUPERADMIN') {

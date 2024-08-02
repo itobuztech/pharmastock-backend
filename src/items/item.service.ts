@@ -100,7 +100,17 @@ export class ItemService {
         };
       }
 
-      const items: any = await this.prisma.item.findMany(searchObject);
+      const items: any = await this.prisma.item.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       if (items) {
         items.forEach((it, i) => {

@@ -70,7 +70,17 @@ export class PharmacyService {
         };
       }
 
-      const pharmacies = await this.prisma.pharmacy.findMany(searchObject);
+      const pharmacies = await this.prisma.pharmacy.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       return { pharmacies, total: totalCount };
     } catch (error) {

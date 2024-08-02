@@ -56,7 +56,17 @@ export class UsersService {
         };
       }
 
-      const users = await this.prisma.user.findMany(searchObject);
+      const users = await this.prisma.user.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       return { users, total: totalCount };
     } catch (error) {

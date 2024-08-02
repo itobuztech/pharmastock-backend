@@ -72,7 +72,17 @@ export class WarehouseService {
         };
       }
 
-      const warehouses = await this.prisma.warehouse.findMany(searchObject);
+      const warehouses = await this.prisma.warehouse.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       return { warehouses, total: totalCount };
     } catch (error) {

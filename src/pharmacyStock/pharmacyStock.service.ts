@@ -138,9 +138,17 @@ export class PharmacyStockService {
         };
       }
 
-      let pharmacyStocks: any = await this.prisma.pharmacyStock.findMany(
-        searchObject,
-      );
+      let pharmacyStocks: any = await this.prisma.pharmacyStock.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       // Add organizationId if the user is not SUPERADMIN
       if (loggedinUserRole !== 'SUPERADMIN') {
