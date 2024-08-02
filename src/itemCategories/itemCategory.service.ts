@@ -65,9 +65,17 @@ export class ItemCategoryService {
         };
       }
 
-      const itemCategories: any = await this.prisma.itemCategory.findMany(
-        searchObject,
-      );
+      const itemCategories: any = await this.prisma.itemCategory.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       if (itemCategories) {
         itemCategories.forEach((ic, i) => {

@@ -44,9 +44,17 @@ export class OrganizationService {
         };
       }
 
-      const organizations = await this.prisma.organization.findMany(
-        searchObject,
-      );
+      const organizations = await this.prisma.organization.findMany({
+        ...searchObject,
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
 
       return { organizations, total: totalCount };
     } catch (error) {
