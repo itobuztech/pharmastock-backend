@@ -16,12 +16,18 @@ import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PermissionsGuardOR } from './guards/permissions-or.guard';
 import { SignupResponse } from './dto/signup-response';
 import { TokenConfirmationInput } from './dto/token-confirmation.input';
-import { ForgotPasswordResponse, ValidateForgotPasswordResponse } from './dto/forgot-password-response';
-import { ForgotPasswordConfirmationInput, ForgotPasswordInput } from './dto/forgot-password';
+import {
+  ForgotPasswordResponse,
+  ValidateForgotPasswordResponse,
+} from './dto/forgot-password-response';
+import {
+  ForgotPasswordConfirmationInput,
+  ForgotPasswordInput,
+} from './dto/forgot-password';
 
 @Resolver()
 export class AuthResolver {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @Mutation(() => LoginResponse)
   @UseGuards(GqlAuthGuard)
@@ -67,10 +73,13 @@ export class AuthResolver {
 
   @Mutation(() => ValidateForgotPasswordResponse)
   async validateForgotPassword(
-    @Args('forgotPasswordInput') forgotPasswordConfirmationInput: ForgotPasswordConfirmationInput,
+    @Args('forgotPasswordInput')
+    forgotPasswordConfirmationInput: ForgotPasswordConfirmationInput,
   ) {
     try {
-      return this.authService.validateForgotPasswordToken(forgotPasswordConfirmationInput);
+      return this.authService.validateForgotPasswordToken(
+        forgotPasswordConfirmationInput,
+      );
     } catch (error) {
       throw new BadRequestException(error);
     }

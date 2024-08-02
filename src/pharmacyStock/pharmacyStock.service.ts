@@ -142,8 +142,6 @@ export class PharmacyStockService {
         searchObject,
       );
 
-      console.log('pharmacyStocks=', pharmacyStocks);
-
       // Add organizationId if the user is not SUPERADMIN
       if (loggedinUserRole !== 'SUPERADMIN') {
         const pharmacyStocksFinal = pharmacyStocks.filter(
