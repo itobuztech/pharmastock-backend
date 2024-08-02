@@ -99,6 +99,7 @@ model Item {
   StockMovement        StockMovement[]
   ItemCategoryRelation ItemCategoryRelation[]
   SKU                  SKU[]
+  PharmacyStockClearance PharmacyStockClearance[]
 
   @@map("item")
 }
@@ -167,10 +168,12 @@ model StockMovement {
   qty              Int
   itemId           String          @map("item_id") @db.Uuid
   item             Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  pharmacyStockId  String?         @map("pharmacyStockId_id") @db.Uuid
+  pharmacyStockId  String?         @map("pharmacyStock_id") @db.Uuid
   pharmacyStock    PharmacyStock?  @relation(fields: [pharmacyStockId], references: [id], onDelete: Cascade)
   batch_name       String?
   expiry           DateTime?
+  pharmacyStockClearanceId  String?         @map("pharmacyStockClearance_id") @db.Uuid
+  pharmacyStockClearance    PharmacyStockClearance?  @relation(fields: [pharmacyStockClearanceId], references: [id], onDelete: Cascade)
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime?       @default(now()) @updatedAt @map("updated_at")
   status           Boolean?        @default(true)
@@ -228,6 +231,22 @@ model PharmacyStock {
   updatedAt     DateTime?       @default(now()) @updatedAt @map("updated_at")
   status        Boolean?        @default(true)
   StockMovement StockMovement[]
+  PharmacyStockClearance PharmacyStockClearance[]
 
   @@map("pharmacy_stock")
+}
+
+model PharmacyStockClearance {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  itemId        String          @map("item_id") @db.Uuid
+  item          Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  pharmacyStockId String          @map("pharmacyStock_id") @db.Uuid
+  pharmacyStock PharmacyStock        @relation(fields: [pharmacyStockId], references: [id], onDelete: Cascade)
+  qty           Int
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime?       @default(now()) @updatedAt @map("updated_at")
+  status        Boolean?        @default(true)
+  StockMovement StockMovement[]
+
+  @@map("pharmacy_stock_clearance")
 }

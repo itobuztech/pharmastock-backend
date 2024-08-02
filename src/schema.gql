@@ -14,6 +14,22 @@ enum BaseUnit {
   VIAL
 }
 
+type ClearancePharmacyStock {
+  createdAt: DateTime!
+  id: String!
+  item: Item
+  pharmacyStock: PharmacyStock
+  qty: Int!
+  status: Boolean!
+  updatedAt: DateTime
+}
+
+input ClearancePharmacyStockInput {
+  itemId: String!
+  pharmacyId: String!
+  qty: Float!
+}
+
 input CreateItemCategoryInput {
   name: String!
   parentCategoryId: String
@@ -63,6 +79,7 @@ input CreateStockMovementInput {
   batchName: String
   expiry: DateTime
   itemId: String!
+  pharmacyStockClearanceId: String
   pharmacyStockId: String
   qty: Float!
   warehouseStockId: String
@@ -227,6 +244,7 @@ input LoginUserInput {
 }
 
 type Mutation {
+  clearancePharmacyStock(clearancePharmacyStockInput: [ClearancePharmacyStockInput!]!): [ClearancePharmacyStock!]!
   create(createUserInput: CreateUserInput!): User!
   createItem(createItemInput: CreateItemInput!): Item!
   createItemCategory(createItemCategoryInput: CreateItemCategoryInput!): ItemCategory!

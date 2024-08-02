@@ -9,6 +9,7 @@ import { CreateStockMovementInput } from 'src/stockMovement/dto/create-stockMove
 import { PharmacyStockSearchObject } from '../types/extended-types';
 import { FilterPharmacyStockInputs } from './dto/filter-pharmacyStock.input';
 import { AccountService } from '../account/account.service';
+import { ClearancePharmacyStockInput } from './dto/clearance-pharmacyStock.input';
 
 @Injectable()
 export class PharmacyStockService {
@@ -111,7 +112,11 @@ export class PharmacyStockService {
       let searchObject: PharmacyStockSearchObject = {
         where: whereClause,
         include: {
-          warehouse: true,
+          warehouse: {
+            include: {
+              organization: true,
+            },
+          },
           item: true,
           pharmacy: true,
         },
@@ -122,7 +127,11 @@ export class PharmacyStockService {
           take,
           where: whereClause,
           include: {
-            warehouse: true,
+            warehouse: {
+              include: {
+                organization: true,
+              },
+            },
             item: true,
             pharmacy: true,
           },
@@ -133,10 +142,12 @@ export class PharmacyStockService {
         searchObject,
       );
 
+      console.log('pharmacyStocks=', pharmacyStocks);
+
       // Add organizationId if the user is not SUPERADMIN
       if (loggedinUserRole !== 'SUPERADMIN') {
         const pharmacyStocksFinal = pharmacyStocks.filter(
-          (pS, i) => pS?.warehouse?.organization?.id === organizationId,
+          (pS, i) => pS?.warehouse?.organizationId === organizationId,
         );
 
         pharmacyStocksFinal.forEach((pS: any) => {
@@ -386,6 +397,7 @@ export class PharmacyStockService {
           where: {
             batch_name: row.batch_name,
             warehouseStockId: null,
+            pharmacyStockClearanceId: null,
             status: true,
           },
         });
@@ -439,6 +451,208 @@ export class PharmacyStockService {
       // SELECTING THE BATCH NAME. ENDS.
 
       return pharmacyStock;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async clearancePharmacyStock(
+    clearancePharmacyStockInput: ClearancePharmacyStockInput[],
+  ) {
+    let createPharmacyClearanceArr = [];
+    try {
+      // let data = [];
+      for (const inputs of clearancePharmacyStockInput) {
+        try {
+          const itemId = await this.prisma.item.findFirst({
+            where: {
+              id: inputs.itemId,
+              status: true,
+            },
+          });
+
+          if (!itemId) throw new Error('No Item present with this ID!');
+        } catch (error) {
+          throw error;
+        }
+
+        try {
+          const pharmacyId = await this.prisma.pharmacy.findFirst({
+            where: {
+              id: inputs.pharmacyId,
+              status: true,
+            },
+          });
+
+          if (!pharmacyId) throw new Error('No Pharmacy present with this ID!');
+        } catch (error) {
+          throw error;
+        }
+
+        try {
+          const pharmacyStock = await this.prisma.pharmacyStock.findFirst({
+            where: {
+              pharmacyId: inputs.pharmacyId,
+              itemId: inputs.itemId,
+              status: true,
+            },
+          });
+
+          if (!pharmacyStock || pharmacyStock.final_qty === 0)
+            throw new Error(
+              'No stock is present of this Item with this pharmacy!',
+            );
+
+          const checkingNegativeValue =
+            pharmacyStock.final_qty - inputs.qty < 0;
+
+          if (checkingNegativeValue) {
+            throw new Error(
+              `There is only ${pharmacyStock.final_qty} number of items in stock!`,
+            );
+          }
+
+          const batchNames = await this.prisma.stockMovement.findMany({
+            where: {
+              pharmacyStockId: pharmacyStock.id,
+              pharmacyStockClearanceId: null,
+              status: true,
+            },
+            orderBy: {
+              expiry: 'asc',
+            },
+          });
+
+          const groupedByBatchName = batchNames.reduce((acc, item) => {
+            if (!acc[item.batch_name]) {
+              acc[item.batch_name] = {
+                batch_name: item.batch_name,
+                total_qty: 0,
+                itemId: item.itemId,
+                pharmacyStockId: item.pharmacyStockId,
+              };
+            }
+            acc[item.batch_name].total_qty += item.qty;
+            return acc;
+          }, {});
+
+          const groupedArray = Object.values(groupedByBatchName);
+
+          try {
+            const updatedPharmacyStock = await this.prisma.pharmacyStock.update(
+              {
+                where: {
+                  id: pharmacyStock.id,
+                },
+                data: {
+                  final_qty: pharmacyStock.final_qty - inputs.qty,
+                },
+              },
+            );
+
+            if (!updatedPharmacyStock) {
+              throw new Error(
+                'Could not update the Pharmacy Stock. Please try after sometime!',
+              );
+            }
+          } catch (error) {
+            throw Error;
+          }
+
+          const createPharmacyClearance =
+            await this.prisma.pharmacyStockClearance.create({
+              data: {
+                itemId: inputs.itemId,
+                pharmacyStockId: pharmacyStock.id,
+                qty: inputs.qty,
+              },
+              include: {
+                pharmacyStock: {
+                  include: {
+                    pharmacy: true,
+                  },
+                },
+                item: true,
+              },
+            });
+
+          if (!createPharmacyClearance)
+            throw new Error('Could not transfer the items! ');
+
+          createPharmacyClearanceArr.push(createPharmacyClearance);
+
+          const copiedgroupedArray = JSON.parse(JSON.stringify(groupedArray));
+
+          let chkqty = inputs.qty;
+
+          const rowArr = [];
+          for (const row of copiedgroupedArray) {
+            if (chkqty <= 0) break;
+
+            const qtyArr = await this.prisma.stockMovement.findMany({
+              where: {
+                batch_name: row.batch_name,
+                warehouseStockId: null,
+                pharmacyStockId: null,
+                status: true,
+              },
+            });
+
+            let qtyValArr = [];
+            if (qtyArr && qtyArr.length > 0) {
+              qtyValArr = qtyArr.map((qtV) => {
+                return qtV.qty;
+              });
+            }
+
+            let qtyValTotal = 0;
+            if (qtyValArr.length > 0) {
+              qtyValTotal = qtyValArr.reduce(
+                (accumulator, currentValue) => accumulator + currentValue,
+                0,
+              );
+            }
+
+            if (row.total_qty != qtyValTotal) {
+              row.total_qty = row.total_qty - qtyValTotal;
+              if (chkqty < row.total_qty) {
+                row.total_qty = chkqty;
+                chkqty = 0;
+              } else {
+                chkqty = chkqty - row.total_qty;
+              }
+
+              rowArr.push({
+                ...row,
+              });
+            }
+          }
+
+          for (const rowArrVal of rowArr) {
+            // Creation of Stock Movement data.STARTS
+            const createStockMovement: CreateStockMovementInput = {
+              itemId: inputs?.itemId,
+              qty: rowArrVal.total_qty,
+              batchName: rowArrVal.batch_name,
+              expiry: rowArrVal.expiry,
+              pharmacyStockClearanceId: createPharmacyClearance.id,
+            };
+            // Creation of Stock Movement data.ENDS
+
+            try {
+              // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! STARTS
+              await this.stockMovementService.create(createStockMovement);
+              // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! ENDS
+            } catch (error) {
+              throw error;
+            }
+          }
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      return createPharmacyClearanceArr;
     } catch (error) {
       throw error;
     }

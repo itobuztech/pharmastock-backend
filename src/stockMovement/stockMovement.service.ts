@@ -71,6 +71,17 @@ export class StockMovementService {
         };
       }
 
+      if (createStockMovementInput?.pharmacyStockClearanceId) {
+        data = {
+          ...data,
+          pharmacyStockClearance: {
+            connect: {
+              id: createStockMovementInput?.pharmacyStockClearanceId,
+            },
+          },
+        };
+      }
+
       const stockMovement = await this.prisma.stockMovement.create({
         data,
       });
