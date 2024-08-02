@@ -114,7 +114,11 @@ export class PharmacyStockService {
         include: {
           warehouse: {
             include: {
-              organization: true,
+              organization: {
+                where: {
+                  status: true,
+                },
+              },
             },
           },
           item: true,
@@ -129,7 +133,11 @@ export class PharmacyStockService {
           include: {
             warehouse: {
               include: {
-                organization: true,
+                organization: {
+                  where: {
+                    status: true,
+                  },
+                },
               },
             },
             item: true,
@@ -197,7 +205,15 @@ export class PharmacyStockService {
         skip,
         take,
         include: {
-          warehouse: true,
+          warehouse: {
+            include: {
+              organization: {
+                where: {
+                  status: true,
+                },
+              },
+            },
+          },
           item: true,
           pharmacy: true,
         },
@@ -223,7 +239,15 @@ export class PharmacyStockService {
         id,
       },
       include: {
-        warehouse: true,
+        warehouse: {
+          include: {
+            organization: {
+              where: {
+                status: true,
+              },
+            },
+          },
+        },
         pharmacy: true,
         item: true,
       },

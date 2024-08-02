@@ -29,10 +29,6 @@ export class OrganizationService {
         };
       }
 
-      const totalCount = await this.prisma.organization.count({
-        where: whereClause,
-      });
-
       let searchObject: OrganizationSearchObject = {
         where: whereClause,
       };
@@ -56,7 +52,7 @@ export class OrganizationService {
         ],
       });
 
-      return { organizations, total: totalCount };
+      return { organizations, total: organizations.length };
     } catch (error) {
       throw error;
     }

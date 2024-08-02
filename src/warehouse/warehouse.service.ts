@@ -49,14 +49,14 @@ export class WarehouseService {
         };
       }
 
-      const totalCount = await this.prisma.warehouse.count({
-        where: whereClause,
-      });
-
       let searchObject: WarehouseSearchObject = {
         where: whereClause,
         include: {
-          organization: true,
+          organization: {
+            where: {
+              status: true,
+            },
+          },
           admin: true,
         },
       };
@@ -66,7 +66,11 @@ export class WarehouseService {
           take,
           where: whereClause,
           include: {
-            organization: true,
+            organization: {
+              where: {
+                status: true,
+              },
+            },
             admin: true,
           },
         };
@@ -84,7 +88,7 @@ export class WarehouseService {
         ],
       });
 
-      return { warehouses, total: totalCount };
+      return { warehouses, total: warehouses.length };
     } catch (error) {
       throw error;
     }
@@ -96,7 +100,11 @@ export class WarehouseService {
         id,
       },
       include: {
-        organization: true,
+        organization: {
+          where: {
+            status: true,
+          },
+        },
         admin: true,
       },
     });

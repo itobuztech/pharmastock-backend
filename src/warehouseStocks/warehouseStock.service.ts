@@ -118,12 +118,27 @@ export class WarehouseStockService {
         where: whereClause,
         include: {
           warehouse: {
+            where: {
+              status: true,
+            },
             include: {
-              organization: true,
+              organization: {
+                where: {
+                  status: true,
+                },
+              },
             },
           },
-          item: true,
-          SKU: true,
+          item: {
+            where: {
+              status: true,
+            },
+          },
+          SKU: {
+            where: {
+              status: true,
+            },
+          },
         },
       };
       if (pagination) {
@@ -133,12 +148,27 @@ export class WarehouseStockService {
           where: whereClause,
           include: {
             warehouse: {
+              where: {
+                status: true,
+              },
               include: {
-                organization: true,
+                organization: {
+                  where: {
+                    status: true,
+                  },
+                },
               },
             },
-            item: true,
-            SKU: true,
+            item: {
+              where: {
+                status: true,
+              },
+            },
+            SKU: {
+              where: {
+                status: true,
+              },
+            },
           },
         };
       }
@@ -291,11 +321,23 @@ export class WarehouseStockService {
               status: true,
             },
             include: {
-              organization: true,
+              organization: {
+                where: {
+                  status: true,
+                },
+              },
             },
           },
-          item: true,
-          SKU: true,
+          item: {
+            where: {
+              status: true,
+            },
+          },
+          SKU: {
+            where: {
+              status: true,
+            },
+          },
         },
       };
       if (pagination) {
@@ -305,12 +347,27 @@ export class WarehouseStockService {
           where: whereClause,
           include: {
             warehouse: {
+              where: {
+                status: true,
+              },
               include: {
-                organization: true,
+                organization: {
+                  where: {
+                    status: true,
+                  },
+                },
               },
             },
-            item: true,
-            SKU: true,
+            item: {
+              where: {
+                status: true,
+              },
+            },
+            SKU: {
+              where: {
+                status: true,
+              },
+            },
           },
         };
       }
@@ -357,12 +414,27 @@ export class WarehouseStockService {
       },
       include: {
         warehouse: {
+          where: {
+            status: true,
+          },
           include: {
-            organization: true,
+            organization: {
+              where: {
+                status: true,
+              },
+            },
           },
         },
-        item: true,
-        SKU: true,
+        item: {
+          where: {
+            status: true,
+          },
+        },
+        SKU: {
+          where: {
+            status: true,
+          },
+        },
       },
     });
 

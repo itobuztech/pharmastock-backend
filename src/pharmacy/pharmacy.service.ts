@@ -49,14 +49,14 @@ export class PharmacyService {
         };
       }
 
-      const totalCount = await this.prisma.pharmacy.count({
-        where: whereClause,
-      });
-
       let searchObject: PharmacySearchObject = {
         where: whereClause,
         include: {
-          organization: true,
+          organization: {
+            where: {
+              status: true,
+            },
+          },
         },
       };
       if (pagination) {
@@ -65,7 +65,11 @@ export class PharmacyService {
           take,
           where: whereClause,
           include: {
-            organization: true,
+            organization: {
+              where: {
+                status: true,
+              },
+            },
           },
         };
       }
@@ -82,7 +86,7 @@ export class PharmacyService {
         ],
       });
 
-      return { pharmacies, total: totalCount };
+      return { pharmacies, total: pharmacies.length };
     } catch (error) {
       throw error;
     }
@@ -94,7 +98,11 @@ export class PharmacyService {
         id,
       },
       include: {
-        organization: true,
+        organization: {
+          where: {
+            status: true,
+          },
+        },
       },
     });
 

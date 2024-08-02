@@ -36,8 +36,15 @@ export class ItemCategoryService {
         },
         include: {
           ItemCategoryRelation: {
+            where: {
+              status: true,
+            },
             include: {
-              item: true,
+              item: {
+                where: {
+                  status: true,
+                },
+              },
             },
           },
           parent: true,
@@ -56,8 +63,15 @@ export class ItemCategoryService {
           },
           include: {
             ItemCategoryRelation: {
+              where: {
+                status: true,
+              },
               include: {
-                item: true,
+                item: {
+                  where: {
+                    status: true,
+                  },
+                },
               },
             },
             parent: true,
@@ -83,7 +97,7 @@ export class ItemCategoryService {
             const relationArr = ic.ItemCategoryRelation;
             const items = [];
             relationArr.forEach((rel) => {
-              if (rel.status === true) items.push(rel.item);
+              items.push(rel.item);
             });
             ic.Item = items;
           }
@@ -106,8 +120,15 @@ export class ItemCategoryService {
       },
       include: {
         ItemCategoryRelation: {
+          where: {
+            status: true,
+          },
           include: {
-            item: true,
+            item: {
+              where: {
+                status: true,
+              },
+            },
           },
         },
         parent: true,
