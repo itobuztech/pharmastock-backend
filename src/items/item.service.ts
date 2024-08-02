@@ -20,7 +20,7 @@ export class ItemService {
   ): Promise<{ items: Item[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.ItemWhereInput = { status: true };
+      let whereClause: Prisma.ItemWhereInput = {};
 
       if (searchText) {
         whereClause.OR = [
@@ -71,16 +71,22 @@ export class ItemService {
         }
       }
 
-      const totalCount = await this.prisma.item.count({
-        where: whereClause,
-      });
-
       let searchObject: ItemSearchObject = {
-        where: whereClause,
+        where: {
+          ...whereClause,
+          status: true,
+        },
         include: {
           ItemCategoryRelation: {
+            where: {
+              status: true,
+            },
             include: {
-              itemCategory: true,
+              itemCategory: {
+                where: {
+                  status: true,
+                },
+              },
             },
           },
         },
@@ -89,11 +95,21 @@ export class ItemService {
         searchObject = {
           skip,
           take,
-          where: whereClause,
+          where: {
+            ...whereClause,
+            status: true,
+          },
           include: {
             ItemCategoryRelation: {
+              where: {
+                status: true,
+              },
               include: {
-                itemCategory: true,
+                itemCategory: {
+                  where: {
+                    status: true,
+                  },
+                },
               },
             },
           },
@@ -118,14 +134,14 @@ export class ItemService {
             const relationArr = it.ItemCategoryRelation;
             const categories = [];
             relationArr.forEach((rel) => {
-              if (rel.status === true) categories.push(rel.itemCategory);
+              categories.push(rel.itemCategory);
             });
             it.Category = categories;
           }
         });
       }
 
-      return { items, total: totalCount };
+      return { items, total: items.length };
     } catch (error) {
       throw error;
     }
@@ -138,8 +154,15 @@ export class ItemService {
       },
       include: {
         ItemCategoryRelation: {
+          where: {
+            status: true,
+          },
           include: {
-            itemCategory: true,
+            itemCategory: {
+              where: {
+                status: true,
+              },
+            },
           },
         },
       },
