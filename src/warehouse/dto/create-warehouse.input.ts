@@ -12,8 +12,5 @@ export class CreateWarehouseInput {
   area: string;
 
   @Field({ nullable: true })
-  organizationId?: string;
-
-  @Field({ nullable: true })
   adminId?: string;
 }

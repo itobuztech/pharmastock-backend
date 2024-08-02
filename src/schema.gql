@@ -59,7 +59,6 @@ input CreatePharmacyInput {
   contactInfo: String
   location: String!
   name: String!
-  organizationId: String
 }
 
 input CreatePharmacyStockInput {
@@ -100,14 +99,12 @@ input CreateWarehouseInput {
   area: String!
   location: String!
   name: String!
-  organizationId: String
 }
 
 input CreateWarehouseStockInput {
   batchName: String!
   expiry: DateTime!
   itemId: String!
-  organizationId: String!
   qty: Float!
   sku: String!
   stockLevel: String
@@ -466,7 +463,6 @@ input UpdatePharmacyInput {
   id: String!
   location: String
   name: String
-  organizationId: String
 }
 
 input UpdateProfileInput {
@@ -480,7 +476,6 @@ input UpdateWarehouseInput {
   id: String!
   location: String
   name: String
-  organizationId: String
 }
 
 type User {

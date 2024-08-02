@@ -357,8 +357,21 @@ export class WarehouseStockService {
     return warehouseStock;
   }
 
-  async create(createWarehouseStockInput: CreateWarehouseStockInput) {
+  async create(ctx, createWarehouseStockInput: CreateWarehouseStockInput) {
     try {
+      let organizationId = '';
+      try {
+        const loggedinUser = await this.accountService.findOne(ctx);
+        const loggedinUserRole = loggedinUser?.role;
+        organizationId = loggedinUser?.user?.organizationId;
+
+        if (!organizationId) {
+          throw new Error('No organization is registered with this user!');
+        }
+      } catch (error) {
+        throw error;
+      }
+
       // This section checks whether the relational ID is present or not! Starts
       const itemCheck = await this.prisma.item.findFirst({
         where: {
@@ -376,15 +389,6 @@ export class WarehouseStockService {
       });
 
       if (!warehouse) throw new Error('No Warehouse present with this ID!');
-
-      const organization = await this.prisma.organization.findFirst({
-        where: {
-          id: createWarehouseStockInput.organizationId,
-        },
-      });
-
-      if (!organization)
-        throw new Error('No organization present with this ID!');
       // This section checks whether the relational ID is present or not! Ends
 
       // Setting up the data to be used!Starts
@@ -465,7 +469,7 @@ export class WarehouseStockService {
               connect: { id: createWarehouseStockInput?.itemId },
             },
             organization: {
-              connect: { id: createWarehouseStockInput?.organizationId },
+              connect: { id: organizationId },
             },
             warehouseStock: {
               connect: { id: warehouseStock?.id },

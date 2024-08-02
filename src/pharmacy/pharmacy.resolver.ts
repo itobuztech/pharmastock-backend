@@ -73,11 +73,12 @@ export class PharmacyResolver {
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.CREATE])
   async createPharmacy(
+    @Context() ctx: any,
     @Args('createPharmacyInput')
     createPharmacyInput: CreatePharmacyInput,
   ): Promise<Pharmacy> {
     try {
-      return await this.pharmacyService.create(createPharmacyInput);
+      return await this.pharmacyService.create(ctx, createPharmacyInput);
     } catch (error) {
       throw new BadRequestException(error);
     }

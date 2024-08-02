@@ -121,8 +121,8 @@ export class PharmacyStockResolver {
   }
 
   @Mutation(() => [ClearancePharmacyStock])
-  // @UseGuards(JwtAuthGuard, PermissionsGuardOR)
-  // @Permissions([PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE])
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE])
   async clearancePharmacyStock(
     @Args('clearancePharmacyStockInput', {
       type: () => [ClearancePharmacyStockInput],

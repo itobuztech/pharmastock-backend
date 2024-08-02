@@ -95,11 +95,24 @@ export class PharmacyService {
     return pharmacy;
   }
 
-  async create(createPharmacyInput: CreatePharmacyInput) {
+  async create(ctx, createPharmacyInput: CreatePharmacyInput) {
     try {
-      // Handeling Inputs. Starts.
-      // Check if the contact info length is not more than 12. Starts.
+      let organizationId = '';
+      try {
+        const loggedinUser = await this.accountService.findOne(ctx);
+        const loggedinUserRole = loggedinUser?.role;
+        organizationId = loggedinUser?.user?.organizationId;
+
+        if (!organizationId) {
+          throw new Error('No organization is registered with this user!');
+        }
+      } catch (error) {
+        throw error;
+      }
+
       if (createPharmacyInput.contactInfo) {
+        // Handeling Inputs. Starts.
+        // Check if the contact info length is not more than 12. Starts.
         if (createPharmacyInput.contactInfo.length > 12)
           throw new Error('Contact info should be less than 12 Numbers');
       }
@@ -119,31 +132,14 @@ export class PharmacyService {
       //Check if the name of the pharmacy is unique or not. Ends.
       // Handeling Inputs. Ends.
 
-      // TO CHECK IF THE ORGANIZATON ID IS PRESENT OR NOT. STARTS.
-      const organizationCheck = await this.prisma.organization.findFirst({
-        where: {
-          id: createPharmacyInput?.organizationId,
-        },
-      });
-
-      if (!organizationCheck)
-        throw new Error('No Organization present with this ID!');
-      // TO CHECK IF THE ORGANIZATON ID IS PRESENT OR NOT. ENDS.
-
       let data: any = {
         location: createPharmacyInput.location || null,
         name: createPharmacyInput.name || null,
         contact_info: createPharmacyInput.contactInfo || null,
+        organization: {
+          connect: { id: organizationId },
+        },
       };
-
-      if (createPharmacyInput?.organizationId) {
-        data = {
-          ...data,
-          organization: {
-            connect: { id: createPharmacyInput?.organizationId },
-          },
-        };
-      }
 
       const pharmacy = await this.prisma.pharmacy.create({
         data,
@@ -205,18 +201,6 @@ export class PharmacyService {
     if (data.contactInfo) {
       data.contact_info = data.contactInfo;
       delete data.contactInfo;
-    }
-
-    if (data.organizationId) {
-      const organizationCheck = await this.prisma.organization.findFirst({
-        where: {
-          id: data?.organizationId,
-        },
-      });
-
-      if (!organizationCheck) {
-        throw new Error('No Organization present with this ID!');
-      }
     }
 
     const pharmacy = await this.prisma.pharmacy.update({

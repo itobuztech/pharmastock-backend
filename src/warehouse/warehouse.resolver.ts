@@ -70,11 +70,12 @@ export class WarehouseResolver {
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.CREATE])
   async createWarehouse(
+    @Context() ctx: any,
     @Args('createWarehouseInput')
     createWarehouseInput: CreateWarehouseInput,
   ): Promise<Warehouse> {
     try {
-      return await this.warehouseService.create(createWarehouseInput);
+      return await this.warehouseService.create(ctx, createWarehouseInput);
     } catch (error) {
       throw new BadRequestException(error);
     }
