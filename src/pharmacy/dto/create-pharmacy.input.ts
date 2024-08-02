@@ -9,8 +9,5 @@ export class CreatePharmacyInput {
   location: string;
 
   @Field({ nullable: true })
-  organizationId?: string;
-
-  @Field({ nullable: true })
   contactInfo?: string;
 }

@@ -98,8 +98,20 @@ export class WarehouseService {
     return warehouse;
   }
 
-  async create(createWarehouseInput: CreateWarehouseInput) {
+  async create(ctx, createWarehouseInput: CreateWarehouseInput) {
     try {
+      let organizationId = '';
+      try {
+        const loggedinUser = await this.accountService.findOne(ctx);
+        const loggedinUserRole = loggedinUser?.role;
+        organizationId = loggedinUser?.user?.organizationId;
+
+        if (!organizationId) {
+          throw new Error('No organization is registered with this user!');
+        }
+      } catch (error) {
+        throw error;
+      }
       if (createWarehouseInput.name) {
         const unique = await this.prisma.warehouse.findFirst({
           where: {
@@ -117,16 +129,11 @@ export class WarehouseService {
         location: createWarehouseInput.location,
         area: createWarehouseInput.area,
         name: createWarehouseInput.name,
+        organization: {
+          connect: { id: organizationId },
+        },
       };
 
-      if (createWarehouseInput?.organizationId) {
-        data = {
-          ...data,
-          organization: {
-            connect: { id: createWarehouseInput?.organizationId },
-          },
-        };
-      }
       if (createWarehouseInput?.adminId) {
         data = {
           ...data,

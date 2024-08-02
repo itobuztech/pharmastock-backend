@@ -145,11 +145,15 @@ export class WarehouseStockResolver {
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE])
   async createWarehouseStock(
+    @Context() ctx: any,
     @Args('createWarehouseStockInput')
     createWarehouseStockInput: CreateWarehouseStockInput,
   ): Promise<WarehouseStock> {
     try {
-      return await this.warehouseStockService.create(createWarehouseStockInput);
+      return await this.warehouseStockService.create(
+        ctx,
+        createWarehouseStockInput,
+      );
     } catch (error) {
       throw new BadRequestException(error);
     }
