@@ -152,7 +152,7 @@ input DeleteWarehouseStockInput {
 }
 
 input FilterItemInputs {
-  baseUnit: BaseUnit
+  baseUnit: [BaseUnit!]
   mrpBaseUnit: Int
   wholeSalePrice: Int
 }

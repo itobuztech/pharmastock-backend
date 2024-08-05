@@ -3,8 +3,8 @@ import { BaseUnit } from '../base-unit.enum';
 
 @InputType()
 export class FilterItemInputs {
-  @Field(() => BaseUnit, { nullable: true })
-  baseUnit?: BaseUnit;
+  @Field(() => [BaseUnit], { nullable: true })
+  baseUnit?: BaseUnit[];
 
   @Field(() => Int, { nullable: true })
   wholeSalePrice?: number;
