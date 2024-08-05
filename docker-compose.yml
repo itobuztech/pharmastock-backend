@@ -28,4 +28,4 @@ services:
       - POSTGRES_USER=${POSTGRES_USERNAME}
       - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - '${POSTGRES_DB_PORT}:${POSTGRES_DB_PORT}'
+      - '5433:${POSTGRES_DB_PORT}'

@@ -53,7 +53,10 @@ export class ItemService {
 
         const filterConditions = Object.keys(filterArgs).map((key) => {
           const value = filterArgs[key];
-          console.log('value=', value);
+
+          if (key === 'baseUnit' && Array.isArray(value)) {
+            return { [key]: { in: value } };
+          }
 
           return typeof value === 'number'
             ? { [key]: { lte: value } }
