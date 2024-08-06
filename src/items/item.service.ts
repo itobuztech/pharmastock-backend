@@ -46,10 +46,13 @@ export class ItemService {
         } else {
           delete filterArgs.wholeSalePrice;
         }
-        if (filterArgs.baseUnit === null) {
+        if (
+          filterArgs.baseUnit === null ||
+          (Array.isArray(filterArgs.baseUnit) &&
+            filterArgs.baseUnit.length === 0)
+        ) {
           delete filterArgs.baseUnit;
         }
-        console.log('filterArgs=', filterArgs);
 
         const filterConditions = Object.keys(filterArgs).map((key) => {
           const value = filterArgs[key];
