@@ -26,6 +26,7 @@ import { PermissionsGuardOR } from 'src/auth/guards/permissions-or.guard';
 import { PrivilegesList } from 'src/privileges/user-privileges';
 import { Permissions } from 'src/auth/decorators/permissions.decorator';
 import { AccountService } from '../account/account.service';
+import { MaxWarehouseStockQty } from './entities/MaxWarehouseStockQty.entity';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -136,6 +137,24 @@ export class WarehouseStockResolver {
         warehouseId,
         organizationId,
       );
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  @Query(() => MaxWarehouseStockQty, {
+    name: 'maxWarehouseStockQty',
+  })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
+  async maxPharmacyStockQty(
+    @Context() ctx: any,
+  ): Promise<MaxWarehouseStockQty> {
+    try {
+      return await this.warehouseStockService.maxWarehouseStockQty(ctx);
     } catch (error) {
       throw new BadRequestException(error);
     }

@@ -776,4 +776,42 @@ export class WarehouseStockService {
       throw error;
     }
   }
+
+  async maxWarehouseStockQty(ctx) {
+    try {
+      const loggedinUser = await this.accountService.findOne(ctx);
+      const loggedinUserRole = loggedinUser?.role;
+      const organizationId = loggedinUser?.user?.organizationId;
+
+      let finalQty;
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        finalQty = await this.prisma.warehouseStock.findFirst({
+          where: {
+            warehouse: {
+              organizationId: organizationId,
+            },
+          },
+          select: {
+            final_qty: true,
+          },
+          orderBy: {
+            final_qty: 'desc',
+          },
+        });
+      } else {
+        finalQty = await this.prisma.warehouseStock.findFirst({
+          select: {
+            final_qty: true,
+          },
+          orderBy: {
+            final_qty: 'desc',
+          },
+        });
+      }
+
+      return finalQty;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

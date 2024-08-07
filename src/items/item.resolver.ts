@@ -8,22 +8,18 @@ import {
 } from '@nestjs/graphql';
 import { ItemService } from './item.service';
 import { CreateItemInput } from './dto/create-item.input';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { BadRequestException, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
 import { Item } from './entities/item.entity';
-import { ItemCategoryRelation } from './entities/item-category-relation.entity';
-import { UserRole } from '@prisma/client';
 import { UpdateItemInput } from './dto/update-item.input';
 import { DeleteItemInput } from './dto/delete-item.input';
-import { DeleteItemCategoryRelationInput } from './dto/delete-item-category-relation.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
 import { FilterItemInputs } from './dto/filter-item.input';
 import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
+import { MaxPrice } from './entities/maxPrice.entity';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -66,6 +62,17 @@ export class ItemResolver {
   async findOne(@Args('id') id: string): Promise<Item> {
     try {
       return await this.itemService.findOne(id);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  @Query(() => MaxPrice, { name: 'maxPrice' })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.VIEW])
+  async maxPrice(): Promise<MaxPrice> {
+    try {
+      return await this.itemService.maxPrice();
     } catch (error) {
       throw new BadRequestException(error);
     }

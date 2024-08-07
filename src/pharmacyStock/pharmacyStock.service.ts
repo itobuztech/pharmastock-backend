@@ -112,7 +112,9 @@ export class PharmacyStockService {
       let searchObject: PharmacyStockSearchObject = {
         where: whereClause,
         include: {
-          warehouse: {
+          warehouse: true,
+          item: true,
+          pharmacy: {
             include: {
               organization: {
                 where: {
@@ -121,8 +123,6 @@ export class PharmacyStockService {
               },
             },
           },
-          item: true,
-          pharmacy: true,
         },
       };
       if (pagination) {
@@ -131,7 +131,9 @@ export class PharmacyStockService {
           take,
           where: whereClause,
           include: {
-            warehouse: {
+            warehouse: true,
+            item: true,
+            pharmacy: {
               include: {
                 organization: {
                   where: {
@@ -140,8 +142,6 @@ export class PharmacyStockService {
                 },
               },
             },
-            item: true,
-            pharmacy: true,
           },
         };
       }
@@ -161,7 +161,7 @@ export class PharmacyStockService {
       // Add organizationId if the user is not SUPERADMIN
       if (loggedinUserRole !== 'SUPERADMIN') {
         const pharmacyStocksFinal = pharmacyStocks.filter(
-          (pS, i) => pS?.warehouse?.organizationId === organizationId,
+          (pS, i) => pS?.pharmacy?.organizationId === organizationId,
         );
 
         pharmacyStocksFinal.forEach((pS: any) => {
@@ -215,7 +215,15 @@ export class PharmacyStockService {
             },
           },
           item: true,
-          pharmacy: true,
+          pharmacy: {
+            include: {
+              organization: {
+                where: {
+                  status: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -248,7 +256,15 @@ export class PharmacyStockService {
             },
           },
         },
-        pharmacy: true,
+        pharmacy: {
+          include: {
+            organization: {
+              where: {
+                status: true,
+              },
+            },
+          },
+        },
         item: true,
       },
     });
@@ -717,6 +733,44 @@ export class PharmacyStockService {
       }
 
       return deleted;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async maxPharmacyStockQty(ctx) {
+    try {
+      const loggedinUser = await this.accountService.findOne(ctx);
+      const loggedinUserRole = loggedinUser?.role;
+      const organizationId = loggedinUser?.user?.organizationId;
+
+      let finalQty;
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        finalQty = await this.prisma.pharmacyStock.findFirst({
+          where: {
+            pharmacy: {
+              organizationId: organizationId,
+            },
+          },
+          select: {
+            final_qty: true,
+          },
+          orderBy: {
+            final_qty: 'desc',
+          },
+        });
+      } else {
+        finalQty = await this.prisma.pharmacyStock.findFirst({
+          select: {
+            final_qty: true,
+          },
+          orderBy: {
+            final_qty: 'desc',
+          },
+        });
+      }
+
+      return finalQty;
     } catch (error) {
       throw new Error(error);
     }

@@ -240,6 +240,19 @@ input LoginUserInput {
   password: String!
 }
 
+type MaxPharmacyStockQty {
+  finalQty: Float
+}
+
+type MaxPrice {
+  mrpBaseUnit: Float
+  wholesalePrice: Float
+}
+
+type MaxWarehouseStockQty {
+  finalQty: Float
+}
+
 type Mutation {
   clearancePharmacyStock(clearancePharmacyStockInput: [ClearancePharmacyStockInput!]!): [ClearancePharmacyStock!]!
   create(createUserInput: CreateUserInput!): User!
@@ -366,6 +379,9 @@ type Query {
   itemCategories(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedItemCategories
   itemCategory(id: String!): ItemCategory!
   items(filterArgs: FilterItemInputs, pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedItems
+  maxPharmacyStockQty: MaxPharmacyStockQty!
+  maxPrice: MaxPrice!
+  maxWarehouseStockQty: MaxWarehouseStockQty!
   organization(id: String!): Organization!
   organizationByName(name: String!): Organization!
   organizations(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedOrganizations
