@@ -744,9 +744,9 @@ export class PharmacyStockService {
       const loggedinUserRole = loggedinUser?.role;
       const organizationId = loggedinUser?.user?.organizationId;
 
-      let finalQty;
+      let totalQty;
       if (loggedinUserRole !== 'SUPERADMIN') {
-        finalQty = await this.prisma.pharmacyStock.findFirst({
+        totalQty = await this.prisma.pharmacyStock.findFirst({
           where: {
             pharmacy: {
               organizationId: organizationId,
@@ -761,7 +761,7 @@ export class PharmacyStockService {
           },
         });
       } else {
-        finalQty = await this.prisma.pharmacyStock.findFirst({
+        totalQty = await this.prisma.pharmacyStock.findFirst({
           select: {
             final_qty: true,
           },
@@ -774,7 +774,11 @@ export class PharmacyStockService {
         });
       }
 
-      return finalQty;
+      if (totalQty && totalQty.final_qty) {
+        totalQty = totalQty.final_qty;
+      }
+
+      return { totalQty };
     } catch (error) {
       throw new Error(error);
     }

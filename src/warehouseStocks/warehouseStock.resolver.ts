@@ -150,7 +150,7 @@ export class WarehouseStockResolver {
     PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
     PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
   ])
-  async maxPharmacyStockQty(
+  async maxWarehouseStockQty(
     @Context() ctx: any,
   ): Promise<MaxWarehouseStockQty> {
     try {
