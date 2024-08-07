@@ -106,7 +106,10 @@ export class PharmacyStockResolver {
 
   @Query(() => MaxPharmacyStockQty, { name: 'maxPharmacyStockQty' })
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
-  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.VIEW])
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
   async maxPharmacyStockQty(@Context() ctx: any): Promise<MaxPharmacyStockQty> {
     try {
       return await this.PharmacyStockService.maxPharmacyStockQty(ctx);
