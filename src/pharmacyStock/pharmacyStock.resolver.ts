@@ -24,6 +24,7 @@ import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
 import { ClearancePharmacyStockInput } from './dto/clearance-pharmacyStock.input';
 import { ClearancePharmacyStock } from './entities/clearancePharmacyStock.entity';
+import { MaxPharmacyStockQty } from './entities/MaxPharmacyStockQty.entity';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -98,6 +99,17 @@ export class PharmacyStockResolver {
   async findOne(@Args('id') id: string): Promise<PharmacyStock> {
     try {
       return await this.PharmacyStockService.findOne(id);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  @Query(() => MaxPharmacyStockQty, { name: 'maxPharmacyStockQty' })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.VIEW])
+  async maxPharmacyStockQty(@Context() ctx: any): Promise<MaxPharmacyStockQty> {
+    try {
+      return await this.PharmacyStockService.maxPharmacyStockQty(ctx);
     } catch (error) {
       throw new BadRequestException(error);
     }

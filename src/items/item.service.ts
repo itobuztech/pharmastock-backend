@@ -484,4 +484,30 @@ export class ItemService {
       throw new Error(error);
     }
   }
+
+  async maxPrice() {
+    try {
+      const mrpBaseUnit = await this.prisma.item.findFirst({
+        select: {
+          mrp_base_unit: true,
+        },
+        orderBy: {
+          mrp_base_unit: 'desc',
+        },
+      });
+
+      const wholesalePrice = await this.prisma.item.findFirst({
+        select: {
+          wholesale_price: true,
+        },
+        orderBy: {
+          wholesale_price: 'desc',
+        },
+      });
+
+      return { ...mrpBaseUnit, ...wholesalePrice };
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
