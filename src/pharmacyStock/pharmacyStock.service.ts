@@ -751,6 +751,7 @@ export class PharmacyStockService {
             pharmacy: {
               organizationId: organizationId,
             },
+            status: true,
           },
           select: {
             final_qty: true,
@@ -763,6 +764,9 @@ export class PharmacyStockService {
         finalQty = await this.prisma.pharmacyStock.findFirst({
           select: {
             final_qty: true,
+          },
+          where: {
+            status: true,
           },
           orderBy: {
             final_qty: 'desc',

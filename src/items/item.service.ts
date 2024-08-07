@@ -491,6 +491,9 @@ export class ItemService {
         select: {
           mrp_base_unit: true,
         },
+        where: {
+          status: true,
+        },
         orderBy: {
           mrp_base_unit: 'desc',
         },
@@ -499,6 +502,9 @@ export class ItemService {
       const wholesalePrice = await this.prisma.item.findFirst({
         select: {
           wholesale_price: true,
+        },
+        where: {
+          status: true,
         },
         orderBy: {
           wholesale_price: 'desc',

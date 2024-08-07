@@ -790,6 +790,7 @@ export class WarehouseStockService {
             warehouse: {
               organizationId: organizationId,
             },
+            status: true,
           },
           select: {
             final_qty: true,
@@ -802,6 +803,9 @@ export class WarehouseStockService {
         finalQty = await this.prisma.warehouseStock.findFirst({
           select: {
             final_qty: true,
+          },
+          where: {
+            status: true,
           },
           orderBy: {
             final_qty: 'desc',
