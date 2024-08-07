@@ -783,9 +783,9 @@ export class WarehouseStockService {
       const loggedinUserRole = loggedinUser?.role;
       const organizationId = loggedinUser?.user?.organizationId;
 
-      let finalQty;
+      let totalQty;
       if (loggedinUserRole !== 'SUPERADMIN') {
-        finalQty = await this.prisma.warehouseStock.findFirst({
+        totalQty = await this.prisma.warehouseStock.findFirst({
           where: {
             warehouse: {
               organizationId: organizationId,
@@ -800,7 +800,7 @@ export class WarehouseStockService {
           },
         });
       } else {
-        finalQty = await this.prisma.warehouseStock.findFirst({
+        totalQty = await this.prisma.warehouseStock.findFirst({
           select: {
             final_qty: true,
           },
@@ -813,7 +813,11 @@ export class WarehouseStockService {
         });
       }
 
-      return finalQty;
+      if (totalQty && totalQty.final_qty) {
+        totalQty = totalQty.final_qty;
+      }
+
+      return { totalQty };
     } catch (error) {
       throw new Error(error);
     }
