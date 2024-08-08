@@ -27,7 +27,6 @@ import { StockMovementModule } from './stockMovement/stockMovement.module';
 import { EmailModule } from './email/email.module';
 
 const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
-console.log('env=', env);
 
 let providerArr: any = [
   {
