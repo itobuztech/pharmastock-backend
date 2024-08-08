@@ -27,6 +27,20 @@ import { StockMovementModule } from './stockMovement/stockMovement.module';
 import { EmailModule } from './email/email.module';
 
 const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
+console.log('env=', env);
+
+let providerArr: any = [
+  {
+    provide: APP_INTERCEPTOR,
+    useFactory: () => new GraphqlInterceptor(),
+  },
+];
+if (env !== 'development') {
+  providerArr.push({
+    provide: APP_GUARD,
+    useClass: GqlThrottlerGuard,
+  });
+}
 
 dotenv.config({ path: join(process.cwd(), `.env.${env}`) });
 @Module({
@@ -73,15 +87,6 @@ dotenv.config({ path: join(process.cwd(), `.env.${env}`) });
     }),
   ],
   controllers: [],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: GqlThrottlerGuard,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useFactory: () => new GraphqlInterceptor(),
-    },
-  ],
+  providers: providerArr,
 })
 export class AppModule {}
