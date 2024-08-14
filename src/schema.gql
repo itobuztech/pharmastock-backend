@@ -143,6 +143,14 @@ input DeleteStockMovementInput {
   id: String!
 }
 
+input DeleteUserInput {
+  id: String!
+}
+
+type DeleteUserResponse {
+  message: String!
+}
+
 input DeleteWarehouseInput {
   id: String!
 }
@@ -270,6 +278,7 @@ type Mutation {
   deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
   deletePharmacyStock(deletePharmacyStockInput: DeletePharmacyStockInput!): PharmacyStock!
   deleteStockMovement(deleteStockMovementInput: DeleteStockMovementInput!): StockMovement!
+  deleteUserBySuperAdmin(deleteUserInput: DeleteUserInput!): DeleteUserResponse!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
   forgotPassword(forgotPasswordInput: ForgotPasswordInput!): ForgotPasswordResponse!

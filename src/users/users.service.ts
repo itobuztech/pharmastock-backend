@@ -22,10 +22,11 @@ export class UsersService {
   ): Promise<{ users: User[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      let whereClause: Prisma.UserWhereInput | {} = {};
+      let whereClause: Prisma.UserWhereInput | {} = { status: true };
 
       if (searchText) {
         whereClause = {
+          ...whereClause,
           OR: [
             { name: { contains: searchText, mode: 'insensitive' } },
             { username: { contains: searchText, mode: 'insensitive' } },
@@ -197,5 +198,37 @@ export class UsersService {
       data,
       include: { organization: true, role: true },
     });
+  }
+
+  async deleteUserBySuperAdmin(data) {
+    const id = data.id;
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          id,
+        },
+      });
+
+      if (!user) {
+        throw new Error('No User found!');
+      }
+
+      const deleteUser = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          status: false,
+        },
+      });
+
+      if (!deleteUser) {
+        throw new Error(
+          'Could not delete the User! Please try after some time.',
+        );
+      }
+
+      return { message: 'User deleted successfully.' };
+    } catch (error) {}
   }
 }
