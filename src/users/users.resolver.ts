@@ -19,6 +19,8 @@ import { TotalCount } from '../pagination/toalCount.entity';
 import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
+import { DeleteUserInput } from './dto/delete-user.input';
+import { DeleteUserResponse } from './entities/delete-user-response.entity';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -76,6 +78,19 @@ export class UsersResolver {
   ): Promise<User> {
     try {
       return this.usersService.create(createUserInput);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
+  @Mutation(() => DeleteUserResponse)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
+  async deleteUserBySuperAdmin(
+    @Args('deleteUserInput') deleteUserInput: DeleteUserInput,
+  ) {
+    try {
+      return await this.usersService.deleteUserBySuperAdmin(deleteUserInput);
     } catch (e) {
       throw new BadRequestException(e);
     }
