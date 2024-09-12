@@ -13,8 +13,8 @@ export class User {
   @Field(() => String)
   id: UserDB['id'];
 
-  @Field(() => String)
-  username: UserDB['username'];
+  @Field(() => String, { nullable: true })
+  username?: UserDB['username'];
 
   @Field(() => String)
   email: UserDB['email'];
