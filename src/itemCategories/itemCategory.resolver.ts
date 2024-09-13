@@ -67,8 +67,8 @@ export class ItemCategoryResolver {
   }
 
   @Mutation(() => ItemCategory)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
-  @Permissions([PrivilegesList.ITEM_CATEGORIES_MANAGEMENT.CAPABILITIES.CREATE])
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
   async createItemCategory(
     @Args('createItemCategoryInput')
     createItemCategoryInput: CreateItemCategoryInput,
@@ -81,8 +81,8 @@ export class ItemCategoryResolver {
   }
 
   @Mutation(() => ItemCategory)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
-  @Permissions([PrivilegesList.ITEM_CATEGORIES_MANAGEMENT.CAPABILITIES.EDIT])
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
   async updateItemCategory(
     @Args('updateItemCategoryInput')
     updateItemCategoryInput: UpdateItemCategoryInput,
@@ -96,8 +96,8 @@ export class ItemCategoryResolver {
   }
 
   @Mutation(() => ItemCategory)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
-  @Permissions([PrivilegesList.ITEM_CATEGORIES_MANAGEMENT.CAPABILITIES.DELETE])
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
   async deleteItemCategory(
     @Args('deleteItemCategoryInput')
     deleteItemCategoryInput: DeleteItemCategoryInput,

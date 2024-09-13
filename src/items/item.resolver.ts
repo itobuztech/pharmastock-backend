@@ -20,6 +20,9 @@ import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
 import { MaxPrice } from './entities/maxPrice.entity';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -79,8 +82,8 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
-  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.CREATE])
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
   async createItem(
     @Args('createItemInput')
     createItemInput: CreateItemInput,
@@ -93,8 +96,8 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
-  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.EDIT])
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
   async updateItem(
     @Args('updateItemInput')
     updateItemInput: UpdateItemInput,
@@ -108,8 +111,8 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
-  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.DELETE])
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
   async deleteItem(
     @Args('deleteItemInput')
     deleteItemInput: DeleteItemInput,
