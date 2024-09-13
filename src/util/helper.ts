@@ -6,3 +6,9 @@ export async function generateToken() {
   // Convert to hex string
   return await buffer.toString('hex');
 }
+export async function generateInvitePassword() {
+  // Generate random bytes
+  const buffer = randomBytes(12 / 2);
+  // Convert to hex string
+  return await buffer.toString('hex');
+}

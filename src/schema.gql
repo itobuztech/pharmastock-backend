@@ -48,6 +48,7 @@ input CreateItemInput {
 input CreateOrganizationInput {
   active: Boolean
   address: String!
+  adminEmail: String!
   city: String!
   contact: String!
   country: String!
@@ -475,6 +476,7 @@ input UpdateItemInput {
 input UpdateOrganizationInput {
   active: Boolean
   address: String
+  adminEmail: String
   city: String
   contact: String
   country: String
@@ -513,7 +515,7 @@ type User {
   organization: Organization
   role: Role
   updatedAt: DateTime
-  username: String!
+  username: String
 }
 
 """The roles available for a user"""

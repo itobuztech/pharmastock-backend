@@ -8,6 +8,7 @@ import { EmailModule } from '../email/email.module';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
+import { AccountModule } from 'src/account/account.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RolesGuard } from './guards/roles.guard';
       secret: 'secret',
     }),
     EmailModule,
+    AccountModule,
   ],
   providers: [
     AuthService,

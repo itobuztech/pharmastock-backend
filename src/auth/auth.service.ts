@@ -25,13 +25,17 @@ import {
   ForgotPasswordResponse,
   ValidateForgotPasswordResponse,
 } from './dto/forgot-password-response';
+import { AccountService } from 'src/account/account.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private prisma: PrismaService,
     private usersService: UsersService,
     private jwtService: JwtService,
     private readonly emailService: EmailService,
+    private readonly accountService: AccountService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {

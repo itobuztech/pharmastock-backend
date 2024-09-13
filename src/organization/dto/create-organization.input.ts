@@ -22,4 +22,7 @@ export class CreateOrganizationInput {
 
   @Field()
   contact: string;
+
+  @Field()
+  adminEmail: string;
 }
