@@ -113,7 +113,6 @@ export class WarehouseStockService {
         }
       }
 
-      console.log('whereClause=', whereClause);
       let searchObject: WarehouseStockSearchObject = {
         where: whereClause,
         include: {
@@ -466,7 +465,6 @@ export class WarehouseStockService {
           id: createWarehouseStockInput?.itemId,
         },
       });
-      console.log(itemCheck);
 
       if (!itemCheck) throw new Error('No Item present with this ID!');
 

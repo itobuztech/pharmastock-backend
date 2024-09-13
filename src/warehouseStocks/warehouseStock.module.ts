@@ -6,6 +6,7 @@ import { LoggerModule } from '../logger/app-logger.module';
 import { StockMovementModule } from '../stockMovement/stockMovement.module';
 import { AccountService } from '../account/account.service';
 import { UsersService } from '../users/users.service';
+import { EmailService } from '../email/email.service';
 
 @Module({
   imports: [LoggerModule, StockMovementModule],
@@ -15,6 +16,7 @@ import { UsersService } from '../users/users.service';
     PrismaService,
     AccountService,
     UsersService,
+    EmailService,
   ],
   exports: [WarehouseStockService, PrismaService],
 })

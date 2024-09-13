@@ -24,6 +24,7 @@ import {
   ForgotPasswordConfirmationInput,
   ForgotPasswordInput,
 } from './dto/forgot-password';
+import { SignUpStaffInput } from 'src/users/dto/signUp-staff.input';
 
 @Resolver()
 export class AuthResolver {
@@ -48,8 +49,8 @@ export class AuthResolver {
   }
 
   @Mutation(() => SignupResponse)
-  signup(@Args('signupUserInput') signupUserInput: CreateUserInput) {
-    return this.authService.signup(signupUserInput);
+  signup(@Args('signUpStaffInput') signUpStaffInput: SignUpStaffInput) {
+    return this.authService.signup(signUpStaffInput);
   }
 
   @Query(() => JSON)

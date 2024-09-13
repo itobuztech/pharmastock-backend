@@ -7,6 +7,7 @@ import { StockMovementModule } from '../stockMovement/stockMovement.module';
 import { WarehouseStockModule } from '../warehouseStocks/warehouseStock.module';
 import { AccountService } from '../account/account.service';
 import { UsersService } from '../users/users.service';
+import { EmailService } from '../email/email.service';
 
 @Module({
   imports: [LoggerModule, StockMovementModule, WarehouseStockModule],
@@ -16,6 +17,7 @@ import { UsersService } from '../users/users.service';
     PrismaService,
     AccountService,
     UsersService,
+    EmailService,
   ],
   exports: [PharmacyStockService, PrismaService],
 })
