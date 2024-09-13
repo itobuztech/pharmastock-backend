@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LoggerModule } from '../logger/app-logger.module';
 import { AccountService } from '../account/account.service';
 import { UsersService } from '../users/users.service';
+import { EmailService } from '../email/email.service';
 
 @Module({
   imports: [LoggerModule],
@@ -14,6 +15,7 @@ import { UsersService } from '../users/users.service';
     PrismaService,
     AccountService,
     UsersService,
+    EmailService,
   ],
   exports: [PharmacyService, PrismaService],
 })

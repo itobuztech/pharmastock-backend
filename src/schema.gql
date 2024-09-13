@@ -195,6 +195,12 @@ type GenerateSku {
   sku: String!
 }
 
+input InviteUsersInput {
+  email: String!
+  organizationId: String
+  role: inviteUserRole!
+}
+
 type Item {
   Category: [ItemCategoryRel!]
   baseUnit: BaseUnit!
@@ -284,9 +290,10 @@ type Mutation {
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
   forgotPassword(forgotPasswordInput: ForgotPasswordInput!): ForgotPasswordResponse!
   generateSKU(generateSkuNameInput: CreateSkuNameInput!): GenerateSku!
+  inviteUsers(inviteUsersInput: InviteUsersInput!): String!
   login(loginUserInput: LoginUserInput!): LoginResponse!
   resetPassword(resetPasswordInput: ResetPasswordInput!): Boolean!
-  signup(signupUserInput: CreateUserInput!): SignupResponse!
+  signup(signUpStaffInput: SignUpStaffInput!): SignupResponse!
   tokenConfirmation(tokenConfirmationInput: TokenConfirmationInput!): LoginResponse!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   updateItemCategory(updateItemCategoryInput: UpdateItemCategoryInput!): ItemCategory!
@@ -424,6 +431,15 @@ type Role {
   userType: String!
 }
 
+input SignUpStaffInput {
+  confirmationToken: String
+  email: String!
+  name: String
+  orgId: String!
+  password: String!
+  username: String!
+}
+
 type SignupResponse {
   success: String!
 }
@@ -552,4 +568,10 @@ type WarehouseStock {
   totalWholesalePrice: Float
   updatedAt: DateTime
   warehouse: Warehouse!
+}
+
+"""The roles available for a user"""
+enum inviteUserRole {
+  ADMIN
+  STAFF
 }

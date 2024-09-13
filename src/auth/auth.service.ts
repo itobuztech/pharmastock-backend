@@ -88,19 +88,20 @@ export class AuthService {
     };
   }
 
-  async signup(signupUserInput: CreateUserInput) {
+  async signup(signUpStaffInput) {
     try {
-      const user = await this.usersService.findOne(signupUserInput.email);
+      const user = await this.usersService.findOne(signUpStaffInput.email);
 
       if (user) {
         throw new Error('User already exists');
       }
 
-      const password = signupUserInput.password;
+      const password = signUpStaffInput.password;
       const confirmationToken = await generateToken();
 
+      signUpStaffInput.role = 'STAFF';
       const newUser = await this.usersService.create({
-        ...signupUserInput,
+        ...signUpStaffInput,
         password,
         confirmationToken,
       });

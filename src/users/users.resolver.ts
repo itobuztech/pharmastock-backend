@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { CreateUserInput } from './dto/create-user.input';
@@ -21,6 +22,7 @@ import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
 import { DeleteUserInput } from './dto/delete-user.input';
 import { DeleteUserResponse } from './entities/delete-user-response.entity';
+import { InviteUsersInput } from './dto/invite-user.input';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -91,6 +93,21 @@ export class UsersResolver {
   ) {
     try {
       return await this.usersService.deleteUserBySuperAdmin(deleteUserInput);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
+  @Mutation(() => String, { name: 'inviteUsers' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  async inviteUsers(
+    @Context() ctx: any,
+    @Args('inviteUsersInput') inviteUsersInput: InviteUsersInput,
+  ) {
+    try {
+      const user = ctx.req.user;
+      return await this.usersService.inviteUsers(user, inviteUsersInput);
     } catch (e) {
       throw new BadRequestException(e);
     }
