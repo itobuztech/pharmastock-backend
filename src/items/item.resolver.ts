@@ -82,8 +82,9 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuardOR)
   @Roles(UserRole.SUPERADMIN)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.CREATE])
   async createItem(
     @Args('createItemInput')
     createItemInput: CreateItemInput,
@@ -96,8 +97,9 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuardOR)
   @Roles(UserRole.SUPERADMIN)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.EDIT])
   async updateItem(
     @Args('updateItemInput')
     updateItemInput: UpdateItemInput,
@@ -111,8 +113,9 @@ export class ItemResolver {
   }
 
   @Mutation(() => Item)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuardOR)
   @Roles(UserRole.SUPERADMIN)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.DELETE])
   async deleteItem(
     @Args('deleteItemInput')
     deleteItemInput: DeleteItemInput,
