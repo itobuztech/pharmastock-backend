@@ -118,7 +118,7 @@ export class PharmacyStockResolver {
     }
   }
 
-  @Mutation(() => PharmacyStock)
+  @Mutation(() => String)
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([
     PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE,
@@ -127,7 +127,7 @@ export class PharmacyStockResolver {
   async createPharmacyStock(
     @Args('createPharmacyStockInput')
     createPharmacyStockInput: CreatePharmacyStockInput,
-  ): Promise<PharmacyStock> {
+  ) {
     try {
       return await this.PharmacyStockService.create(createPharmacyStockInput);
     } catch (error) {

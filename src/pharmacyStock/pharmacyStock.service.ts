@@ -276,18 +276,28 @@ export class PharmacyStockService {
     return pharmacyStock;
   }
 
-  async create(createPharmacyStockInput: CreatePharmacyStockInput) {
+  async create(createPharmacyStockInput) {
     try {
+      const itemObjArr = [...createPharmacyStockInput.itemArr];
+
+      const itemIdArr = itemObjArr.map((iA) => {
+        return iA.itemId;
+      });
+
       // This section checks whether the relational ID is present or not! Starts
-      if (createPharmacyStockInput?.itemId) {
-        const itemCheck = await this.prisma.item.findFirst({
+      if (itemIdArr && itemIdArr.length > 0) {
+        const itemCheck = await this.prisma.item.findMany({
           where: {
-            id: createPharmacyStockInput?.itemId,
+            id: {
+              in: itemIdArr,
+            },
           },
         });
 
-        if (!itemCheck) throw new Error('No Item present with this ID!');
+        if (!itemCheck)
+          throw new Error('Some items with the provided IDs are not present!');
       }
+
       if (createPharmacyStockInput?.warehouseId) {
         const warehouse = await this.prisma.warehouse.findFirst({
           where: {
@@ -309,194 +319,210 @@ export class PharmacyStockService {
       }
       // This section checks whether the relational ID is present or not! Ends
 
-      // Setting up the data to be used!Starts
-      const data = {
-        final_qty: createPharmacyStockInput.qty,
-        item: {
-          connect: { id: createPharmacyStockInput?.itemId },
-        },
-        warehouse: {
-          connect: { id: createPharmacyStockInput?.warehouseId },
-        },
-        pharmacy: {
-          connect: { id: createPharmacyStockInput?.pharmacyId },
-        },
-      };
-      // Setting up the data to be used!Ends
-
       // Updates the warehouse stock. As stock is transfered for the warehouse to the pharmacy. STARTS
-      const existingStock = await this.prisma.warehouseStock.findFirst({
+      const existingStock = await this.prisma.warehouseStock.findMany({
         where: {
-          itemId: createPharmacyStockInput?.itemId,
+          itemId: { in: itemIdArr },
           warehouseId: createPharmacyStockInput?.warehouseId,
           status: true,
         },
       });
 
-      if (!existingStock) {
-        throw new Error(
-          'There is no existing Stock with this item and warehouse. Please try after sometime!',
-        );
-      }
-
-      const checkingNegativeValue =
-        existingStock.final_qty - createPharmacyStockInput.qty < 0;
-
-      if (checkingNegativeValue) {
-        throw new Error(
-          `There is only ${existingStock.final_qty} number of items in stock!`,
-        );
-      }
-
-      const warehouseStock = await this.prisma.warehouseStock.update({
-        where: {
-          id: existingStock?.id,
-        },
-        data: {
-          final_qty: existingStock.final_qty - createPharmacyStockInput.qty,
-        },
+      const existingStockPresentArr = existingStock.map((eS) => {
+        return eS.itemId;
       });
 
-      if (!warehouseStock) {
+      const nonExistingStockArr = itemIdArr.filter(
+        (item) => !existingStockPresentArr.includes(item),
+      );
+
+      if (nonExistingStockArr.length > 0) {
         throw new Error(
-          'Could not update the Warehouse Stock. Please try after sometime!',
+          `There is no existing Stock of this ${nonExistingStockArr} item ID/IDs in this warehouse!`,
         );
       }
-      // Updates the warehouse stock. As stock is transfered for the warehouse to the pharmacy. ENDS
 
-      // CHECKING IF THE PHARMACY STOCK ALREADY PRESENT OR NOT, FOR THE ID. STARTS
-      const existingPharmacyStock = await this.prisma.pharmacyStock.findFirst({
-        where: {
-          status: true,
-          itemId: createPharmacyStockInput?.itemId,
-          pharmacyId: createPharmacyStockInput?.pharmacyId,
-        },
-      });
-      // CHECKING IF THE PHARMACY STOCK ALREADY PRESENT OR NOT, FOR THE ID. ENDS
+      existingStock.forEach((eS) => {
+        const filteredItems = itemObjArr.filter(
+          (item) => item.itemId === eS.itemId,
+        );
 
-      // CREATING OR UPDATING THE PHARMACY STOCK. STARTS
-      let pharmacyStock;
-      if (!existingPharmacyStock) {
-        // CREATING THE STOCK IF ALREADY NOT PRESENT!STARTS
-        pharmacyStock = await this.prisma.pharmacyStock.create({
-          data,
-          include: {
-            warehouse: true,
-            pharmacy: true,
-            item: true,
-          },
-        });
+        const checkingNegativeValue = eS.final_qty - filteredItems[0].qty < 0;
 
-        if (!pharmacyStock) {
+        if (checkingNegativeValue) {
           throw new Error(
-            'Could not create the Warehouse Stock. Please try after sometime!',
+            `There is only ${eS.final_qty} number of items in stock of ${eS.itemId}!`,
           );
         }
-        // CREATING THE STOCK IF ALREADY NOT PRESENT!ENDS
-      } else {
-        // UPDATING THE STOCK!STARTS
-        pharmacyStock = await this.prisma.pharmacyStock.update({
+      });
+
+      for (const eS of existingStock) {
+        const filteredItems2 = itemObjArr.filter(
+          (item) => item.itemId === eS.itemId,
+        );
+
+        const warehouseStock = await this.prisma.warehouseStock.update({
           where: {
-            id: existingPharmacyStock?.id,
+            id: eS?.id,
           },
           data: {
-            final_qty:
-              existingPharmacyStock.final_qty + createPharmacyStockInput.qty,
-          },
-          include: {
-            warehouse: true,
-            pharmacy: true,
-            item: true,
+            final_qty: eS.final_qty - filteredItems2[0].qty,
           },
         });
 
-        if (!pharmacyStock) {
+        if (!warehouseStock) {
           throw new Error(
             'Could not update the Warehouse Stock. Please try after sometime!',
           );
         }
-        // UPDATING THE STOCK!ENDS
-      }
-      // CREATING OR UPDATING THE PHARMACY STOCK. ENDS
-      // SELECTING THE BATCH NAME. STARTS.
-      const batchNameExisting = await this.prisma.stockMovement.findMany({
-        where: {
-          warehouseStockId: existingStock.id,
-          // pharmacyStockId: null,
-        },
-        orderBy: {
-          expiry: 'asc',
-        },
-      });
+        // Updates the warehouse stock. As stock is transfered for the warehouse to the pharmacy. ENDS
 
-      const copiedBatchNameExisting = JSON.parse(
-        JSON.stringify(batchNameExisting),
-      );
+        // CHECKING IF THE PHARMACY STOCK ALREADY PRESENT OR NOT, FOR THE ID. STARTS
+        const existingPharmacyStock = await this.prisma.pharmacyStock.findFirst(
+          {
+            where: {
+              status: true,
+              itemId: eS?.itemId,
+              pharmacyId: createPharmacyStockInput?.pharmacyId,
+            },
+          },
+        );
+        // CHECKING IF THE PHARMACY STOCK ALREADY PRESENT OR NOT, FOR THE ID. ENDS
 
-      let chkqty = createPharmacyStockInput.qty;
+        // CREATING OR UPDATING THE PHARMACY STOCK. STARTS
+        let pharmacyStock;
+        if (!existingPharmacyStock) {
+          // CREATING THE STOCK IF ALREADY NOT PRESENT!STARTS
+          pharmacyStock = await this.prisma.pharmacyStock.create({
+            data: {
+              final_qty: filteredItems2[0].qty,
+              item: {
+                connect: { id: eS?.itemId },
+              },
+              warehouse: {
+                connect: { id: createPharmacyStockInput?.warehouseId },
+              },
+              pharmacy: {
+                connect: { id: createPharmacyStockInput?.pharmacyId },
+              },
+            },
+            include: {
+              warehouse: true,
+              pharmacy: true,
+              item: true,
+            },
+          });
 
-      const rowArr = [];
-      for (const row of copiedBatchNameExisting) {
-        if (chkqty <= 0) break;
+          if (!pharmacyStock) {
+            throw new Error(
+              'Could not create the Warehouse Stock. Please try after sometime!',
+            );
+          }
+          // CREATING THE STOCK IF ALREADY NOT PRESENT!ENDS
+        } else {
+          // UPDATING THE STOCK!STARTS
+          pharmacyStock = await this.prisma.pharmacyStock.update({
+            where: {
+              id: existingPharmacyStock?.id,
+            },
+            data: {
+              final_qty:
+                existingPharmacyStock.final_qty + filteredItems2[0].qty,
+            },
+            include: {
+              warehouse: true,
+              pharmacy: true,
+              item: true,
+            },
+          });
 
-        const qtyArr = await this.prisma.stockMovement.findMany({
+          if (!pharmacyStock) {
+            throw new Error(
+              'Could not update the Warehouse Stock. Please try after sometime!',
+            );
+          }
+          // UPDATING THE STOCK!ENDS
+        }
+        // CREATING OR UPDATING THE PHARMACY STOCK. ENDS
+
+        // SELECTING THE BATCH NAME. STARTS.
+        const batchNameExisting = await this.prisma.stockMovement.findMany({
           where: {
-            batch_name: row.batch_name,
-            warehouseStockId: null,
-            pharmacyStockClearanceId: null,
-            status: true,
+            warehouseStockId: eS.id,
+          },
+          orderBy: {
+            expiry: 'asc',
           },
         });
 
-        let qtyValArr = [];
-        if (qtyArr && qtyArr.length > 0) {
-          qtyValArr = qtyArr.map((qtV) => {
-            return qtV.qty;
+        const copiedBatchNameExisting = JSON.parse(
+          JSON.stringify(batchNameExisting),
+        );
+
+        let chkqty = filteredItems2[0].qty;
+
+        const rowArr = [];
+        for (const row of copiedBatchNameExisting) {
+          if (chkqty <= 0) break;
+
+          const qtyArr = await this.prisma.stockMovement.findMany({
+            where: {
+              batch_name: row.batch_name,
+              warehouseStockId: null,
+              pharmacyStockClearanceId: null,
+              status: true,
+            },
           });
-        }
 
-        let qtyValTotal = 0;
-        if (qtyValArr.length > 0) {
-          qtyValTotal = qtyValArr.reduce(
-            (accumulator, currentValue) => accumulator + currentValue,
-            0,
-          );
-        }
-
-        if (row.qty != qtyValTotal) {
-          row.qty = row.qty - qtyValTotal;
-          if (chkqty < row.qty) {
-            row.qty = chkqty;
-            chkqty = 0;
-          } else {
-            chkqty = chkqty - row.qty;
+          let qtyValArr = [];
+          if (qtyArr && qtyArr.length > 0) {
+            qtyValArr = qtyArr.map((qtV) => {
+              return qtV.qty;
+            });
           }
 
-          rowArr.push({
-            ...row,
-          });
+          let qtyValTotal = 0;
+          if (qtyValArr.length > 0) {
+            qtyValTotal = qtyValArr.reduce(
+              (accumulator, currentValue) => accumulator + currentValue,
+              0,
+            );
+          }
+
+          if (row.qty != qtyValTotal) {
+            row.qty = row.qty - qtyValTotal;
+            if (chkqty < row.qty) {
+              row.qty = chkqty;
+              chkqty = 0;
+            } else {
+              chkqty = chkqty - row.qty;
+            }
+
+            rowArr.push({
+              ...row,
+            });
+          }
+        }
+
+        // Creation of Stock Movement data.STARTS
+        for (const rowArrVal of rowArr) {
+          const createStockMovement: CreateStockMovementInput = {
+            itemId: eS?.itemId,
+            qty: rowArrVal.qty,
+            batchName: rowArrVal.batch_name,
+            expiry: rowArrVal.expiry,
+            pharmacyStockId: pharmacyStock.id || existingPharmacyStock.id,
+          };
+          // Creation of Stock Movement data.ENDS
+
+          // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! STARTS
+          await this.stockMovementService.create(createStockMovement);
+          // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! ENDS
         }
       }
-
-      for (const rowArrVal of rowArr) {
-        // Creation of Stock Movement data.STARTS
-        const createStockMovement: CreateStockMovementInput = {
-          itemId: createPharmacyStockInput?.itemId,
-          qty: rowArrVal.qty,
-          batchName: rowArrVal.batch_name,
-          expiry: rowArrVal.expiry,
-          pharmacyStockId: pharmacyStock.id || existingPharmacyStock.id,
-        };
-        // Creation of Stock Movement data.ENDS
-
-        // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! STARTS
-        await this.stockMovementService.create(createStockMovement);
-        // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! ENDS
-      }
-
       // SELECTING THE BATCH NAME. ENDS.
 
-      return pharmacyStock;
+      return 'Pharmacy Stock created successfully!';
     } catch (error) {
       throw error;
     }

@@ -63,10 +63,9 @@ input CreatePharmacyInput {
 }
 
 input CreatePharmacyStockInput {
-  itemId: String!
-  pharmacyId: String!
-  qty: Float!
-  warehouseId: String!
+  itemArr: [itemObjs!]!
+  pharmacyId: ID!
+  warehouseId: ID!
 }
 
 input CreateSkuNameInput {
@@ -275,7 +274,7 @@ type Mutation {
   createItemCategory(createItemCategoryInput: CreateItemCategoryInput!): ItemCategory!
   createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
   createPharmacy(createPharmacyInput: CreatePharmacyInput!): Pharmacy!
-  createPharmacyStock(createPharmacyStockInput: CreatePharmacyStockInput!): PharmacyStock!
+  createPharmacyStock(createPharmacyStockInput: CreatePharmacyStockInput!): String!
   createStockMovement(createStockMovementInput: CreateStockMovementInput!): StockMovement!
   createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
   createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
@@ -574,4 +573,9 @@ type WarehouseStock {
 enum inviteUserRole {
   ADMIN
   STAFF
+}
+
+input itemObjs {
+  itemId: String!
+  qty: Float!
 }
