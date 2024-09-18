@@ -532,8 +532,8 @@ export class PharmacyStockService {
     clearancePharmacyStockInput: ClearancePharmacyStockInput[],
   ) {
     let createPharmacyClearanceArr = [];
+    let pharmacyStockArr = [];
     try {
-      // let data = [];
       for (const inputs of clearancePharmacyStockInput) {
         try {
           const itemId = await this.prisma.item.findFirst({
@@ -578,22 +578,37 @@ export class PharmacyStockService {
           const checkingNegativeValue =
             pharmacyStock.final_qty - inputs.qty < 0;
 
+          pharmacyStockArr.push(pharmacyStock);
+
           if (checkingNegativeValue) {
             throw new Error(
               `There is only ${pharmacyStock.final_qty} number of items in stock!`,
             );
           }
+        } catch (error) {
+          throw error;
+        }
+      }
 
-          const batchNames = await this.prisma.stockMovement.findMany({
-            where: {
-              pharmacyStockId: pharmacyStock.id,
-              pharmacyStockClearanceId: null,
-              status: true,
-            },
-            orderBy: {
-              expiry: 'asc',
-            },
-          });
+      let i = -1;
+      for (const inputs of clearancePharmacyStockInput) {
+        i++;
+        try {
+          let batchNames;
+          try {
+            batchNames = await this.prisma.stockMovement.findMany({
+              where: {
+                pharmacyStockId: pharmacyStockArr[i].id,
+                pharmacyStockClearanceId: null,
+                status: true,
+              },
+              orderBy: {
+                expiry: 'asc',
+              },
+            });
+          } catch (error) {
+            throw error;
+          }
 
           const groupedByBatchName = batchNames.reduce((acc, item) => {
             if (!acc[item.batch_name]) {
@@ -614,10 +629,10 @@ export class PharmacyStockService {
             const updatedPharmacyStock = await this.prisma.pharmacyStock.update(
               {
                 where: {
-                  id: pharmacyStock.id,
+                  id: pharmacyStockArr[i].id,
                 },
                 data: {
-                  final_qty: pharmacyStock.final_qty - inputs.qty,
+                  final_qty: pharmacyStockArr[i].final_qty - inputs.qty,
                 },
               },
             );
@@ -628,14 +643,14 @@ export class PharmacyStockService {
               );
             }
           } catch (error) {
-            throw Error;
+            throw error;
           }
 
           const createPharmacyClearance =
             await this.prisma.pharmacyStockClearance.create({
               data: {
                 itemId: inputs.itemId,
-                pharmacyStockId: pharmacyStock.id,
+                pharmacyStockId: pharmacyStockArr[i].id,
                 qty: inputs.qty,
               },
               include: {
