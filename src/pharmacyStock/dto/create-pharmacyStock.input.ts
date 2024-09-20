@@ -1,16 +1,22 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field, ID } from '@nestjs/graphql';
 
 @InputType()
-export class CreatePharmacyStockInput {
+export class itemObjs {
   @Field()
   itemId: string;
 
   @Field()
+  qty: number;
+}
+
+@InputType()
+export class CreatePharmacyStockInput {
+  @Field(() => [itemObjs])
+  itemArr: itemObjs;
+
+  @Field(() => ID)
   warehouseId: string;
 
-  @Field()
+  @Field(() => ID)
   pharmacyId: string;
-
-  @Field()
-  qty: number;
 }
