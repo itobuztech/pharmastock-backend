@@ -9,12 +9,9 @@ import {
 } from '@nestjs/graphql';
 import { PharmacyStockService } from './pharmacyStock.service';
 import { CreatePharmacyStockInput } from './dto/create-pharmacyStock.input';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { BadRequestException, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
 import { PharmacyStock } from './entities/pharmacyStock.entity';
-import { UserRole } from '@prisma/client';
 import { DeletePharmacyStockInput } from './dto/delete-pharmacyStock.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { TotalCount } from '../pagination/toalCount.entity';
@@ -25,6 +22,7 @@ import { PrivilegesList } from '../privileges/user-privileges';
 import { ClearancePharmacyStockInput } from './dto/clearance-pharmacyStock.input';
 import { ClearancePharmacyStock } from './entities/clearancePharmacyStock.entity';
 import { MaxPharmacyStockQty } from './entities/MaxPharmacyStockQty.entity';
+import { OrganizationGuard } from 'src/auth/guards/organization.guard';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -119,33 +117,42 @@ export class PharmacyStockResolver {
   }
 
   @Mutation(() => String)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([
     PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE,
     PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE,
   ])
   async createPharmacyStock(
+    @Context() ctx: any,
     @Args('createPharmacyStockInput')
     createPharmacyStockInput: CreatePharmacyStockInput,
   ) {
     try {
-      return await this.PharmacyStockService.create(createPharmacyStockInput);
+      const user = ctx.req.user;
+
+      return await this.PharmacyStockService.create(
+        user,
+        createPharmacyStockInput,
+      );
     } catch (error) {
       throw new BadRequestException(error);
     }
   }
 
   @Mutation(() => [ClearancePharmacyStock])
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE])
   async clearancePharmacyStock(
+    @Context() ctx: any,
     @Args('clearancePharmacyStockInput', {
       type: () => [ClearancePharmacyStockInput],
     })
     clearancePharmacyStockInput: ClearancePharmacyStockInput[],
   ): Promise<ClearancePharmacyStock[]> {
     try {
+      const user = ctx.req.user;
       return await this.PharmacyStockService.clearancePharmacyStock(
+        user,
         clearancePharmacyStockInput,
       );
     } catch (error) {

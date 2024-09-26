@@ -652,6 +652,7 @@ export class WarehouseStockService {
         batchName: createWarehouseStockInput.batchName,
         expiry: createWarehouseStockInput.expiry,
         warehouseStockId: warehouseStock.id || existingStock.id,
+        organizationId: organizationId,
       };
       // Creation of Stock Movement data.ENDS
 

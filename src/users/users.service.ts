@@ -344,7 +344,7 @@ export class UsersService {
     const subject = `${role == 'ADMIN' ? 'Admin' : 'Staff'} Invitation Email!`;
     const body = `<p>${passwordText} is your automated password. </p>
     <p>Please confrim your email and set your new password.</p> 
-        <p>By clicking on this link ${process.env.BASE_URL}/token?confirmation_token=${confirmationToken}</p> 
+        <p>By clicking on this link ${process.env.BASE_URL}/set-password?confirmation_token=${confirmationToken}</p> 
         <p>Thanks</p>
         `;
 

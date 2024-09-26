@@ -27,6 +27,7 @@ import { PrivilegesList } from 'src/privileges/user-privileges';
 import { Permissions } from 'src/auth/decorators/permissions.decorator';
 import { AccountService } from '../account/account.service';
 import { MaxWarehouseStockQty } from './entities/MaxWarehouseStockQty.entity';
+import { OrganizationGuard } from 'src/auth/guards/organization.guard';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -161,7 +162,7 @@ export class WarehouseStockResolver {
   }
 
   @Mutation(() => WarehouseStock)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE])
   async createWarehouseStock(
     @Context() ctx: any,
