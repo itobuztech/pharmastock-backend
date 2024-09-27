@@ -276,17 +276,33 @@ export class PharmacyStockService {
     return pharmacyStock;
   }
 
-  async create(createPharmacyStockInput) {
+  async create(user, createPharmacyStockInput) {
     try {
+      let organization = null;
+      try {
+        organization = await this.prisma.user.findFirst({
+          select: { organizationId: true },
+          where: {
+            id: user.userId,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        throw new Error('No organization found with the logged in user!');
+      }
+
+      const organizationId = organization.organizationId;
+
       const itemObjArr = [...createPharmacyStockInput.itemArr];
 
       const itemIdArr = itemObjArr.map((iA) => {
         return iA.itemId;
       });
 
+      let itemCheck = null;
       // This section checks whether the relational ID is present or not! Starts
       if (itemIdArr && itemIdArr.length > 0) {
-        const itemCheck = await this.prisma.item.findMany({
+        itemCheck = await this.prisma.item.findMany({
           where: {
             id: {
               in: itemIdArr,
@@ -332,13 +348,17 @@ export class PharmacyStockService {
         return eS.itemId;
       });
 
-      const nonExistingStockArr = itemIdArr.filter(
-        (item) => !existingStockPresentArr.includes(item),
+      const nonExistingStockArr = itemCheck.filter(
+        (item) => !existingStockPresentArr.includes(item.id),
+      );
+
+      const nonExistingStockNameArr = nonExistingStockArr.map(
+        (nonExistingStock) => nonExistingStock.name,
       );
 
       if (nonExistingStockArr.length > 0) {
         throw new Error(
-          `There is no existing Stock of this ${nonExistingStockArr} item ID/IDs in this warehouse!`,
+          `There is no existing Stock of this ${nonExistingStockNameArr} item in this warehouse!`,
         );
       }
 
@@ -512,6 +532,7 @@ export class PharmacyStockService {
             batchName: rowArrVal.batch_name,
             expiry: rowArrVal.expiry,
             pharmacyStockId: pharmacyStock.id || existingPharmacyStock.id,
+            organizationId: organizationId,
           };
           // Creation of Stock Movement data.ENDS
 
@@ -529,11 +550,27 @@ export class PharmacyStockService {
   }
 
   async clearancePharmacyStock(
+    user,
     clearancePharmacyStockInput: ClearancePharmacyStockInput[],
   ) {
     let createPharmacyClearanceArr = [];
     let pharmacyStockArr = [];
     try {
+      let organization = null;
+      try {
+        organization = await this.prisma.user.findFirst({
+          select: { organizationId: true },
+          where: {
+            id: user.userId,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        throw new Error('No organization found with the logged in user!');
+      }
+
+      const organizationId = organization.organizationId;
+
       for (const inputs of clearancePharmacyStockInput) {
         try {
           const itemId = await this.prisma.item.findFirst({
@@ -723,6 +760,7 @@ export class PharmacyStockService {
               batchName: rowArrVal.batch_name,
               expiry: rowArrVal.expiry,
               pharmacyStockClearanceId: createPharmacyClearance.id,
+              organizationId: organizationId,
             };
             // Creation of Stock Movement data.ENDS
 

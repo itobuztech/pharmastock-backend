@@ -78,6 +78,7 @@ input CreateStockMovementInput {
   batchName: String
   expiry: DateTime
   itemId: String!
+  organizationId: String
   pharmacyStockClearanceId: String
   pharmacyStockId: String
   qty: Float!
@@ -139,10 +140,6 @@ input DeletePharmacyStockInput {
   id: String!
 }
 
-input DeleteStockMovementInput {
-  id: String!
-}
-
 input DeleteUserInput {
   id: String!
 }
@@ -168,6 +165,11 @@ input FilterItemInputs {
 input FilterPharmacyStockInputs {
   endDate: DateTime
   qty: Int
+  startDate: DateTime
+}
+
+input FilterStockMovementsInputs {
+  endDate: DateTime
   startDate: DateTime
 }
 
@@ -283,7 +285,6 @@ type Mutation {
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
   deletePharmacy(deletePharmacyInput: DeletePharmacyInput!): Pharmacy!
   deletePharmacyStock(deletePharmacyStockInput: DeletePharmacyStockInput!): PharmacyStock!
-  deleteStockMovement(deleteStockMovementInput: DeleteStockMovementInput!): StockMovement!
   deleteUserBySuperAdmin(deleteUserInput: DeleteUserInput!): DeleteUserResponse!
   deleteWarehouse(deleteWarehouseInput: DeleteWarehouseInput!): Warehouse!
   deleteWarehouseStock(deleteWarehouseStockInput: DeleteWarehouseStockInput!): WarehouseStock!
@@ -339,6 +340,11 @@ type PaginatedPharmacies {
 
 type PaginatedPharmacyStocks {
   pharmacyStocks: [PharmacyStock!]!
+  total: Float!
+}
+
+type PaginatedStockMovements {
+  stockMovements: [StockMovement!]!
   total: Float!
 }
 
@@ -405,8 +411,7 @@ type Query {
   pharmacy(id: String!): Pharmacy!
   pharmacyStocksByPharmacy(paginationArgs: PaginationArgs, pharmacyId: String!): PaginatedPharmacyStocks
   sku(itemId: String!, organizationId: String!, warehouseId: String!): Sku!
-  stockMovement(id: String!): StockMovement!
-  stockMovements(paginationArgs: PaginationArgs): [StockMovement!]
+  stockMovements(filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovements
   user(email: String!): User!
   userById(id: String!): User!
   users(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedUsers
@@ -460,10 +465,14 @@ type StockMovement {
   createdAt: DateTime!
   expiry: DateTime
   id: String!
+  item: String
   itemId: String!
+  pharmacyName: String
+  pharmacyStockClearanceId: String
   pharmacyStockId: String
   qty: Float!
   updatedAt: DateTime
+  warehouseName: String
   warehouseStockId: String
 }
 

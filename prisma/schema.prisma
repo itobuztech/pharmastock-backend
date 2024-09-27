@@ -60,6 +60,7 @@ model Organization {
   Warehouse   Warehouse[]
   Pharmacy    Pharmacy[]
   SKU         SKU[]
+  StockMovement StockMovement[]
 
   @@map("organization")
 }
@@ -174,6 +175,8 @@ model StockMovement {
   expiry           DateTime?
   pharmacyStockClearanceId  String?         @map("pharmacyStockClearance_id") @db.Uuid
   pharmacyStockClearance    PharmacyStockClearance?  @relation(fields: [pharmacyStockClearanceId], references: [id], onDelete: Cascade)
+  organizationId   String?         @map("organization_id") @db.Uuid
+  organization     Organization?   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime?       @default(now()) @updatedAt @map("updated_at")
   status           Boolean?        @default(true)

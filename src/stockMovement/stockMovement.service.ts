@@ -1,22 +1,160 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateStockMovementInput } from './dto/create-stockMovement.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { StockMovement } from '@prisma/client';
-import { PaginationArgs } from 'src/pagination/pagination.dto';
+import { Prisma, StockMovement } from '@prisma/client';
+import { PaginationArgs } from '../pagination/pagination.dto';
+import { FilterStockMovementsInputs } from './dto/filter-stockMovements.input';
 
 @Injectable()
 export class StockMovementService {
   constructor(private prisma: PrismaService, private readonly logger: Logger) {}
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<StockMovement[]> {
+  async findAll(
+    user,
+    searchText?: string,
+    paginationArgs?: PaginationArgs,
+    filterArgs?: FilterStockMovementsInputs,
+  ): Promise<{ stockMovements: StockMovement[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const stockMovement = await this.prisma.stockMovement.findMany({
-        skip,
-        take,
+      let organization = null;
+      try {
+        organization = await this.prisma.organization.findFirst({
+          where: {
+            User: {
+              some: {
+                id: user.userId,
+              },
+            },
+          },
+        });
+      } catch (error) {
+        console.log(error);
+        throw new Error('No organization found with this User Id!');
+      }
+
+      const organizationId = organization.id;
+
+      let whereClause: Prisma.StockMovementWhereInput = {
+        status: true,
+        organizationId,
+      };
+
+      if (searchText) {
+        whereClause.OR = [
+          {
+            batch_name: {
+              contains: searchText,
+              mode: 'insensitive',
+            },
+          },
+          {
+            item: {
+              name: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+        ];
+      }
+
+      if (filterArgs) {
+        const filterConditions: Prisma.StockMovementWhereInput[] = [];
+
+        // Add date range filter if provided
+        if (filterArgs.startDate && filterArgs.endDate) {
+          filterConditions.push({
+            OR: [
+              {
+                createdAt: {
+                  gte: filterArgs.startDate,
+                  lte: filterArgs.endDate,
+                },
+              },
+              {
+                updatedAt: {
+                  gte: filterArgs.startDate,
+                  lte: filterArgs.endDate,
+                },
+              },
+            ],
+          });
+        }
+
+        // Combine base conditions with search and filter conditions
+        whereClause = {
+          AND: [whereClause, ...filterConditions],
+        };
+      }
+
+      let stockMovementCount = null;
+      try {
+        stockMovementCount = await this.prisma.stockMovement.count({
+          where: whereClause,
+        });
+      } catch (error) {
+        console.log(error);
+        throw new Error('Stock movement count fetching error!!');
+      }
+
+      let stockMovements = null;
+      try {
+        stockMovements = await this.prisma.stockMovement.findMany({
+          skip,
+          take,
+          where: whereClause,
+          orderBy: {
+            updatedAt: 'desc',
+          },
+          include: {
+            item: {
+              select: {
+                name: true,
+              },
+            },
+            warehouseStock: {
+              include: {
+                warehouse: {
+                  select: { name: true },
+                },
+              },
+            },
+            pharmacyStock: {
+              include: {
+                pharmacy: {
+                  select: { name: true },
+                },
+              },
+            },
+            pharmacyStockClearance: {
+              include: {
+                pharmacyStock: {
+                  include: {
+                    pharmacy: {
+                      select: { name: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+      } catch (error) {
+        console.log(error);
+        throw new Error('Stock movement fetching error!!');
+      }
+
+      stockMovements.map((sM: any) => {
+        sM.item = sM.item.name;
+        if (sM.warehouseStock) {
+          sM.warehouseName = sM.warehouseStock.warehouse.name;
+        }
+        if (sM.pharmacyStock || sM.pharmacyStockClearance) {
+          sM.pharmacyName =
+            sM?.pharmacyStock?.pharmacy?.name ||
+            sM?.pharmacyStockClearance?.pharmacyStock?.pharmacy?.name;
+        }
       });
 
-      return stockMovement;
+      return { stockMovements, total: stockMovementCount };
     } catch (error) {
       throw error;
     }
@@ -60,6 +198,17 @@ export class StockMovementService {
         };
       }
 
+      if (createStockMovementInput?.organizationId) {
+        data = {
+          ...data,
+          organization: {
+            connect: {
+              id: createStockMovementInput?.organizationId,
+            },
+          },
+        };
+      }
+
       if (createStockMovementInput?.pharmacyStockId) {
         data = {
           ...data,
@@ -81,6 +230,8 @@ export class StockMovementService {
           },
         };
       }
+
+      console.log('data=', data);
 
       const stockMovement = await this.prisma.stockMovement.create({
         data,
