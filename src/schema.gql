@@ -467,13 +467,12 @@ type StockMovement {
   id: String!
   item: String
   itemId: String!
-  pharmacyStock: String
-  pharmacyStockClearance: String
+  pharmacyName: String
   pharmacyStockClearanceId: String
   pharmacyStockId: String
   qty: Float!
   updatedAt: DateTime
-  warehouseStock: String
+  warehouseName: String
   warehouseStockId: String
 }
 

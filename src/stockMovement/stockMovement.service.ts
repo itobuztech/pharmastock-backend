@@ -88,12 +88,7 @@ export class StockMovementService {
       let stockMovementCount = null;
       try {
         stockMovementCount = await this.prisma.stockMovement.count({
-          where: {
-            organizationId,
-          },
-          orderBy: {
-            updatedAt: 'desc',
-          },
+          where: whereClause,
         });
       } catch (error) {
         console.log(error);
@@ -150,14 +145,12 @@ export class StockMovementService {
       stockMovements.map((sM: any) => {
         sM.item = sM.item.name;
         if (sM.warehouseStock) {
-          sM.warehouseStock = sM.warehouseStock.warehouse.name;
+          sM.warehouseName = sM.warehouseStock.warehouse.name;
         }
-        if (sM.pharmacyStock) {
-          sM.pharmacyStock = sM.pharmacyStock.pharmacy.name;
-        }
-        if (sM.pharmacyStockClearance) {
-          sM.pharmacyStockClearance =
-            sM.pharmacyStockClearance.pharmacyStock.pharmacy.name;
+        if (sM.pharmacyStock || sM.pharmacyStockClearance) {
+          sM.pharmacyName =
+            sM?.pharmacyStock?.pharmacy?.name ||
+            sM?.pharmacyStockClearance?.pharmacyStock?.pharmacy?.name;
         }
       });
 
