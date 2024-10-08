@@ -32,10 +32,20 @@ export class PharmacyStockService {
       const loggedinUser = await this.accountService.findOne(ctx);
       const loggedinUserRole = loggedinUser?.role;
       const organizationId = loggedinUser?.user?.organizationId;
+      const pharmacyId = loggedinUser?.user?.pharmacy?.id || null;
 
       let whereClause: Prisma.PharmacyStockWhereInput = {
         status: true,
       };
+
+      if (pharmacyId) {
+        whereClause = {
+          ...whereClause,
+          pharmacy: {
+            id: pharmacyId,
+          },
+        };
+      }
 
       if (searchText) {
         whereClause.OR = [

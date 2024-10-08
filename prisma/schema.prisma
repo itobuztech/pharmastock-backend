@@ -21,6 +21,8 @@ model User {
   role                   Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
   organizationId         String?       @map("organization_id") @db.Uuid
   organization           Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  pharmacyId             String?       @map("pharmacy_id") @db.Uuid
+  pharmacy               Pharmacy?     @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
   status                 Boolean?      @default(true)
   Warehouse              Warehouse[]
 
@@ -217,6 +219,7 @@ model Pharmacy {
   updatedAt      DateTime?       @default(now()) @updatedAt @map("updated_at")
   status         Boolean?        @default(true)
   PharmacyStock  PharmacyStock[]
+  User           User[]
 
   @@map("pharmacy")
 }

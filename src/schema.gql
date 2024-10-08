@@ -198,7 +198,8 @@ type GenerateSku {
 
 input InviteUsersInput {
   email: String!
-  organizationId: String
+  organizationId: String!
+  pharmacyId: String
   role: inviteUserRole!
 }
 
