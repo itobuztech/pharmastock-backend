@@ -70,6 +70,9 @@ export class OrganizationService {
       where: {
         id,
       },
+      include: {
+        User: true,
+      },
     });
 
     if (!organization) {

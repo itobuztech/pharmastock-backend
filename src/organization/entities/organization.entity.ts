@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Organization as OrganizationDB } from '@prisma/client';
+import { User } from '../../users/entities/user.entity';
 
 @ObjectType()
 export class Organization {
@@ -35,4 +36,7 @@ export class Organization {
 
   @Field(() => Date, { nullable: true })
   updatedAt: OrganizationDB['updatedAt'] | null;
+
+  @Field(() => [User], { nullable: true })
+  User?: User;
 }
