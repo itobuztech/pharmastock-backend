@@ -194,6 +194,7 @@ export class UsersService {
       include: {
         role: true,
         organization: true,
+        pharmacy: true,
       },
     });
     return user;
@@ -245,7 +246,11 @@ export class UsersService {
     const userId = user.userId;
     const userRole = user.role.userType;
 
-    let { email, organizationId, role } = inviteUsersInput;
+    let { email, pharmacyId, organizationId, role } = inviteUsersInput;
+
+    if (pharmacyId && role === 'ADMIN') {
+      throw new Error('Pharmacy can not be directly linked with Admin!');
+    }
 
     if (email.replace(/\s+/g, '').length <= 0) {
       throw new Error('Email is required!');
@@ -273,6 +278,16 @@ export class UsersService {
 
     if (!organizationPresent) {
       throw new Error('No organization is present with this ID!');
+    }
+
+    const pharmacyPresent = await this.prisma.pharmacy.findFirst({
+      where: {
+        id: pharmacyId,
+      },
+    });
+
+    if (!pharmacyPresent) {
+      throw new Error('No pharmacy is present with this ID!');
     }
 
     if (userRole === 'ADMIN') {
@@ -306,7 +321,7 @@ export class UsersService {
     const password = await bcrypt.hash(passwordText, 10);
 
     if (!emailPresent) {
-      const data: any = {
+      let data: any = {
         email,
         emailConfirmationToken: confirmationToken,
         password,
@@ -317,6 +332,16 @@ export class UsersService {
           connect: { id: organizationId },
         },
       };
+
+      if (pharmacyId) {
+        data = {
+          ...data,
+          pharmacy: {
+            connect: { id: pharmacyId },
+          },
+        };
+      }
+
       const createUser = await this.prisma.user.create({
         data,
       });

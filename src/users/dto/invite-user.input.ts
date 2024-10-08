@@ -14,6 +14,9 @@ registerEnumType(InviteUserRole, {
 @InputType()
 export class InviteUsersInput {
   @Field({ nullable: true })
+  pharmacyId: string;
+
+  @Field()
   organizationId: string;
 
   @Field()
