@@ -306,6 +306,7 @@ type Mutation {
 }
 
 type Organization {
+  User: [User!]
   active: Boolean
   address: String!
   city: String!
