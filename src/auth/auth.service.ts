@@ -183,7 +183,7 @@ export class AuthService {
     const subject = 'Forgot Password Request!';
     const body = `<p>Hello ${name}</p>
         <p>We received a request to reset the password for your [Service Name] account. To ensure the security of your account, please click the link below to set a new password:.</p> 
-        <p>By clicking on this link ${process.env.BASE_URL}/forgotpasswordconfirmation?confirmation_token=${confirmationToken}</p> 
+        <p>By clicking on this link ${process.env.BASE_URL}/set-password?confirmation_token=${confirmationToken}</p> 
         <p>Thanks</p>`;
 
     const emailSent = await this.emailService.run(email, subject, body);
