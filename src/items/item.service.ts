@@ -97,6 +97,11 @@ export class ItemService {
           },
         },
       };
+
+      const itemCount = await this.prisma.item.findMany({
+        ...searchObject,
+      });
+
       if (pagination) {
         searchObject = {
           skip,
@@ -147,7 +152,7 @@ export class ItemService {
         });
       }
 
-      return { items, total: items.length };
+      return { items, total: itemCount.length };
     } catch (error) {
       throw error;
     }

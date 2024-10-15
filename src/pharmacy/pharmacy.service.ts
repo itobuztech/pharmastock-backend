@@ -37,6 +37,7 @@ export class PharmacyService {
 
       if (searchText) {
         whereClause = {
+          ...whereClause,
           OR: [
             { name: { contains: searchText, mode: 'insensitive' } },
             { location: { contains: searchText, mode: 'insensitive' } },
@@ -48,6 +49,10 @@ export class PharmacyService {
           ],
         };
       }
+
+      const pharmacyCount = await this.prisma.pharmacy.count({
+        where: whereClause,
+      });
 
       let searchObject: PharmacySearchObject = {
         where: whereClause,
@@ -86,7 +91,7 @@ export class PharmacyService {
         ],
       });
 
-      return { pharmacies, total: pharmacies.length };
+      return { pharmacies, total: pharmacyCount };
     } catch (error) {
       throw error;
     }
