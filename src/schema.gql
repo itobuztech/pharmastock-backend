@@ -540,6 +540,7 @@ type User {
   isEmailConfirmed: Boolean!
   name: String
   organization: Organization
+  pharmacy: Pharmacy
   role: Role
   updatedAt: DateTime
   username: String
