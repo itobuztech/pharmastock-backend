@@ -36,6 +36,7 @@ export class WarehouseService {
 
       if (searchText) {
         whereClause = {
+          ...whereClause,
           OR: [
             { name: { contains: searchText, mode: 'insensitive' } },
             { location: { contains: searchText, mode: 'insensitive' } },
