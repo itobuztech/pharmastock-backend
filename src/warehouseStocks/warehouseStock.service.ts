@@ -113,6 +113,10 @@ export class WarehouseStockService {
         }
       }
 
+      const warehouseStocksCount = await this.prisma.warehouseStock.count({
+        where: whereClause,
+      });
+
       let searchObject: WarehouseStockSearchObject = {
         where: whereClause,
         include: {
@@ -211,7 +215,7 @@ export class WarehouseStockService {
         });
       }
 
-      return { warehouseStocks, total: warehouseStocks.length };
+      return { warehouseStocks, total: warehouseStocksCount };
     } catch (error) {
       throw error;
     }

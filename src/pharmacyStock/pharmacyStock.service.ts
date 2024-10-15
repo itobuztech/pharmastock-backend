@@ -119,6 +119,10 @@ export class PharmacyStockService {
         }
       }
 
+      const pharmacyCount = await this.prisma.pharmacyStock.count({
+        where: whereClause,
+      });
+
       let searchObject: PharmacyStockSearchObject = {
         where: whereClause,
         include: {
@@ -195,7 +199,7 @@ export class PharmacyStockService {
         });
       }
 
-      return { pharmacyStocks, total: pharmacyStocks.length };
+      return { pharmacyStocks, total: pharmacyCount };
     } catch (error) {
       throw error;
     }
@@ -207,7 +211,11 @@ export class PharmacyStockService {
   ): Promise<{ pharmacyStocks: PharmacyStock[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
-      const totalCount = await this.prisma.pharmacyStock.count();
+      const totalCount = await this.prisma.pharmacyStock.count({
+        where: {
+          pharmacyId: pharmacyId,
+        },
+      });
       const pharmacyStocks = await this.prisma.pharmacyStock.findMany({
         where: {
           pharmacyId: pharmacyId,

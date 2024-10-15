@@ -50,6 +50,10 @@ export class WarehouseService {
         };
       }
 
+      const warehouseCount = await this.prisma.warehouse.count({
+        where: whereClause,
+      });
+
       let searchObject: WarehouseSearchObject = {
         where: whereClause,
         include: {
@@ -89,7 +93,7 @@ export class WarehouseService {
         ],
       });
 
-      return { warehouses, total: warehouses.length };
+      return { warehouses, total: warehouseCount };
     } catch (error) {
       throw error;
     }

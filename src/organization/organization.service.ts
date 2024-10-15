@@ -27,19 +27,24 @@ export class OrganizationService {
 
       if (searchText) {
         whereClause = {
+          ...whereClause,
           OR: [
             { name: { contains: searchText, mode: 'insensitive' } },
             { description: { contains: searchText, mode: 'insensitive' } },
             { address: { contains: searchText, mode: 'insensitive' } },
             { city: { contains: searchText, mode: 'insensitive' } },
           ],
-          status: true,
         };
       }
 
       let searchObject: OrganizationSearchObject = {
         where: whereClause,
       };
+
+      const organizationsCount = await this.prisma.organization.count({
+        ...searchObject,
+      });
+
       if (pagination) {
         searchObject = {
           skip,
@@ -60,7 +65,7 @@ export class OrganizationService {
         ],
       });
 
-      return { organizations, total: organizations.length };
+      return { organizations, total: organizationsCount };
     } catch (error) {
       throw error;
     }
