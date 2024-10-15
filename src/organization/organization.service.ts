@@ -33,6 +33,7 @@ export class OrganizationService {
             { address: { contains: searchText, mode: 'insensitive' } },
             { city: { contains: searchText, mode: 'insensitive' } },
           ],
+          status: true,
         };
       }
 
