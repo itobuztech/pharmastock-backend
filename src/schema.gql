@@ -520,6 +520,7 @@ input UpdatePharmacyInput {
 
 input UpdateProfileInput {
   name: String!
+  pharmacy: ID
   username: String!
 }
 

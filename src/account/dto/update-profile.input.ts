@@ -1,10 +1,13 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field, ID } from '@nestjs/graphql';
 
 @InputType()
 export class UpdateProfileInput {
-  @Field({ nullable: false })
+  @Field()
   username: string;
 
-  @Field({ nullable: false })
+  @Field()
   name: string;
+
+  @Field(() => ID, { nullable: true })
+  pharmacy: string;
 }
