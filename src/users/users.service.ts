@@ -201,13 +201,40 @@ export class UsersService {
   }
 
   async updateUser(id: string, data) {
-    await this.prisma.user.update({
-      where: {
-        id,
-      },
-      data,
-      include: { organization: true, role: true },
-    });
+    if (data.pharmacyId) {
+      const pharmacyPresent = await this.prisma.organization.findFirst({
+        where: {
+          User: {
+            some: {
+              id,
+            },
+          },
+          Pharmacy: {
+            some: {
+              id: data.pharmacyId,
+            },
+          },
+        },
+      });
+
+      if (!pharmacyPresent) {
+        throw Error(
+          'The pharmacy provided is not present in the organisation!',
+        );
+      }
+    }
+    try {
+      await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data,
+        include: { organization: true, role: true },
+      });
+    } catch (error) {
+      console.log('Error=', error);
+      throw new Error('Failed to update the User!');
+    }
   }
 
   async deleteUserBySuperAdmin(data) {

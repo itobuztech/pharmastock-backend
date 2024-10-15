@@ -398,6 +398,15 @@ export class WarehouseStockService {
         });
 
         warehouseStocks = warehouseStocksFinal;
+      } else {
+        warehouseStocks.forEach((wS: any) => {
+          const finalMrp_base_unit = wS?.item?.mrp_base_unit * wS?.final_qty;
+          const finalWholesale_price =
+            wS?.item?.wholesale_price * wS?.final_qty;
+
+          wS['totalMrpBaseUnit'] = finalMrp_base_unit;
+          wS['totalWholesalePrice'] = finalWholesale_price;
+        });
       }
 
       return { warehouseStocks, total: warehouseStocks.length };
