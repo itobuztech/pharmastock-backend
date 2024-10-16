@@ -136,44 +136,55 @@ export class UsersService {
   }
 
   async create(createUserInput: CreateUserInput) {
-    const { role } = createUserInput;
-    ////////////DEFAULT ROLE SETUP///////////
-    const defaultRole = await this.prisma.role.findFirst({
-      where: {
-        userType: role,
-      },
-      select: {
-        id: true,
-      },
-    });
+    const { role, email } = createUserInput;
 
-    if (!defaultRole)
-      throw new UnprocessableEntityException(
-        "Can't find the role related information",
-      );
-    ////////////DEFAULT ROLE SETTUP///////////
-    const password = await bcrypt.hash(createUserInput.password, 10);
+    try {
+      const emailPresesnt = await this.prisma.user.findFirst({
+        where: {
+          email,
+        },
+      });
 
-    let data: any = {
-      emailConfirmationToken: createUserInput.confirmationToken || null,
-      email: createUserInput.email,
-      username: createUserInput.username,
-      password,
-      name: createUserInput.name,
-      role: {
-        connect: { id: defaultRole.id },
-      },
-    };
+      if (emailPresesnt) {
+        throw new Error('Email already present!');
+      }
+      ////////////DEFAULT ROLE SETUP///////////
+      const defaultRole = await this.prisma.role.findFirst({
+        where: {
+          userType: role,
+        },
+        select: {
+          id: true,
+        },
+      });
 
-    if (createUserInput?.orgId) {
-      data = {
-        ...data,
-        organization: {
-          connect: { id: createUserInput?.orgId },
+      if (!defaultRole)
+        throw new UnprocessableEntityException(
+          "Can't find the role related information",
+        );
+      ////////////DEFAULT ROLE SETTUP///////////
+      const password = await bcrypt.hash(createUserInput.password, 10);
+
+      let data: any = {
+        emailConfirmationToken: createUserInput.confirmationToken || null,
+        email: createUserInput.email,
+        username: createUserInput.username,
+        password,
+        name: createUserInput.name,
+        role: {
+          connect: { id: defaultRole.id },
         },
       };
-    }
-    try {
+
+      if (createUserInput?.orgId) {
+        data = {
+          ...data,
+          organization: {
+            connect: { id: createUserInput?.orgId },
+          },
+        };
+      }
+
       return await this.prisma.user.create({
         data,
         include: {
