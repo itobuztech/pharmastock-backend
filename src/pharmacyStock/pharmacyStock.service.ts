@@ -10,6 +10,7 @@ import { PharmacyStockSearchObject } from '../types/extended-types';
 import { FilterPharmacyStockInputs } from './dto/filter-pharmacyStock.input';
 import { AccountService } from '../account/account.service';
 import { ClearancePharmacyStockInput } from './dto/clearance-pharmacyStock.input';
+import { generateLotName } from 'src/util/helper';
 
 @Injectable()
 export class PharmacyStockService {
@@ -393,6 +394,7 @@ export class PharmacyStockService {
           );
         }
       });
+      const lotName = await generateLotName();
 
       for (const eS of existingStock) {
         const filteredItems2 = itemObjArr.filter(
@@ -506,8 +508,9 @@ export class PharmacyStockService {
           const qtyArr = await this.prisma.stockMovement.findMany({
             where: {
               batch_name: row.batch_name,
-              warehouseStockId: null,
-              pharmacyStockClearanceId: null,
+              pharmacyStockId: {
+                not: null,
+              },
               status: true,
             },
           });
@@ -551,6 +554,7 @@ export class PharmacyStockService {
             expiry: rowArrVal.expiry,
             pharmacyStockId: pharmacyStock.id || existingPharmacyStock.id,
             organizationId: organizationId,
+            lotName,
           };
           // Creation of Stock Movement data.ENDS
 
@@ -734,8 +738,9 @@ export class PharmacyStockService {
             const qtyArr = await this.prisma.stockMovement.findMany({
               where: {
                 batch_name: row.batch_name,
-                warehouseStockId: null,
-                pharmacyStockId: null,
+                pharmacyStockClearanceId: {
+                  not: null,
+                },
                 status: true,
               },
             });
@@ -770,6 +775,7 @@ export class PharmacyStockService {
             }
           }
 
+          const lotName = await generateLotName();
           for (const rowArrVal of rowArr) {
             // Creation of Stock Movement data.STARTS
             const createStockMovement: CreateStockMovementInput = {
@@ -779,6 +785,7 @@ export class PharmacyStockService {
               expiry: rowArrVal.expiry,
               pharmacyStockClearanceId: createPharmacyClearance.id,
               organizationId: organizationId,
+              lotName,
             };
             // Creation of Stock Movement data.ENDS
 

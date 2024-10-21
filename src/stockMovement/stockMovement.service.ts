@@ -180,6 +180,7 @@ export class StockMovementService {
         qty: createStockMovementInput.qty,
         batch_name: createStockMovementInput.batchName || null,
         expiry: createStockMovementInput.expiry || null,
+        lot_name: createStockMovementInput.lotName || null,
         item: {
           connect: {
             id: createStockMovementInput?.itemId,

@@ -11,6 +11,7 @@ import { Sku } from './entities/sku.entity';
 import { WarehouseStockSearchObject } from '../types/extended-types';
 import { FilterPharmacyStockInputs } from 'src/pharmacyStock/dto/filter-pharmacyStock.input';
 import { AccountService } from '../account/account.service';
+import { generateLotName } from 'src/util/helper';
 
 @Injectable()
 export class WarehouseStockService {
@@ -457,222 +458,265 @@ export class WarehouseStockService {
     return warehouseStock;
   }
 
-  async create(ctx, createWarehouseStockInput: CreateWarehouseStockInput) {
+  async hasDuplicateElement(arr: any[]): Promise<Boolean> {
+    return new Set(arr).size !== arr.length;
+  }
+
+  async create(ctx, createWarehouseStockInputs: CreateWarehouseStockInput[]) {
     try {
-      let organizationId = '';
-      try {
-        const loggedinUser = await this.accountService.findOne(ctx);
-        const loggedinUserRole = loggedinUser?.role;
-        organizationId = loggedinUser?.user?.organizationId;
+      const batchNameArr = createWarehouseStockInputs.map(
+        (createWarehouseStockInput) => {
+          return createWarehouseStockInput.batchName;
+        },
+      );
 
-        if (!organizationId) {
-          throw new Error('No organization is registered with this user!');
-        }
-      } catch (error) {
-        throw error;
+      const duplicate = await this.hasDuplicateElement(batchNameArr);
+
+      if (duplicate) {
+        throw new Error('Can not have same batch names!');
       }
-
-      // This section checks whether the relational ID is present or not! Starts
-      const itemCheck = await this.prisma.item.findFirst({
+      const organization = await this.prisma.organization.findFirst({
         where: {
-          id: createWarehouseStockInput?.itemId,
+          User: {
+            some: {
+              id: ctx.req.user.userId,
+            },
+          },
         },
       });
 
-      if (!itemCheck) throw new Error('No Item present with this ID!');
-
-      const warehouse = await this.prisma.warehouse.findFirst({
-        where: {
-          id: createWarehouseStockInput.warehouseId,
-        },
-      });
-
-      if (!warehouse) throw new Error('No Warehouse present with this ID!');
-      // This section checks whether the relational ID is present or not! Ends
-
-      // Setting up the data to be used!Starts
-      const data = {
-        item: {
-          connect: { id: createWarehouseStockInput?.itemId },
-        },
-        warehouse: {
-          connect: { id: createWarehouseStockInput?.warehouseId },
-        },
-        final_qty: createWarehouseStockInput.qty,
-      };
-      // Setting up the data to be used!ENDS
-
-      // CHECKING IF THE WAREHOUSE STOCK ALREADY PRESENT OR NOT, FOR THE ID. STARTS
-      const existingStock = await this.prisma.warehouseStock.findFirst({
-        where: {
-          itemId: createWarehouseStockInput?.itemId,
-          warehouseId: createWarehouseStockInput?.warehouseId,
-        },
-      });
-      // CHECKING IF THE WAREHOUSE STOCK ALREADY PRESENT OR NOT, FOR THE ID. ENDS
-
-      // CHECKING FOR UNIQUE BATCHNAME IN SKU MOVEMENT.STARTS.
-      const batchName = await this.prisma.stockMovement.findFirst({
-        where: {
-          status: true,
-          batch_name: createWarehouseStockInput.batchName,
-        },
-      });
-
-      if (batchName) {
-        throw new Error('Batch Name already present!');
+      if (!organization) {
+        throw new Error('No organisation found with this logged in user!');
       }
-      // CHECKING FOR UNIQUE BATCHNAME IN SKU MOVEMENT.ENDS.
+      const organizationId = organization.id;
 
-      // CREATING OR UPDATING THE WAREHOUSE STOCK. STARTS
-      let warehouseStock;
-      let sku;
-      if (!existingStock) {
-        // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT. STARTS.
-        const Sku = await this.prisma.sKU.findFirst({
+      // Checking all the validations. Starts!
+      for (const createWarehouseStockInput of createWarehouseStockInputs) {
+        // This section checks whether the relational ID is present or not! Starts
+        const itemCheck = await this.prisma.item.findFirst({
+          where: {
+            id: createWarehouseStockInput?.itemId,
+          },
+        });
+
+        if (!itemCheck) throw new Error('No Item present with this ID!');
+
+        const warehouse = await this.prisma.warehouse.findFirst({
+          where: {
+            id: createWarehouseStockInput.warehouseId,
+          },
+        });
+
+        if (!warehouse) throw new Error('No Warehouse present with this ID!');
+        // This section checks whether the relational ID is present or not! Ends
+
+        // CHECKING FOR UNIQUE BATCHNAME IN SKU MOVEMENT.STARTS.
+        const batchName = await this.prisma.stockMovement.findFirst({
           where: {
             status: true,
-            sku: createWarehouseStockInput.sku,
+            batch_name: createWarehouseStockInput.batchName,
           },
         });
 
-        if (Sku) throw new Error('SKU already present!');
-        // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT. ENDS.
-
-        // CREATING THE STOCK IF ALREADY NOT PRESENT!STARTS
-        warehouseStock = await this.prisma.warehouseStock.create({
-          data,
-          include: {
-            warehouse: true,
-            item: true,
-            SKU: true,
-          },
-        });
-
-        if (!warehouseStock) {
-          throw new Error(
-            'Could not create the Warehouse Stock. Please try after sometime!',
-          );
+        if (batchName) {
+          throw new Error('Batch Name already present!');
         }
-        // CREATING THE STOCK IF ALREADY NOT PRESENT!ENDS
+        // CHECKING FOR UNIQUE BATCHNAME IN SKU MOVEMENT.ENDS.
 
-        // CREATION OF SKU FOR THE ITEM STOCK. STARTS
-        sku = await this.prisma.sKU.create({
-          data: {
-            sku: createWarehouseStockInput.sku,
-            stocklevel_min: createWarehouseStockInput.stocklevelMin,
-            stocklevel_max: createWarehouseStockInput.stocklevelMax,
-            stock_status: createWarehouseStockInput.stockStatus,
-            stockLevel: createWarehouseStockInput.stockLevel,
+        // CHECKING IF THE WAREHOUSE STOCK ALREADY PRESENT OR NOT, FOR THE ID. STARTS
+        const existingStockForValidation =
+          await this.prisma.warehouseStock.findFirst({
+            where: {
+              itemId: createWarehouseStockInput?.itemId,
+              warehouseId: createWarehouseStockInput?.warehouseId,
+            },
+          });
+        // CHECKING IF THE WAREHOUSE STOCK ALREADY PRESENT OR NOT, FOR THE ID. ENDS
+
+        if (!existingStockForValidation) {
+          // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT. STARTS.
+          const Sku = await this.prisma.sKU.findFirst({
+            where: {
+              status: true,
+              sku: createWarehouseStockInput.sku,
+            },
+          });
+
+          if (Sku) throw new Error('SKU already present!');
+          // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT. ENDS.
+        }
+      }
+
+      // Checking all the validations. Ends!
+
+      const lotName = await generateLotName();
+
+      // Create or updating section. Starts!
+      for (const createWarehouseStockInput of createWarehouseStockInputs) {
+        // CHECKING IF THE WAREHOUSE STOCK ALREADY PRESENT OR NOT, FOR THE ID. STARTS
+        const existingStock = await this.prisma.warehouseStock.findFirst({
+          where: {
+            itemId: createWarehouseStockInput?.itemId,
+            warehouseId: createWarehouseStockInput?.warehouseId,
+          },
+        });
+        // CHECKING IF THE WAREHOUSE STOCK ALREADY PRESENT OR NOT, FOR THE ID. ENDS
+        // CREATING OR UPDATING THE WAREHOUSE STOCK. STARTS
+        let warehouseStock;
+        let sku;
+        if (!existingStock) {
+          // Setting up the data to be used!Starts
+          const data = {
             item: {
               connect: { id: createWarehouseStockInput?.itemId },
-            },
-            organization: {
-              connect: { id: organizationId },
-            },
-            warehouseStock: {
-              connect: { id: warehouseStock?.id },
             },
             warehouse: {
               connect: { id: createWarehouseStockInput?.warehouseId },
             },
-          },
-        });
+            final_qty: createWarehouseStockInput.qty,
+          };
+          // Setting up the data to be used!ENDS
 
-        if (!sku) {
-          throw new Error(
-            'Could not create the SKU. Please try after sometime!',
-          );
-        }
-        // CREATION OF SKU FOR THE ITEM STOCK. ENDS
+          // CREATING THE STOCK IF ALREADY NOT PRESENT!STARTS
+          warehouseStock = await this.prisma.warehouseStock.create({
+            data,
+            include: {
+              warehouse: true,
+              item: true,
+              SKU: true,
+            },
+          });
 
-        warehouseStock.SKU = sku;
-      } else {
-        // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT IN OTHER ROWS. STARTS.
-        const Sku = await this.prisma.sKU.findFirst({
-          where: {
-            status: true,
-            sku: createWarehouseStockInput.sku,
-            NOT: {
+          if (!warehouseStock) {
+            throw new Error(
+              'Could not create the Warehouse Stock. Please try after sometime!',
+            );
+          }
+          // CREATING THE STOCK IF ALREADY NOT PRESENT!ENDS
+
+          // CREATION OF SKU FOR THE ITEM STOCK. STARTS
+          sku = await this.prisma.sKU.create({
+            data: {
+              sku: createWarehouseStockInput.sku,
+              stocklevel_min: createWarehouseStockInput.stocklevelMin,
+              stocklevel_max: createWarehouseStockInput.stocklevelMax,
+              stock_status: createWarehouseStockInput.stockStatus,
+              stockLevel: createWarehouseStockInput.stockLevel,
+              item: {
+                connect: { id: createWarehouseStockInput?.itemId },
+              },
+              organization: {
+                connect: { id: organizationId },
+              },
+              warehouseStock: {
+                connect: { id: warehouseStock?.id },
+              },
+              warehouse: {
+                connect: { id: createWarehouseStockInput?.warehouseId },
+              },
+            },
+          });
+
+          if (!sku) {
+            throw new Error(
+              'Could not create the SKU. Please try after sometime!',
+            );
+          }
+          // CREATION OF SKU FOR THE ITEM STOCK. ENDS
+
+          warehouseStock.SKU = sku;
+        } else {
+          // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT IN OTHER ROWS. STARTS.
+          const Sku = await this.prisma.sKU.findFirst({
+            where: {
+              status: true,
+              sku: createWarehouseStockInput.sku,
+              NOT: {
+                warehouseStockId: existingStock?.id,
+              },
+            },
+          });
+
+          if (Sku) throw new Error('SKU already present!');
+          // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT IN OTHER ROWS. ENDS.
+
+          // UPDATING THE SKU. STARTS.
+          const updatingSkuData = { sku: createWarehouseStockInput.sku };
+
+          if (createWarehouseStockInput.stocklevelMin) {
+            updatingSkuData['stocklevel_min'] =
+              createWarehouseStockInput.stocklevelMin;
+          }
+          if (createWarehouseStockInput.stocklevelMax) {
+            updatingSkuData['stocklevel_max'] =
+              createWarehouseStockInput.stocklevelMax;
+          }
+          if (createWarehouseStockInput.stockStatus) {
+            updatingSkuData['stock_status'] =
+              createWarehouseStockInput.stockStatus;
+          }
+          if (createWarehouseStockInput.stockLevel) {
+            updatingSkuData['stockLevel'] =
+              createWarehouseStockInput.stockLevel;
+          }
+
+          sku = await this.prisma.sKU.update({
+            where: {
               warehouseStockId: existingStock?.id,
             },
-          },
-        });
+            data: updatingSkuData,
+          });
 
-        if (Sku) throw new Error('SKU already present!');
-        // CHECKING IF THE SAME NAMED SKU IS PRESENT OR NOT IN OTHER ROWS. ENDS.
+          if (!sku) {
+            throw new Error(
+              'Could not update the SKU. Please try after sometime!',
+            );
+          }
+          // UPDATING THE SKU. ENDS.
+          // UPDATING THE STOCK!STARTS
+          warehouseStock = await this.prisma.warehouseStock.update({
+            where: {
+              id: existingStock?.id,
+            },
+            data: {
+              final_qty:
+                existingStock.final_qty + createWarehouseStockInput.qty,
+            },
+            include: {
+              warehouse: true,
+              item: true,
+              SKU: true,
+            },
+          });
 
-        // UPDATING THE SKU. STARTS.
-        const updatingSkuData = { sku: createWarehouseStockInput.sku };
+          if (!warehouseStock) {
+            throw new Error(
+              'Could not update the Warehouse Stock. Please try after sometime!',
+            );
+          }
+          // UPDATING THE STOCK!ENDS
+        }
+        // CREATING OR UPDATING THE WAREHOUSE STOCK. ENDS
 
-        if (createWarehouseStockInput.stocklevelMin) {
-          updatingSkuData['stocklevel_min'] =
-            createWarehouseStockInput.stocklevelMin;
-        }
-        if (createWarehouseStockInput.stocklevelMax) {
-          updatingSkuData['stocklevel_max'] =
-            createWarehouseStockInput.stocklevelMax;
-        }
-        if (createWarehouseStockInput.stockStatus) {
-          updatingSkuData['stock_status'] =
-            createWarehouseStockInput.stockStatus;
-        }
-        if (createWarehouseStockInput.stockLevel) {
-          updatingSkuData['stockLevel'] = createWarehouseStockInput.stockLevel;
-        }
+        // Creation of Stock Movement data.STARTS
+        const createStockMovement: CreateStockMovementInput = {
+          itemId: createWarehouseStockInput?.itemId,
+          qty: createWarehouseStockInput.qty,
+          batchName: createWarehouseStockInput.batchName,
+          expiry: createWarehouseStockInput.expiry,
+          warehouseStockId: warehouseStock.id || existingStock.id,
+          organizationId: organizationId,
+          lotName,
+        };
+        // Creation of Stock Movement data.ENDS
 
-        sku = await this.prisma.sKU.update({
-          where: {
-            warehouseStockId: existingStock?.id,
-          },
-          data: updatingSkuData,
-        });
-
-        if (!sku) {
-          throw new Error(
-            'Could not update the SKU. Please try after sometime!',
-          );
-        }
-        // UPDATING THE SKU. ENDS.
-        // UPDATING THE STOCK!STARTS
-        warehouseStock = await this.prisma.warehouseStock.update({
-          where: {
-            id: existingStock?.id,
-          },
-          data: {
-            final_qty: existingStock.final_qty + createWarehouseStockInput.qty,
-          },
-          include: {
-            warehouse: true,
-            item: true,
-            SKU: true,
-          },
-        });
-
-        if (!warehouseStock) {
-          throw new Error(
-            'Could not update the Warehouse Stock. Please try after sometime!',
-          );
-        }
-        // UPDATING THE STOCK!ENDS
+        // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! STARTS
+        await this.stockMovementService.create(createStockMovement);
+        // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! ENDS
       }
-      // CREATING OR UPDATING THE WAREHOUSE STOCK. ENDS
+      // Create or updating section. Ends!
 
-      // Creation of Stock Movement data.STARTS
-      const createStockMovement: CreateStockMovementInput = {
-        itemId: createWarehouseStockInput?.itemId,
-        qty: createWarehouseStockInput.qty,
-        batchName: createWarehouseStockInput.batchName,
-        expiry: createWarehouseStockInput.expiry,
-        warehouseStockId: warehouseStock.id || existingStock.id,
-        organizationId: organizationId,
-      };
-      // Creation of Stock Movement data.ENDS
-
-      // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! STARTS
-      await this.stockMovementService.create(createStockMovement);
-      // CALLING THE STOCKMOVEMENT CREATE METHOD, PASSING "createStockMovement" AS THE ARGUMENT TO IT! ENDS
-      return warehouseStock;
+      return 'Warehouse stocks created successfully';
     } catch (error) {
       throw error;
     }
