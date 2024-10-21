@@ -118,7 +118,8 @@ export class PharmacyStockResolver {
 
   @Mutation(() => String)
   @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
-  @Permissions([PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE])
+  @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE])
+  @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.EDIT])
   async createPharmacyStock(
     @Context() ctx: any,
     @Args('createPharmacyStockInput')

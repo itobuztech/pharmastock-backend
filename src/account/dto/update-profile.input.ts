@@ -7,7 +7,4 @@ export class UpdateProfileInput {
 
   @Field()
   name: string;
-
-  @Field(() => ID, { nullable: true })
-  pharmacy: string;
 }

@@ -18,6 +18,9 @@ export class CreateStockMovementInput {
   organizationId?: string;
 
   @Field()
+  lotName: string;
+
+  @Field()
   qty: number;
 
   @Field({ nullable: true })

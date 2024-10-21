@@ -78,6 +78,7 @@ input CreateStockMovementInput {
   batchName: String
   expiry: DateTime
   itemId: String!
+  lotName: String!
   organizationId: String
   pharmacyStockClearanceId: String
   pharmacyStockId: String
@@ -280,7 +281,7 @@ type Mutation {
   createPharmacyStock(createPharmacyStockInput: CreatePharmacyStockInput!): String!
   createStockMovement(createStockMovementInput: CreateStockMovementInput!): StockMovement!
   createWarehouse(createWarehouseInput: CreateWarehouseInput!): Warehouse!
-  createWarehouseStock(createWarehouseStockInput: CreateWarehouseStockInput!): WarehouseStock!
+  createWarehouseStock(createWarehouseStockInput: [CreateWarehouseStockInput!]!): String!
   deleteItem(deleteItemInput: DeleteItemInput!): Item!
   deleteItemCategory(deleteItemCategoryInput: DeleteItemCategoryInput!): ItemCategory!
   deleteOrganization(deleteOrganizationInput: DeleteOrganizationInput!): Organization!
@@ -520,7 +521,6 @@ input UpdatePharmacyInput {
 
 input UpdateProfileInput {
   name: String!
-  pharmacy: ID
   username: String!
 }
 

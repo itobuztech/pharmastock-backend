@@ -110,7 +110,7 @@ export class OrganizationService {
     });
 
     if (adminPresent) {
-      throw new Error('This email already taken by an Amdin!');
+      throw new Error('This email already taken by an Admin!');
     }
 
     const organization = await this.prisma.organization.create({

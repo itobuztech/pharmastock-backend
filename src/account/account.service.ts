@@ -51,7 +51,6 @@ export class AccountService {
     await this.usersService.updateUser(ctx.req.user.userId, {
       name: updateProfileInput.name,
       username: updateProfileInput.username,
-      pharmacyId: updateProfileInput.pharmacy,
     });
     return true;
   }

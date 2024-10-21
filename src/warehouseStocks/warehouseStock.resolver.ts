@@ -161,14 +161,16 @@ export class WarehouseStockResolver {
     }
   }
 
-  @Mutation(() => WarehouseStock)
+  @Mutation(() => String)
   @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.CREATE])
   async createWarehouseStock(
     @Context() ctx: any,
-    @Args('createWarehouseStockInput')
-    createWarehouseStockInput: CreateWarehouseStockInput,
-  ): Promise<WarehouseStock> {
+    @Args('createWarehouseStockInput', {
+      type: () => [CreateWarehouseStockInput],
+    })
+    createWarehouseStockInput: CreateWarehouseStockInput[],
+  ) {
     try {
       return await this.warehouseStockService.create(
         ctx,
