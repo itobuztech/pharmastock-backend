@@ -80,8 +80,8 @@ model Warehouse {
   updatedAt      DateTime?        @default(now()) @updatedAt @map("updated_at")
   status         Boolean?         @default(true)
   WarehouseStock WarehouseStock[]
-  PharmacyStock  PharmacyStock[]
   SKU            SKU[]
+  StockMovement StockMovement[]
 
   @@map("warehouse")
 }
@@ -173,6 +173,10 @@ model StockMovement {
   item             Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
   pharmacyStockId  String?         @map("pharmacyStock_id") @db.Uuid
   pharmacyStock    PharmacyStock?  @relation(fields: [pharmacyStockId], references: [id], onDelete: Cascade)
+  pharmacyId       String?         @map("pharmacy_id") @db.Uuid
+  pharmacy         Pharmacy?       @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  warehouseId      String?         @map("warehouse_id") @db.Uuid
+  warehouse        Warehouse?      @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   batch_name       String?
   lot_name         String?
   expiry           DateTime?
@@ -221,6 +225,7 @@ model Pharmacy {
   status         Boolean?        @default(true)
   PharmacyStock  PharmacyStock[]
   User           User[]
+  StockMovement StockMovement[]
 
   @@map("pharmacy")
 }
@@ -229,8 +234,6 @@ model PharmacyStock {
   id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   itemId        String          @map("item_id") @db.Uuid
   item          Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  warehouseId   String          @map("warehouse_id") @db.Uuid
-  warehouse     Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   pharmacyId    String          @map("pharmacy_id") @db.Uuid
   pharmacy      Pharmacy        @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
   final_qty     Int

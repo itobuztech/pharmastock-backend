@@ -247,7 +247,13 @@ export class WarehouseService {
           });
           await this.prisma.pharmacyStock.updateMany({
             where: {
-              warehouseId: id,
+              StockMovement: {
+                some: {
+                  warehouseStock: {
+                    warehouseId: id,
+                  },
+                },
+              },
             },
             data: { status: false },
           });

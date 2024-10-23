@@ -18,12 +18,21 @@ import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
 import { TotalCount } from 'src/pagination/toalCount.entity';
 import { FilterStockMovementsInputs } from './dto/filter-stockMovements.input';
+import { BatchStockMovementsInput } from './dto/batch-stockMovements.input';
+import { StockMovementsByBatch } from './entities/stockMovementByBatch.entity';
+import { LotStockMovementsInput } from './dto/lot-stockMovements.input';
 
 // Define a new type for the paginated result
 @ObjectType()
 class PaginatedStockMovements extends TotalCount {
   @Field(() => [StockMovement])
   stockMovements: StockMovement[];
+}
+
+@ObjectType()
+class PaginatedStockMovementsByBatch extends TotalCount {
+  @Field(() => [StockMovementsByBatch])
+  stockMovementsByBatch: StockMovementsByBatch[];
 }
 
 @Resolver(() => StockMovement)
@@ -60,6 +69,134 @@ export class StockMovementResolver {
     }
   }
 
+  @Query(() => PaginatedStockMovements, {
+    name: 'stockMovementsLot',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
+  async findAllLot(
+    @Context() ctx: any,
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+    @Args('filterArgs', { nullable: true })
+    filterArgs: FilterStockMovementsInputs,
+  ): Promise<PaginatedStockMovements> {
+    try {
+      const user = ctx.req.user;
+
+      return await this.stockMovementService.findAllLot(
+        user,
+        searchText,
+        paginationArgs,
+        filterArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
+  @Query(() => PaginatedStockMovementsByBatch, {
+    name: 'stockMovementsByBatch',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
+  async findAllByBatch(
+    @Context() ctx: any,
+    @Args('batchStockMovementsInput')
+    batchStockMovementsInput: BatchStockMovementsInput,
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+    @Args('filterArgs', { nullable: true })
+    filterArgs: FilterStockMovementsInputs,
+  ): Promise<PaginatedStockMovementsByBatch> {
+    try {
+      const user = ctx.req.user;
+
+      return await this.stockMovementService.findAllByBatch(
+        batchStockMovementsInput,
+        user,
+        searchText,
+        paginationArgs,
+        filterArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
+  @Query(() => PaginatedStockMovementsByBatch, {
+    name: 'stockMovementsByLot',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
+  async findAllByLot(
+    @Context() ctx: any,
+    @Args('batchStockMovementsInput')
+    batchStockMovementsInput: BatchStockMovementsInput,
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+    @Args('filterArgs', { nullable: true })
+    filterArgs: FilterStockMovementsInputs,
+  ): Promise<PaginatedStockMovementsByBatch> {
+    try {
+      const user = ctx.req.user;
+
+      return await this.stockMovementService.findAllByBatch(
+        batchStockMovementsInput,
+        user,
+        searchText,
+        paginationArgs,
+        filterArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+  @Query(() => PaginatedStockMovementsByBatch, {
+    name: 'stockMovementsByLotName',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([
+    PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
+    PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
+  ])
+  async findAllByLotName(
+    @Context() ctx: any,
+    @Args('lotStockMovementsInput')
+    lotStockMovementsInput: LotStockMovementsInput,
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+    @Args('filterArgs', { nullable: true })
+    filterArgs: FilterStockMovementsInputs,
+  ): Promise<PaginatedStockMovementsByBatch> {
+    try {
+      const user = ctx.req.user;
+
+      return await this.stockMovementService.findAllByLotName(
+        lotStockMovementsInput,
+        user,
+        searchText,
+        paginationArgs,
+        filterArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
   @Mutation(() => StockMovement)
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([
@@ -69,7 +206,7 @@ export class StockMovementResolver {
   async createStockMovement(
     @Args('createStockMovementInput')
     createStockMovementInput: CreateStockMovementInput,
-  ): Promise<StockMovement> {
+  ) {
     try {
       return await this.stockMovementService.create(createStockMovementInput);
     } catch (error) {

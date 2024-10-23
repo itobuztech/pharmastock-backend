@@ -146,7 +146,8 @@ export class PharmacyStockResolver {
       type: () => [ClearancePharmacyStockInput],
     })
     clearancePharmacyStockInput: ClearancePharmacyStockInput[],
-  ): Promise<ClearancePharmacyStock[]> {
+  ) // : Promise<ClearancePharmacyStock[]>
+  {
     try {
       const user = ctx.req.user;
       return await this.PharmacyStockService.clearancePharmacyStock(

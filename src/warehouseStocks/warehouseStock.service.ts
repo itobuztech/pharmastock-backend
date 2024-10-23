@@ -705,6 +705,7 @@ export class WarehouseStockService {
           batchName: createWarehouseStockInput.batchName,
           expiry: createWarehouseStockInput.expiry,
           warehouseStockId: warehouseStock.id || existingStock.id,
+          warehouseId: createWarehouseStockInput.warehouseId,
           organizationId: organizationId,
           lotName,
         };

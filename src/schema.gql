@@ -14,6 +14,10 @@ enum BaseUnit {
   VIAL
 }
 
+input BatchStockMovementsInput {
+  batchName: String!
+}
+
 type ClearancePharmacyStock {
   createdAt: DateTime!
   id: String!
@@ -80,9 +84,11 @@ input CreateStockMovementInput {
   itemId: String!
   lotName: String!
   organizationId: String
+  pharmacyId: String
   pharmacyStockClearanceId: String
   pharmacyStockId: String
   qty: Float!
+  warehouseId: String
   warehouseStockId: String
 }
 
@@ -258,6 +264,10 @@ input LoginUserInput {
   password: String!
 }
 
+input LotStockMovementsInput {
+  lotName: String!
+}
+
 type MaxPharmacyStockQty {
   totalQty: Float
 }
@@ -351,6 +361,11 @@ type PaginatedStockMovements {
   total: Float!
 }
 
+type PaginatedStockMovementsByBatch {
+  stockMovementsByBatch: [StockMovementsByBatch!]!
+  total: Float!
+}
+
 type PaginatedUsers {
   total: Float!
   users: [User!]!
@@ -392,7 +407,6 @@ type PharmacyStock {
   totalMrpBaseUnit: Float
   totalWholesalePrice: Float
   updatedAt: DateTime
-  warehouse: Warehouse
 }
 
 type Query {
@@ -415,6 +429,10 @@ type Query {
   pharmacyStocksByPharmacy(paginationArgs: PaginationArgs, pharmacyId: String!): PaginatedPharmacyStocks
   sku(itemId: String!, organizationId: String!, warehouseId: String!): Sku!
   stockMovements(filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovements
+  stockMovementsByBatch(batchStockMovementsInput: BatchStockMovementsInput!, filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovementsByBatch
+  stockMovementsByLot(batchStockMovementsInput: BatchStockMovementsInput!, filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovementsByBatch
+  stockMovementsByLotName(filterArgs: FilterStockMovementsInputs, lotStockMovementsInput: LotStockMovementsInput!, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovementsByBatch
+  stockMovementsLot(filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovements
   user(email: String!): User!
   userById(id: String!): User!
   users(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedUsers
@@ -469,14 +487,26 @@ type StockMovement {
   expiry: DateTime
   id: String!
   item: String
-  itemId: String!
-  pharmacyName: String
-  pharmacyStockClearanceId: String
-  pharmacyStockId: String
+  lotName: String!
+  organisation: String
   qty: Float!
   updatedAt: DateTime
-  warehouseName: String
-  warehouseStockId: String
+  warehouse: String
+}
+
+type StockMovementsByBatch {
+  batchName: String
+  createdAt: DateTime!
+  expiry: DateTime
+  id: String!
+  item: String
+  lotName: String!
+  organisation: String
+  pharmacy: String
+  pharmacyClearance: String
+  qty: Float!
+  updatedAt: DateTime
+  warehouse: String
 }
 
 input TokenConfirmationInput {

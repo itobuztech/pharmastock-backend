@@ -51,11 +51,6 @@ export class PharmacyStockService {
       if (searchText) {
         whereClause.OR = [
           {
-            warehouse: {
-              name: { contains: searchText, mode: 'insensitive' },
-            },
-          },
-          {
             pharmacy: {
               name: { contains: searchText, mode: 'insensitive' },
             },
@@ -127,7 +122,6 @@ export class PharmacyStockService {
       let searchObject: PharmacyStockSearchObject = {
         where: whereClause,
         include: {
-          warehouse: true,
           item: true,
           pharmacy: {
             include: {
@@ -146,7 +140,6 @@ export class PharmacyStockService {
           take,
           where: whereClause,
           include: {
-            warehouse: true,
             item: true,
             pharmacy: {
               include: {
@@ -224,15 +217,6 @@ export class PharmacyStockService {
         skip,
         take,
         include: {
-          warehouse: {
-            include: {
-              organization: {
-                where: {
-                  status: true,
-                },
-              },
-            },
-          },
           item: true,
           pharmacy: {
             include: {
@@ -266,15 +250,6 @@ export class PharmacyStockService {
         id,
       },
       include: {
-        warehouse: {
-          include: {
-            organization: {
-              where: {
-                status: true,
-              },
-            },
-          },
-        },
         pharmacy: {
           include: {
             organization: {
@@ -342,6 +317,7 @@ export class PharmacyStockService {
 
         if (!warehouse) throw new Error('No Warehouse present with this ID!');
       }
+
       if (createPharmacyStockInput?.pharmacyId) {
         const pharmacyCheck = await this.prisma.pharmacy.findFirst({
           where: {
@@ -439,15 +415,11 @@ export class PharmacyStockService {
               item: {
                 connect: { id: eS?.itemId },
               },
-              warehouse: {
-                connect: { id: createPharmacyStockInput?.warehouseId },
-              },
               pharmacy: {
                 connect: { id: createPharmacyStockInput?.pharmacyId },
               },
             },
             include: {
-              warehouse: true,
               pharmacy: true,
               item: true,
             },
@@ -455,7 +427,7 @@ export class PharmacyStockService {
 
           if (!pharmacyStock) {
             throw new Error(
-              'Could not create the Warehouse Stock. Please try after sometime!',
+              'Could not create the Pharmacy Stock. Please try after sometime!',
             );
           }
           // CREATING THE STOCK IF ALREADY NOT PRESENT!ENDS
@@ -470,7 +442,6 @@ export class PharmacyStockService {
                 existingPharmacyStock.final_qty + filteredItems2[0].qty,
             },
             include: {
-              warehouse: true,
               pharmacy: true,
               item: true,
             },
@@ -478,7 +449,7 @@ export class PharmacyStockService {
 
           if (!pharmacyStock) {
             throw new Error(
-              'Could not update the Warehouse Stock. Please try after sometime!',
+              'Could not update the Pharmacy Stock. Please try after sometime!',
             );
           }
           // UPDATING THE STOCK!ENDS
@@ -555,6 +526,8 @@ export class PharmacyStockService {
             pharmacyStockId: pharmacyStock.id || existingPharmacyStock.id,
             organizationId: organizationId,
             lotName,
+            warehouseId: createPharmacyStockInput.warehouseId,
+            pharmacyId: createPharmacyStockInput.pharmacyId,
           };
           // Creation of Stock Movement data.ENDS
 
@@ -676,6 +649,7 @@ export class PharmacyStockService {
                 total_qty: 0,
                 itemId: item.itemId,
                 pharmacyStockId: item.pharmacyStockId,
+                pharmacyId: item.pharmacyId,
               };
             }
             acc[item.batch_name].total_qty += item.qty;
@@ -785,6 +759,7 @@ export class PharmacyStockService {
               expiry: rowArrVal.expiry,
               pharmacyStockClearanceId: createPharmacyClearance.id,
               organizationId: organizationId,
+              pharmacyId: rowArrVal.pharmacyId,
               lotName,
             };
             // Creation of Stock Movement data.ENDS
