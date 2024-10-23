@@ -17,6 +17,12 @@ export class CreateStockMovementInput {
   @Field({ nullable: true })
   organizationId?: string;
 
+  @Field({ nullable: true })
+  warehouseId?: string;
+
+  @Field({ nullable: true })
+  pharmacyId?: string;
+
   @Field()
   lotName: string;
 

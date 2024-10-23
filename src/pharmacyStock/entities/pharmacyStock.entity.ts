@@ -17,9 +17,6 @@ export class PharmacyStock {
   @Field(() => Item, { nullable: true })
   item?: ItemDB;
 
-  @Field(() => Warehouse, { nullable: true })
-  warehouse?: WarehouseDB;
-
   @Field(() => Pharmacy, { nullable: true })
   pharmacy?: PharmacyDB;
 
