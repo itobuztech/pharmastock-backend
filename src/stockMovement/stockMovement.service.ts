@@ -1,11 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateStockMovementInput } from './dto/create-stockMovement.input';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, StockMovement } from '@prisma/client';
+import { Prisma, StockMovement, TransactionType } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { FilterStockMovementsInputs } from './dto/filter-stockMovements.input';
 import { StockMovementsByBatch } from './entities/stockMovementByBatch.entity';
 import { BatchStockMovementsInput } from './dto/batch-stockMovements.input';
+import { StockMovementsByLot } from './entities/stockMovementByLot.entity';
+import { StockMovementsType } from 'src/types/enums/stockMovementsType.enum';
 
 @Injectable()
 export class StockMovementService {
@@ -23,13 +25,10 @@ export class StockMovementService {
       let organization = null;
       if (user.role.userType !== 'SUPERADMIN') {
         try {
-          organization = await this.prisma.organization.findFirst({
+          organization = await this.prisma.user.findFirst({
+            select: { organizationId: true },
             where: {
-              User: {
-                some: {
-                  id: user.userId,
-                },
-              },
+              id: user.userId,
             },
           });
         } catch (error) {
@@ -37,7 +36,7 @@ export class StockMovementService {
           throw new Error('No organization found with this User Id!');
         }
       }
-      const organizationId = organization?.id || null;
+      const organizationId = organization?.organizationId || null;
 
       let whereClause: Prisma.StockMovementWhereInput = {
         status: true,
@@ -167,15 +166,22 @@ export class StockMovementService {
 
     try {
       let organization = null;
+
+      if (
+        user.role.userType === 'STAFF' &&
+        filterArgs &&
+        filterArgs?.transactionType &&
+        filterArgs?.transactionType !== 'EXIT'
+      ) {
+        throw new Error('Staffs can only watch Stock Exit Movements!');
+      }
+
       if (user.role.userType !== 'SUPERADMIN') {
         try {
-          organization = await this.prisma.organization.findFirst({
+          organization = await this.prisma.user.findFirst({
+            select: { organizationId: true },
             where: {
-              User: {
-                some: {
-                  id: user.userId,
-                },
-              },
+              id: user.userId,
             },
           });
         } catch (error) {
@@ -183,7 +189,7 @@ export class StockMovementService {
           throw new Error('No organization found with this User Id!');
         }
       }
-      const organizationId = organization?.id || null;
+      const organizationId = organization?.organizationId || null;
 
       let whereClause: Prisma.StockMovementWhereInput = {
         status: true,
@@ -218,8 +224,26 @@ export class StockMovementService {
         };
       }
 
+      const filterConditions: Prisma.StockMovementWhereInput[] = [];
       if (filterArgs) {
-        const filterConditions: Prisma.StockMovementWhereInput[] = [];
+        // Add transactionType filter if provided
+        if (user.role.userType === 'STAFF') {
+          filterArgs.transactionType = StockMovementsType.EXIT;
+          filterConditions.push({
+            transactionType: StockMovementsType.EXIT,
+          });
+        } else if (filterArgs.transactionType) {
+          filterConditions.push({
+            transactionType: filterArgs.transactionType,
+          });
+        }
+
+        // Add warehouseId filter if provided
+        if (filterArgs.warehouseId) {
+          filterConditions.push({
+            warehouseId: filterArgs.warehouseId,
+          });
+        }
 
         // Add date range filter if provided
         if (filterArgs.startDate && filterArgs.endDate) {
@@ -241,12 +265,36 @@ export class StockMovementService {
           });
         }
 
-        // Combine base conditions with search and filter conditions
+        // Map remaining filter arguments
+        Object.keys(filterArgs).forEach((key) => {
+          if (
+            key !== 'startDate' &&
+            key !== 'endDate' &&
+            key !== 'transactionType' &&
+            key !== 'warehouseId'
+          ) {
+            const value = filterArgs[key];
+            filterConditions.push({
+              [key]: typeof value === 'number' ? { lte: value } : value,
+            });
+          }
+        });
+      } else if (user.role.userType === 'STAFF') {
+        filterConditions.push({
+          transactionType: StockMovementsType.EXIT,
+        });
+      }
+
+      // Combine base conditions with search and filter conditions
+      if (whereClause.OR) {
+        whereClause = {
+          AND: [whereClause, ...filterConditions],
+        };
+      } else {
         whereClause = {
           AND: [whereClause, ...filterConditions],
         };
       }
-
       let stockMovementCount = null;
       try {
         stockMovementCount = await this.prisma.stockMovement.findMany({
@@ -255,7 +303,7 @@ export class StockMovementService {
         });
       } catch (error) {
         console.log(error);
-        throw new Error('Stock movement count fetching error!!');
+        throw new Error('Stock movements count fetching error!!');
       }
 
       let stockMovements = null;
@@ -277,6 +325,7 @@ export class StockMovementService {
             warehouse: {
               select: {
                 name: true,
+                id: true,
               },
             },
             organization: {
@@ -292,9 +341,10 @@ export class StockMovementService {
       }
 
       stockMovements.map((sM: any) => {
-        sM.item = sM.item?.name || null;
-        sM.organisation = sM.organization?.name || null;
-        sM.lotName = sM.lot_name || null;
+        sM.item = sM?.item?.name || null;
+        sM.organisation = sM?.organization?.name || null;
+        sM.lotName = sM?.lot_name || null;
+        sM.warehouse = sM?.warehouse?.name || null;
       });
 
       return { stockMovements, total: stockMovementCount.length };
@@ -321,13 +371,10 @@ export class StockMovementService {
       let organization = null;
       if (user.role.userType !== 'SUPERADMIN') {
         try {
-          organization = await this.prisma.organization.findFirst({
+          organization = await this.prisma.user.findFirst({
+            select: { organizationId: true },
             where: {
-              User: {
-                some: {
-                  id: user.userId,
-                },
-              },
+              id: user.userId,
             },
           });
         } catch (error) {
@@ -335,7 +382,7 @@ export class StockMovementService {
           throw new Error('No organization found with this User Id!');
         }
       }
-      const organizationId = organization?.id || null;
+      const organizationId = organization?.organizationId || null;
 
       let whereClause: Prisma.StockMovementWhereInput = {
         status: true,
@@ -482,9 +529,8 @@ export class StockMovementService {
     user,
     searchText?: string,
     paginationArgs?: PaginationArgs,
-    filterArgs?: FilterStockMovementsInputs,
   ): Promise<{
-    stockMovementsByBatch: StockMovementsByBatch[];
+    stockMovementsByLot: StockMovementsByLot[];
     total: number;
   }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
@@ -495,21 +541,33 @@ export class StockMovementService {
       let organization = null;
       if (user.role.userType !== 'SUPERADMIN') {
         try {
-          organization = await this.prisma.organization.findFirst({
+          organization = await this.prisma.user.findFirst({
+            select: { organizationId: true },
             where: {
-              User: {
-                some: {
-                  id: user.userId,
-                },
-              },
+              id: user.userId,
             },
           });
         } catch (error) {
           console.log(error);
-          throw new Error('No organization found with this User Id!');
+          throw new BadRequestException(
+            'No organization found with this User Id!',
+          );
         }
       }
-      const organizationId = organization?.id || null;
+      const organizationId = organization?.organizationId || null;
+
+      if (user.role.userType === 'STAFF') {
+        const lotTransactionType = await this.prisma.stockMovement.findFirst({
+          select: { transactionType: true },
+          where: {
+            lot_name: lotName,
+          },
+        });
+
+        if (lotTransactionType.transactionType !== StockMovementsType.EXIT) {
+          throw new BadRequestException('Staffs can only see Exit Movements!');
+        }
+      }
 
       let whereClause: Prisma.StockMovementWhereInput = {
         status: true,
@@ -545,35 +603,6 @@ export class StockMovementService {
         };
       }
 
-      if (filterArgs) {
-        const filterConditions: Prisma.StockMovementWhereInput[] = [];
-
-        // Add date range filter if provided
-        if (filterArgs.startDate && filterArgs.endDate) {
-          filterConditions.push({
-            OR: [
-              {
-                createdAt: {
-                  gte: filterArgs.startDate,
-                  lte: filterArgs.endDate,
-                },
-              },
-              {
-                updatedAt: {
-                  gte: filterArgs.startDate,
-                  lte: filterArgs.endDate,
-                },
-              },
-            ],
-          });
-        }
-
-        // Combine base conditions with search and filter conditions
-        whereClause = {
-          AND: [whereClause, ...filterConditions],
-        };
-      }
-
       let stockMovementCount = null;
       try {
         stockMovementCount = await this.prisma.stockMovement.count({
@@ -584,9 +613,9 @@ export class StockMovementService {
         throw new Error('Stock movement count fetching error!!');
       }
 
-      let stockMovementsByBatch = null;
+      let stockMovementsByLot = null;
       try {
-        stockMovementsByBatch = await this.prisma.stockMovement.findMany({
+        stockMovementsByLot = await this.prisma.stockMovement.findMany({
           skip,
           take,
           where: whereClause,
@@ -621,7 +650,7 @@ export class StockMovementService {
         throw new Error('Stock movement fetching error!!');
       }
 
-      stockMovementsByBatch.map((sM: any) => {
+      stockMovementsByLot.map((sM: any) => {
         sM.item = sM.item.name;
         sM.organisation = sM.organization.name;
         sM.lotName = sM.lot_name;
@@ -645,7 +674,7 @@ export class StockMovementService {
         }
       });
 
-      return { stockMovementsByBatch, total: stockMovementCount };
+      return { stockMovementsByLot, total: stockMovementCount };
     } catch (error) {
       throw error;
     }

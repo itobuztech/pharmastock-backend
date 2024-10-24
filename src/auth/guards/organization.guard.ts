@@ -50,23 +50,34 @@ export class OrganizationGuard implements CanActivate {
       let organizationId = '';
 
       if (createWarehouseStockInput) {
-        const warehouseId = createWarehouseStockInput.warehouseId;
+        for (const input of createWarehouseStockInput) {
+          const warehouseId = input.warehouseId;
 
-        const organizationByWarehouse =
-          await this.prisma.organization.findFirst({
-            select: { id: true },
-            where: {
-              Warehouse: {
-                some: { id: warehouseId },
+          const organizationByWarehouse = await this.prisma.warehouse.findFirst(
+            {
+              select: { organizationId: true },
+              where: {
+                id: warehouseId,
+                status: true,
               },
             },
-          });
+          );
 
-        if (!organizationByWarehouse) {
-          throw new BadRequestException('Warehouse organization not found');
+          if (!organizationByWarehouse) {
+            throw new BadRequestException('Warehouse organization not found');
+          }
+
+          if (organizationId === '') {
+            organizationId = organizationByWarehouse.organizationId;
+          } else if (
+            organizationId !== '' &&
+            organizationId !== organizationByWarehouse.organizationId
+          ) {
+            throw new BadRequestException(
+              'Warehouses do not belong to the same organisation!',
+            );
+          }
         }
-
-        organizationId = organizationByWarehouse.id;
       } else if (createPharmacyStockInput) {
         const { warehouseId, pharmacyId } = createPharmacyStockInput;
 
@@ -81,36 +92,49 @@ export class OrganizationGuard implements CanActivate {
         );
 
         if (!organizationByPharmacy) {
-          throw new BadRequestException('Pharmacy organization not found');
+          throw new BadRequestException(
+            'Pharmacy and Warehouse organization is not same/found!',
+          );
         }
 
         organizationId = organizationByPharmacy.id;
       } else if (clearancePharmacyStockInput) {
-        const pharmacyId = clearancePharmacyStockInput.pharmacyId;
+        for (const input of createPharmacyStockInput) {
+          const pharmacyId = input.pharmacyId;
 
-        const organizationByClearance =
-          await this.prisma.organization.findFirst({
-            select: { id: true },
-            where: {
-              Pharmacy: { some: { id: pharmacyId } },
-            },
-          });
+          const organizationByClearance =
+            await this.prisma.organization.findFirst({
+              select: { id: true },
+              where: {
+                Pharmacy: { some: { id: pharmacyId } },
+              },
+            });
 
-        if (!organizationByClearance) {
-          throw new BadRequestException(
-            'Clearance pharmacy organization not found',
-          );
+          if (!organizationByClearance) {
+            throw new BadRequestException(
+              'Clearance pharmacy organization not found',
+            );
+          }
+
+          if (organizationId === '') {
+            organizationId = organizationByClearance.id;
+          } else if (
+            organizationId !== '' &&
+            organizationId !== organizationByClearance.id
+          ) {
+            throw new BadRequestException(
+              'Pharmacies do not belong to the same organisation!',
+            );
+          }
         }
-
-        organizationId = organizationByClearance.id;
       } else {
         throw new BadRequestException('No valid input variables found');
       }
 
       // Check if the logged-in user's organization matches the found organization
-      if (userOrgId !== organizationId) {
+      if (organizationId !== userOrgId) {
         throw new ForbiddenException(
-          'Logged in user organization does not match the Warehouse/Pharmacy organization',
+          'Logged in user organization does not match a Warehouse/Pharmacy organization',
         );
       }
 
