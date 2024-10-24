@@ -46,6 +46,12 @@ enum UserRole {
   STAFF
 }
 
+enum TransactionType {
+  ENTRY
+  MOVEMENT
+  EXIT
+}
+
 model Organization {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String      
@@ -178,6 +184,7 @@ model StockMovement {
   warehouseId      String?         @map("warehouse_id") @db.Uuid
   warehouse        Warehouse?      @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   batch_name       String?
+  transactionType  TransactionType? @map("transaction_type")
   lot_name         String?
   expiry           DateTime?
   pharmacyStockClearanceId  String?         @map("pharmacyStockClearance_id") @db.Uuid

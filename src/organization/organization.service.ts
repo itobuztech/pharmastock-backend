@@ -77,7 +77,11 @@ export class OrganizationService {
         id,
       },
       include: {
-        User: true,
+        User: {
+          include: {
+            role: true,
+          },
+        },
       },
     });
 

@@ -21,6 +21,9 @@ export class StockMovement {
   @Field(() => String)
   lotName?: StockMovementDB['lot_name'];
 
+  @Field(() => String)
+  transactionType?: StockMovementDB['transactionType'];
+
   @Field(() => Date, { nullable: true })
   updatedAt: StockMovementDB['updatedAt'] | null;
 
