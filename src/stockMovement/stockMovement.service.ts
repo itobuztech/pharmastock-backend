@@ -706,6 +706,7 @@ export class StockMovementService {
             id: createStockMovementInput?.itemId,
           },
         },
+        transaction_type: createStockMovementInput?.transactionType,
       };
 
       if (createStockMovementInput?.warehouseStockId) {
