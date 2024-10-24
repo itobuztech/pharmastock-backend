@@ -12,6 +12,9 @@ export class CreateStockMovementInput {
   pharmacyStockId?: string;
 
   @Field({ nullable: true })
+  transactionType?: string;
+
+  @Field({ nullable: true })
   pharmacyStockClearanceId?: string;
 
   @Field({ nullable: true })
