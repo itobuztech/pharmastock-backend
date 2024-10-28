@@ -370,7 +370,12 @@ type PaginatedStockMovementsByBatch {
 }
 
 type PaginatedStockMovementsByLotName {
-  stockMovementsByLot: [StockMovementsByLot!]!
+  stockMovementsByLotName: [StockMovementsByLotName!]!
+  total: Float!
+}
+
+type PaginatedStockMovementsLot {
+  stockMovementsLot: [StockMovementsByLot!]!
   total: Float!
 }
 
@@ -440,7 +445,7 @@ type Query {
   stockMovementsByBatch(batchStockMovementsInput: BatchStockMovementsInput!, filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovementsByBatch
   stockMovementsByLot(batchStockMovementsInput: BatchStockMovementsInput!, filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovementsByBatch
   stockMovementsByLotName(lotStockMovementsInput: LotStockMovementsInput!, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovementsByLotName
-  stockMovementsLot(filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovements
+  stockMovementsLot(filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovementsLot
   user(email: String!): User!
   userById(id: String!): User!
   users(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedUsers
@@ -520,6 +525,21 @@ type StockMovementsByBatch {
 }
 
 type StockMovementsByLot {
+  batchName: String
+  createdAt: DateTime!
+  expiry: DateTime
+  id: String!
+  item: String
+  lotName: String!
+  organisation: String
+  qty: Float!
+  totalLotItemsQty: Float!
+  transactionType: String!
+  updatedAt: DateTime
+  warehouse: String
+}
+
+type StockMovementsByLotName {
   batchName: String
   createdAt: DateTime!
   expiry: DateTime

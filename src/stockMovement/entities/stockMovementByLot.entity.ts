@@ -1,5 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { StockMovementsByBatch } from './stockMovementByBatch.entity';
+import { StockMovement } from './stockMovement.entity';
 
 @ObjectType()
-export class StockMovementsByLot extends StockMovementsByBatch {}
+export class StockMovementsByLot extends StockMovement {
+  @Field(() => Number)
+  totalLotItemsQty: number;
+}
