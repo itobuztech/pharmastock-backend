@@ -21,6 +21,7 @@ import { FilterStockMovementsInputs } from './dto/filter-stockMovements.input';
 import { BatchStockMovementsInput } from './dto/batch-stockMovements.input';
 import { StockMovementsByBatch } from './entities/stockMovementByBatch.entity';
 import { LotStockMovementsInput } from './dto/lot-stockMovements.input';
+import { StockMovementsByLotName } from './entities/stockMovementByLotName.entity';
 import { StockMovementsByLot } from './entities/stockMovementByLot.entity';
 
 // Define a new type for the paginated result
@@ -31,6 +32,12 @@ class PaginatedStockMovements extends TotalCount {
 }
 
 @ObjectType()
+class PaginatedStockMovementsLot extends TotalCount {
+  @Field(() => [StockMovementsByLot])
+  stockMovementsLot: StockMovementsByLot[];
+}
+
+@ObjectType()
 class PaginatedStockMovementsByBatch extends TotalCount {
   @Field(() => [StockMovementsByBatch])
   stockMovementsByBatch: StockMovementsByBatch[];
@@ -38,8 +45,8 @@ class PaginatedStockMovementsByBatch extends TotalCount {
 
 @ObjectType()
 class PaginatedStockMovementsByLotName extends TotalCount {
-  @Field(() => [StockMovementsByLot])
-  stockMovementsByLot: StockMovementsByLot[];
+  @Field(() => [StockMovementsByLotName])
+  stockMovementsByLotName: StockMovementsByLotName[];
 }
 
 @Resolver(() => StockMovement)
@@ -76,7 +83,7 @@ export class StockMovementResolver {
     }
   }
 
-  @Query(() => PaginatedStockMovements, {
+  @Query(() => PaginatedStockMovementsLot, {
     name: 'stockMovementsLot',
     nullable: true,
   })
@@ -91,7 +98,7 @@ export class StockMovementResolver {
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
     @Args('filterArgs', { nullable: true })
     filterArgs: FilterStockMovementsInputs,
-  ): Promise<PaginatedStockMovements> {
+  ): Promise<PaginatedStockMovementsLot> {
     try {
       const user = ctx.req.user;
 
@@ -102,7 +109,7 @@ export class StockMovementResolver {
         filterArgs,
       );
     } catch (e) {
-      throw new BadRequestException(e);
+      throw e;
     }
   }
 
@@ -197,7 +204,7 @@ export class StockMovementResolver {
         paginationArgs,
       );
     } catch (e) {
-      throw new BadRequestException(e);
+      throw e;
     }
   }
 

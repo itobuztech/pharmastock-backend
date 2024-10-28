@@ -1,13 +1,18 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { CreateStockMovementInput } from './dto/create-stockMovement.input';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, StockMovement, TransactionType } from '@prisma/client';
 import { PaginationArgs } from '../pagination/pagination.dto';
 import { FilterStockMovementsInputs } from './dto/filter-stockMovements.input';
 import { StockMovementsByBatch } from './entities/stockMovementByBatch.entity';
-import { BatchStockMovementsInput } from './dto/batch-stockMovements.input';
-import { StockMovementsByLot } from './entities/stockMovementByLot.entity';
+import { StockMovementsByLotName } from './entities/stockMovementByLotName.entity';
 import { StockMovementsType } from 'src/types/enums/stockMovementsType.enum';
+import { StockMovementsByLot } from './entities/stockMovementByLot.entity';
 
 @Injectable()
 export class StockMovementService {
@@ -161,7 +166,7 @@ export class StockMovementService {
     searchText?: string,
     paginationArgs?: PaginationArgs,
     filterArgs?: FilterStockMovementsInputs,
-  ): Promise<{ stockMovements: StockMovement[]; total: number }> {
+  ): Promise<{ stockMovementsLot: StockMovementsByLot[]; total: number }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
 
     try {
@@ -173,7 +178,9 @@ export class StockMovementService {
         filterArgs?.transactionType &&
         filterArgs?.transactionType !== 'EXIT'
       ) {
-        throw new Error('Staffs can only watch Stock Exit Movements!');
+        throw new ForbiddenException(
+          'Staffs can only watch Stock Exit Movements!',
+        );
       }
 
       if (user.role.userType !== 'SUPERADMIN') {
@@ -186,7 +193,9 @@ export class StockMovementService {
           });
         } catch (error) {
           console.log(error);
-          throw new Error('No organization found with this User Id!');
+          throw new BadRequestException(
+            'No organization found with this User Id!',
+          );
         }
       }
       const organizationId = organization?.organizationId || null;
@@ -306,9 +315,18 @@ export class StockMovementService {
         throw new Error('Stock movements count fetching error!!');
       }
 
-      let stockMovements = null;
+      let stockMovementsLot = null;
+      let stockMovementsLotQty = null;
       try {
-        stockMovements = await this.prisma.stockMovement.findMany({
+        stockMovementsLotQty = await this.prisma.stockMovement.groupBy({
+          by: ['lot_name'],
+          where: whereClause,
+          _sum: {
+            qty: true,
+          },
+        });
+
+        stockMovementsLot = await this.prisma.stockMovement.findMany({
           skip,
           take,
           where: whereClause,
@@ -340,14 +358,20 @@ export class StockMovementService {
         throw new Error('Stock movement fetching error!!');
       }
 
-      stockMovements.map((sM: any) => {
+      stockMovementsLot.map((sM: any) => {
+        stockMovementsLotQty.forEach((movement) => {
+          if (sM.lot_name === movement.lot_name) {
+            sM.totalLotItemsQty = movement._sum.qty;
+          }
+        });
+
         sM.item = sM?.item?.name || null;
         sM.organisation = sM?.organization?.name || null;
         sM.lotName = sM?.lot_name || null;
         sM.warehouse = sM?.warehouse?.name || null;
       });
 
-      return { stockMovements, total: stockMovementCount.length };
+      return { stockMovementsLot, total: stockMovementCount.length };
     } catch (error) {
       throw error;
     }
@@ -530,7 +554,7 @@ export class StockMovementService {
     searchText?: string,
     paginationArgs?: PaginationArgs,
   ): Promise<{
-    stockMovementsByLot: StockMovementsByLot[];
+    stockMovementsByLotName: StockMovementsByLotName[];
     total: number;
   }> {
     const { skip = 0, take = 10 } = paginationArgs || {};
@@ -556,17 +580,24 @@ export class StockMovementService {
       }
       const organizationId = organization?.organizationId || null;
 
-      if (user.role.userType === 'STAFF') {
-        const lotTransactionType = await this.prisma.stockMovement.findFirst({
-          select: { transactionType: true },
-          where: {
-            lot_name: lotName,
-          },
-        });
+      const lotTransactionType = await this.prisma.stockMovement.findFirst({
+        select: { transactionType: true, organizationId: true },
+        where: {
+          lot_name: lotName,
+        },
+      });
 
-        if (lotTransactionType.transactionType !== StockMovementsType.EXIT) {
-          throw new BadRequestException('Staffs can only see Exit Movements!');
-        }
+      if (
+        user.role.userType === 'STAFF' &&
+        lotTransactionType.transactionType !== StockMovementsType.EXIT
+      ) {
+        throw new ForbiddenException('Staffs can only see Exit Movements!');
+      }
+
+      if (organizationId !== lotTransactionType.organizationId) {
+        throw new ForbiddenException(
+          'Loggedin User Organisation different from the Lot Organisation!',
+        );
       }
 
       let whereClause: Prisma.StockMovementWhereInput = {
@@ -613,9 +644,9 @@ export class StockMovementService {
         throw new Error('Stock movement count fetching error!!');
       }
 
-      let stockMovementsByLot = null;
+      let stockMovementsByLotName = null;
       try {
-        stockMovementsByLot = await this.prisma.stockMovement.findMany({
+        stockMovementsByLotName = await this.prisma.stockMovement.findMany({
           skip,
           take,
           where: whereClause,
@@ -650,7 +681,7 @@ export class StockMovementService {
         throw new Error('Stock movement fetching error!!');
       }
 
-      stockMovementsByLot.map((sM: any) => {
+      stockMovementsByLotName.map((sM: any) => {
         sM.item = sM.item.name;
         sM.organisation = sM.organization.name;
         sM.lotName = sM.lot_name;
@@ -674,7 +705,7 @@ export class StockMovementService {
         }
       });
 
-      return { stockMovementsByLot, total: stockMovementCount };
+      return { stockMovementsByLotName, total: stockMovementCount };
     } catch (error) {
       throw error;
     }

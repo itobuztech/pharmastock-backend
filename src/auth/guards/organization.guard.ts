@@ -99,7 +99,7 @@ export class OrganizationGuard implements CanActivate {
 
         organizationId = organizationByPharmacy.id;
       } else if (clearancePharmacyStockInput) {
-        for (const input of createPharmacyStockInput) {
+        for (const input of clearancePharmacyStockInput) {
           const pharmacyId = input.pharmacyId;
 
           const organizationByClearance =
