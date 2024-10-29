@@ -594,7 +594,10 @@ export class StockMovementService {
         throw new ForbiddenException('Staffs can only see Exit Movements!');
       }
 
-      if (organizationId !== lotTransactionType.organizationId) {
+      if (
+        user.role.userType !== 'SUPERADMIN' &&
+        organizationId !== lotTransactionType.organizationId
+      ) {
         throw new ForbiddenException(
           'Loggedin User Organisation different from the Lot Organisation!',
         );
