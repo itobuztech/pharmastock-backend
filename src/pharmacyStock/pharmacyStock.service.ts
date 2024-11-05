@@ -338,6 +338,9 @@ export class PharmacyStockService {
           warehouseId: createPharmacyStockInput?.warehouseId,
           status: true,
         },
+        include: {
+          item: true,
+        },
       });
 
       const existingStockPresentArr = existingStock.map((eS) => {
@@ -367,7 +370,7 @@ export class PharmacyStockService {
 
         if (checkingNegativeValue) {
           throw new Error(
-            `There is only ${eS.final_qty} number of items in stock of ${eS.itemId}!`,
+            `There is only ${eS.final_qty} number of ${eS.item.name} in stock!`,
           );
         }
       });
@@ -602,6 +605,9 @@ export class PharmacyStockService {
               itemId: inputs.itemId,
               status: true,
             },
+            include: {
+              item: true,
+            },
           });
 
           if (!pharmacyStock || pharmacyStock.final_qty === 0)
@@ -616,7 +622,7 @@ export class PharmacyStockService {
 
           if (checkingNegativeValue) {
             throw new Error(
-              `There is only ${pharmacyStock.final_qty} number of items in stock!`,
+              `There is only ${pharmacyStock.final_qty} number of ${pharmacyStock.item.name} in stock!`,
             );
           }
         } catch (error) {

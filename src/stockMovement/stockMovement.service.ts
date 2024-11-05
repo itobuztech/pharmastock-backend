@@ -216,9 +216,13 @@ export class StockMovementService {
             item: {
               name: { contains: searchText, mode: 'insensitive' },
             },
+          },
+          {
             warehouse: {
               name: { contains: searchText, mode: 'insensitive' },
             },
+          },
+          {
             organization: {
               name: { contains: searchText, mode: 'insensitive' },
             },
@@ -620,9 +624,13 @@ export class StockMovementService {
             item: {
               name: { contains: searchText, mode: 'insensitive' },
             },
+          },
+          {
             warehouse: {
               name: { contains: searchText, mode: 'insensitive' },
             },
+          },
+          {
             organization: {
               name: { contains: searchText, mode: 'insensitive' },
             },
