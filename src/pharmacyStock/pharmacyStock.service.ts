@@ -630,6 +630,8 @@ export class PharmacyStockService {
         }
       }
 
+      const lotName = await generateLotName();
+
       let i = -1;
       for (const inputs of clearancePharmacyStockInput) {
         i++;
@@ -757,7 +759,6 @@ export class PharmacyStockService {
             }
           }
 
-          const lotName = await generateLotName();
           for (const rowArrVal of rowArr) {
             // Creation of Stock Movement data.STARTS
             const createStockMovement: CreateStockMovementInput = {
