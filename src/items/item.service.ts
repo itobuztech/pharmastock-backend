@@ -532,4 +532,85 @@ export class ItemService {
       throw new Error(error);
     }
   }
+
+  async pharmacyStocksItemsService(
+    ctx,
+    searchText?: string,
+    paginationArgs?: PaginationArgs,
+  ): Promise<{ items: Item[]; total: number }> {
+    const { skip = 0, take = 10 } = paginationArgs || {};
+    const user = ctx.req.user;
+
+    const userData = await this.prisma.user.findUnique({
+      where: {
+        id: user.userId,
+      },
+    });
+
+    try {
+      let whereClause: any = { status: true, pharmacyId: userData.pharmacyId };
+
+      if (searchText) {
+        whereClause.OR = [
+          {
+            item: {
+              name: { contains: searchText, mode: 'insensitive' },
+            },
+          },
+        ];
+      }
+
+      let searchObject: any = {
+        where: {
+          ...whereClause,
+        },
+      };
+
+      const itemCount = await this.prisma.stockMovement.findMany({
+        ...searchObject,
+        distinct: ['itemId'],
+      });
+
+      if (paginationArgs) {
+        searchObject = {
+          skip,
+          take,
+          where: {
+            ...whereClause,
+            status: true,
+          },
+        };
+      }
+
+      const items: any = await this.prisma.stockMovement.findMany({
+        ...searchObject,
+        include: {
+          item: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        distinct: ['itemId'],
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
+
+      if (items) {
+        items.forEach((item, i) => {
+          item.name = item.item.name;
+        });
+      }
+
+      return { items, total: itemCount.length };
+    } catch (error) {
+      throw error;
+    }
+  }
 }

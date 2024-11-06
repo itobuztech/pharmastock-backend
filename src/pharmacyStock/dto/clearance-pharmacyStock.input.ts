@@ -6,8 +6,5 @@ export class ClearancePharmacyStockInput {
   itemId: string;
 
   @Field()
-  pharmacyId: string;
-
-  @Field()
   qty: number;
 }

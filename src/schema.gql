@@ -30,7 +30,6 @@ type ClearancePharmacyStock {
 
 input ClearancePharmacyStockInput {
   itemId: String!
-  pharmacyId: String!
   qty: Float!
 }
 
@@ -285,7 +284,7 @@ type MaxWarehouseStockQty {
 }
 
 type Mutation {
-  clearancePharmacyStock(clearancePharmacyStockInput: [ClearancePharmacyStockInput!]!): [ClearancePharmacyStock!]!
+  clearancePharmacyStock(clearancePharmacyStockInput: [ClearancePharmacyStockInput!]!, pharmacyId: String!): [ClearancePharmacyStock!]!
   create(createUserInput: CreateUserInput!): User!
   createItem(createItemInput: CreateItemInput!): Item!
   createItemCategory(createItemCategoryInput: CreateItemCategoryInput!): ItemCategory!
@@ -351,6 +350,11 @@ type PaginatedOrganizations {
 
 type PaginatedPharmacies {
   pharmacies: [Pharmacy!]!
+  total: Float!
+}
+
+type PaginatedPharmacyStockItem {
+  items: [PharmacyStockItem!]!
   total: Float!
 }
 
@@ -422,6 +426,11 @@ type PharmacyStock {
   updatedAt: DateTime
 }
 
+type PharmacyStockItem {
+  id: String!
+  name: String!
+}
+
 type Query {
   PharmacyStock(id: String!): PharmacyStock!
   PharmacyStocks(filterArgs: FilterPharmacyStockInputs, pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacyStocks
@@ -440,6 +449,7 @@ type Query {
   pharmacies(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacies
   pharmacy(id: String!): Pharmacy!
   pharmacyStocksByPharmacy(paginationArgs: PaginationArgs, pharmacyId: String!): PaginatedPharmacyStocks
+  pharmacyStocksItems(paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacyStockItem!
   sku(itemId: String!, organizationId: String!, warehouseId: String!): Sku!
   stockMovements(filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovements
   stockMovementsByBatch(batchStockMovementsInput: BatchStockMovementsInput!, filterArgs: FilterStockMovementsInputs, paginationArgs: PaginationArgs, searchText: String): PaginatedStockMovementsByBatch

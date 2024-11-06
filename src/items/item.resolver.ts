@@ -5,6 +5,7 @@ import {
   Args,
   ObjectType,
   Field,
+  Context,
 } from '@nestjs/graphql';
 import { ItemService } from './item.service';
 import { CreateItemInput } from './dto/create-item.input';
@@ -23,12 +24,18 @@ import { MaxPrice } from './entities/maxPrice.entity';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
+import { PharmacyStockItem } from './entities/pharmacyStockItem.entity';
 
 // Define a new type for the paginated result
 @ObjectType()
 class PaginatedItems extends TotalCount {
   @Field(() => [Item])
   items: Item[];
+}
+@ObjectType()
+class PaginatedPharmacyStockItem extends TotalCount {
+  @Field(() => [PharmacyStockItem])
+  items: PharmacyStockItem[];
 }
 
 @Resolver(() => Item)
@@ -125,6 +132,26 @@ export class ItemResolver {
       return await this.itemService.deleteItem(id);
     } catch (error) {
       throw new BadRequestException(error);
+    }
+  }
+
+  @Query(() => PaginatedPharmacyStockItem)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuardOR)
+  @Roles(UserRole.STAFF)
+  @Permissions([PrivilegesList.ITEM_MANAGEMENT.CAPABILITIES.VIEW])
+  async pharmacyStocksItems(
+    @Context() ctx: any,
+    @Args('searchText', { nullable: true }) searchText: string,
+    @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
+  ): Promise<PaginatedPharmacyStockItem> {
+    try {
+      return await this.itemService.pharmacyStocksItemsService(
+        ctx,
+        searchText,
+        paginationArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
     }
   }
 }
