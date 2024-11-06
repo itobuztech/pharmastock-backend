@@ -142,16 +142,17 @@ export class PharmacyStockResolver {
   @Permissions([PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.CREATE])
   async clearancePharmacyStock(
     @Context() ctx: any,
+    @Args('pharmacyId') pharmacyId: string,
     @Args('clearancePharmacyStockInput', {
       type: () => [ClearancePharmacyStockInput],
     })
     clearancePharmacyStockInput: ClearancePharmacyStockInput[],
-  ) // : Promise<ClearancePharmacyStock[]>
-  {
+  ) {
     try {
       const user = ctx.req.user;
       return await this.PharmacyStockService.clearancePharmacyStock(
         user,
+        pharmacyId,
         clearancePharmacyStockInput,
       );
     } catch (error) {

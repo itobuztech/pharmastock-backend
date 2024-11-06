@@ -551,12 +551,27 @@ export class PharmacyStockService {
 
   async clearancePharmacyStock(
     user,
+    pharmacyId,
     clearancePharmacyStockInput: ClearancePharmacyStockInput[],
   ) {
     let createPharmacyClearanceArr = [];
     let pharmacyStockArr = [];
     try {
       let organization = null;
+
+      try {
+        const pharmacyIdCheck = await this.prisma.pharmacy.findFirst({
+          where: {
+            id: pharmacyId,
+            status: true,
+          },
+        });
+
+        if (!pharmacyIdCheck)
+          throw new Error('No Pharmacy present with this ID!');
+      } catch (error) {
+        throw error;
+      }
       try {
         organization = await this.prisma.user.findFirst({
           select: { organizationId: true },
@@ -586,22 +601,9 @@ export class PharmacyStockService {
         }
 
         try {
-          const pharmacyId = await this.prisma.pharmacy.findFirst({
-            where: {
-              id: inputs.pharmacyId,
-              status: true,
-            },
-          });
-
-          if (!pharmacyId) throw new Error('No Pharmacy present with this ID!');
-        } catch (error) {
-          throw error;
-        }
-
-        try {
           const pharmacyStock = await this.prisma.pharmacyStock.findFirst({
             where: {
-              pharmacyId: inputs.pharmacyId,
+              pharmacyId: pharmacyId,
               itemId: inputs.itemId,
               status: true,
             },
@@ -659,7 +661,7 @@ export class PharmacyStockService {
                 total_qty: 0,
                 itemId: item.itemId,
                 pharmacyStockId: item.pharmacyStockId,
-                pharmacyId: item.pharmacyId,
+                pharmacyId: pharmacyId,
               };
             }
             acc[item.batch_name].total_qty += item.qty;
@@ -768,7 +770,7 @@ export class PharmacyStockService {
               expiry: rowArrVal.expiry,
               pharmacyStockClearanceId: createPharmacyClearance.id,
               organizationId: organizationId,
-              pharmacyId: rowArrVal.pharmacyId,
+              pharmacyId,
               lotName,
               transactionType: StockMovementsType.EXIT,
             };
