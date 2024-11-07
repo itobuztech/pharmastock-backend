@@ -45,6 +45,7 @@ export class OrganizationGuard implements CanActivate {
         createWarehouseStockInput,
         createPharmacyStockInput,
         clearancePharmacyStockInput,
+        pharmacyId,
       } = ctx.getContext().req.body.variables;
 
       let organizationId = '';
@@ -98,39 +99,23 @@ export class OrganizationGuard implements CanActivate {
         }
 
         organizationId = organizationByPharmacy.id;
-      } else if (clearancePharmacyStockInput) {
-        for (const input of clearancePharmacyStockInput) {
-          const pharmacyId = input.pharmacyId;
+      } else if (clearancePharmacyStockInput && pharmacyId) {
+        const organizationByClearance =
+          await this.prisma.organization.findFirst({
+            select: { id: true },
+            where: {
+              Pharmacy: { some: { id: pharmacyId } },
+            },
+          });
 
-          const organizationByClearance =
-            await this.prisma.organization.findFirst({
-              select: { id: true },
-              where: {
-                Pharmacy: { some: { id: pharmacyId } },
-              },
-            });
-
-          if (!organizationByClearance) {
-            throw new BadRequestException(
-              'Clearance pharmacy organization not found',
-            );
-          }
-
-          if (organizationId === '') {
-            organizationId = organizationByClearance.id;
-          } else if (
-            organizationId !== '' &&
-            organizationId !== organizationByClearance.id
-          ) {
-            throw new BadRequestException(
-              'Pharmacies do not belong to the same organisation!',
-            );
-          }
+        if (!organizationByClearance) {
+          throw new BadRequestException(
+            'Clearance pharmacy organization not found',
+          );
         }
       } else {
         throw new BadRequestException('No valid input variables found');
       }
-
       // Check if the logged-in user's organization matches the found organization
       if (organizationId !== userOrgId) {
         throw new ForbiddenException(
