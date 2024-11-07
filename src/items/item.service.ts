@@ -588,6 +588,7 @@ export class ItemService {
           item: {
             select: {
               name: true,
+              id: true,
             },
           },
         },
@@ -605,6 +606,7 @@ export class ItemService {
       if (items) {
         items.forEach((item, i) => {
           item.name = item.item.name;
+          item.id = item.item.id;
         });
       }
 
