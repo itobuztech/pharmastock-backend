@@ -113,6 +113,8 @@ export class OrganizationGuard implements CanActivate {
             'Clearance pharmacy organization not found',
           );
         }
+
+        organizationId = organizationByClearance.id;
       } else {
         throw new BadRequestException('No valid input variables found');
       }
