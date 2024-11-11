@@ -112,9 +112,16 @@ export class AuthService {
       }
 
       const subject = 'Confirmation Email!';
-      const body = `<p>Please confirm your email.</p> 
-        <p>By clicking on this link ${process.env.BASE_URL}/token?confirmation_token=${confirmationToken}</p> 
-        <p>Thanks</p>
+      const body = `<p>Hello ${signUpStaffInput.email}.</p> 
+      
+        <p>Thank you for registering. Please click the link below to verify your account:</p> 
+
+        <p>${process.env.BASE_URL}/token?confirmation_token=${confirmationToken}</p> 
+
+        <p>If you didn’t create this account, please ignore this email.</p>
+
+        <p>Best regards,</p>
+        <p>Pharma Stock</p>
         `;
 
       const emailSent = await this.emailService.run(
