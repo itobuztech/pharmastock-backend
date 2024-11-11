@@ -156,8 +156,26 @@ export class ItemCategoryService {
 
   async create(createItemCategoryInput: CreateItemCategoryInput) {
     try {
+      if (
+        !createItemCategoryInput.name ||
+        createItemCategoryInput.name.trim() === ''
+      ) {
+        throw new Error('Name cannot be blank or only contain spaces.');
+      }
+
+      const notUnique = await this.prisma.itemCategory.findFirst({
+        where: {
+          status: true,
+          name: createItemCategoryInput.name,
+        },
+      });
+
+      if (notUnique) {
+        throw new Error('Item Category name alerady present!');
+      }
+
       let data: any = {
-        name: createItemCategoryInput.name || null,
+        name: createItemCategoryInput.name,
       };
 
       if (createItemCategoryInput?.parentCategoryId) {
@@ -188,6 +206,22 @@ export class ItemCategoryService {
   }
 
   async updateItemCategory(id: string, data) {
+    if (data.name) {
+      const unique = await this.prisma.item.findFirst({
+        where: {
+          status: true,
+          name: data.name,
+          NOT: {
+            id,
+          },
+        },
+      });
+
+      if (unique) {
+        throw new Error('Item Category name alerady present!');
+      }
+    }
+
     const itemCategory = await this.prisma.itemCategory.update({
       where: {
         id,

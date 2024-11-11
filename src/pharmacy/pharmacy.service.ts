@@ -120,6 +120,23 @@ export class PharmacyService {
 
   async create(ctx, createPharmacyInput: CreatePharmacyInput) {
     try {
+      if (!createPharmacyInput.name || createPharmacyInput.name.trim() === '') {
+        throw new Error('Name cannot be blank or only contain spaces.');
+      }
+
+      //Check if the name of the pharmacy is unique or not. Starts.
+      const uniquePharmacy = await this.prisma.pharmacy.findFirst({
+        where: {
+          status: true,
+          name: createPharmacyInput.name,
+        },
+      });
+
+      if (uniquePharmacy) {
+        throw new Error('Pharmacy name alerady present!');
+      }
+      //Check if the name of the pharmacy is unique or not. Ends.
+
       let organizationId = '';
       try {
         const loggedinUser = await this.accountService.findOne(ctx);
@@ -141,18 +158,6 @@ export class PharmacyService {
       }
       // Check if the contact info length is not more than 12. Ends.
 
-      //Check if the name of the pharmacy is unique or not. Starts.
-      const uniquePharmacy = await this.prisma.pharmacy.findFirst({
-        where: {
-          status: true,
-          name: createPharmacyInput.name,
-        },
-      });
-
-      if (uniquePharmacy) {
-        throw new Error('Pharmacy name alerady present!');
-      }
-      //Check if the name of the pharmacy is unique or not. Ends.
       // Handeling Inputs. Ends.
 
       let data: any = {

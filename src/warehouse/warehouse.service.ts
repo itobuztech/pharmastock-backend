@@ -123,6 +123,24 @@ export class WarehouseService {
 
   async create(ctx, createWarehouseInput: CreateWarehouseInput) {
     try {
+      if (
+        !createWarehouseInput.name ||
+        createWarehouseInput.name.trim() === ''
+      ) {
+        throw new Error('Name cannot be blank or only contain spaces.');
+      }
+
+      const notUnique = await this.prisma.warehouse.findFirst({
+        where: {
+          status: true,
+          name: createWarehouseInput.name,
+        },
+      });
+
+      if (notUnique) {
+        throw new Error('Warehouse name alerady present!');
+      }
+
       let organizationId = '';
       try {
         const loggedinUser = await this.accountService.findOne(ctx);
@@ -134,18 +152,6 @@ export class WarehouseService {
         }
       } catch (error) {
         throw error;
-      }
-      if (createWarehouseInput.name) {
-        const unique = await this.prisma.warehouse.findFirst({
-          where: {
-            status: true,
-            name: createWarehouseInput.name,
-          },
-        });
-
-        if (unique) {
-          throw new Error('Warehouse name alerady present!');
-        }
       }
 
       let data: any = {
@@ -188,7 +194,7 @@ export class WarehouseService {
 
   async updateWarehouse(id: string, data) {
     if (data.name) {
-      const unique = await this.prisma.warehouse.findFirst({
+      const notUnique = await this.prisma.warehouse.findFirst({
         where: {
           status: true,
           name: data.name,
@@ -198,7 +204,7 @@ export class WarehouseService {
         },
       });
 
-      if (unique) {
+      if (notUnique) {
         throw new Error('Warehouse name alerady present!');
       }
     }
