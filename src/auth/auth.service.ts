@@ -137,7 +137,8 @@ export class AuthService {
       }
 
       return {
-        success: 'The user is created. Please check your email!',
+        success:
+          'Thank you for signing up! Please check your email to confirm your account.',
       };
     } catch (error) {
       throw error;
