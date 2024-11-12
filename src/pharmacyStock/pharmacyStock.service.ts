@@ -361,6 +361,7 @@ export class PharmacyStockService {
         );
       }
 
+      let stockQtyErr = [];
       existingStock.forEach((eS) => {
         const filteredItems = itemObjArr.filter(
           (item) => item.itemId === eS.itemId,
@@ -369,11 +370,17 @@ export class PharmacyStockService {
         const checkingNegativeValue = eS.final_qty - filteredItems[0].qty < 0;
 
         if (checkingNegativeValue) {
-          throw new Error(
+          stockQtyErr.push(
             `There is only ${eS.final_qty} number of ${eS.item.name} in stock!`,
           );
         }
       });
+
+      if (stockQtyErr.length > 0) {
+        const stockQtyErrString = stockQtyErr.join('. ');
+        throw new Error(stockQtyErrString);
+      }
+
       const lotName = await generateLotName();
 
       for (const eS of existingStock) {
