@@ -552,6 +552,7 @@ export class PharmacyStockService {
 
       return 'Pharmacy Stock created successfully!';
     } catch (error) {
+      console.log('Error=', error);
       throw error;
     }
   }
