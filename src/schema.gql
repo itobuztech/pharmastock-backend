@@ -216,6 +216,7 @@ type Item {
   Category: [ItemCategoryRel!]
   baseUnit: BaseUnit!
   createdAt: DateTime!
+  currency: String
   hsnCode: String!
   id: String!
   instructions: String!
@@ -664,6 +665,7 @@ type Warehouse {
 type WarehouseStock {
   SKU: Sku!
   createdAt: DateTime!
+  currency: String
   finalQty: Float!
   id: String!
   item: Item!

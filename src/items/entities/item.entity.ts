@@ -23,6 +23,9 @@ export class Item {
   @Field(() => Number, { nullable: true, name: 'wholesalePrice' })
   wholesale_price?: ItemDB['wholesale_price'];
 
+  @Field(() => String, { nullable: true })
+  currency?: string;
+
   @Field(() => String, { name: 'hsnCode' })
   hsn_code: ItemDB['hsn_code'];
 

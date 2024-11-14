@@ -141,6 +141,7 @@ export class ItemService {
 
       if (items) {
         items.forEach((it, i) => {
+          it.currency = process.env.CURRENCY_TYPE;
           if (it.ItemCategoryRelation) {
             const relationArr = it.ItemCategoryRelation;
             const categories = [];

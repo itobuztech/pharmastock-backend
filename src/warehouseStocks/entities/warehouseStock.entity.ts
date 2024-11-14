@@ -40,4 +40,7 @@ export class WarehouseStock {
 
   @Field(() => Number, { nullable: true })
   totalMrpBaseUnit?: number;
+
+  @Field(() => String, { nullable: true })
+  currency?: string;
 }
