@@ -111,16 +111,12 @@ export class AuthService {
         );
       }
 
-      const subject = 'Confirmation Email!';
+      const subject = 'Verify Your PharmaStock Account';
       const body = `<p>Hello ${signUpStaffInput.name},</p> 
-      
-        <p>Thank you for registering. Please click the link below to verify your account:</p> 
-
-        <p>${process.env.BASE_URL}/token?confirmation_token=${confirmationToken}</p> 
-
+        <p>Thank you for registering. Please click the link below to verify your account:</p>
+        <a href="${process.env.BASE_URL}/token?confirmation_token=${confirmationToken}">Verify Account</a>
         <p>If you didn’t create this account, please ignore this email.</p>
-
-        <p>Best regards,<br>Pharma Stock</p>
+        <p>Best regards,<br>The PharmaStock Team</p>
         `;
 
       const emailSent = await this.emailService.run(
