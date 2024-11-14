@@ -404,11 +404,13 @@ export class UsersService {
       }
     }
 
-    const subject = `${role == 'ADMIN' ? 'Admin' : 'Staff'} Invitation Email!`;
-    const body = `<p>${passwordText} is your automated password. </p>
-    <p>Please confrim your email and set your new password.</p> 
-        <p>By clicking on this link ${process.env.BASE_URL}/set-password?confirmation_token=${confirmationToken}</p> 
-        <p>Thanks</p>
+    const subject = 'Confirm Your Email and Set Up Your New Password!';
+    const body = `<p>Hello,</p>
+        <p>Thank you for registering with PharmaStock! Please confirm your email address and set up your new password.</p> 
+        <p>To confirm and set your password, click the link below:</p> 
+        <a href="${process.env.BASE_URL}/set-password?confirmation_token=${confirmationToken}">Confirm and Set Password</a>
+        <p>Temporary Password: ${passwordText}</p>
+        <p>Thank you,<br>The PharmaStock Team</p>
         `;
 
     const emailSent = await this.emailService.run(email, subject, body);
