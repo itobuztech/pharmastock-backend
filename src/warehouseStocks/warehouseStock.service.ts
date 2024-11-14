@@ -201,6 +201,7 @@ export class WarehouseStockService {
           const finalWholesale_price =
             wS?.item?.wholesale_price * wS?.final_qty;
 
+          wS['currency'] = process.env.CURRENCY_TYPE;
           wS['totalMrpBaseUnit'] = finalMrp_base_unit;
           wS['totalWholesalePrice'] = finalWholesale_price;
         });
@@ -212,6 +213,7 @@ export class WarehouseStockService {
           const finalWholesale_price =
             wS?.item?.wholesale_price * wS?.final_qty;
 
+          wS['currency'] = process.env.CURRENCY_TYPE;
           wS['totalMrpBaseUnit'] = finalMrp_base_unit;
           wS['totalWholesalePrice'] = finalWholesale_price;
         });
@@ -399,6 +401,7 @@ export class WarehouseStockService {
           const finalMrp_base_unit = wS.item.mrp_base_unit * wS.final_qty;
           const finalWholesale_price = wS.item.wholesale_price * wS.final_qty;
 
+          wS['currency'] = process.env.CURRENCY_TYPE;
           wS['totalMrpBaseUnit'] = finalMrp_base_unit;
           wS['totalWholesalePrice'] = finalWholesale_price;
         });
@@ -410,6 +413,7 @@ export class WarehouseStockService {
           const finalWholesale_price =
             wS?.item?.wholesale_price * wS?.final_qty;
 
+          wS['currency'] = process.env.CURRENCY_TYPE;
           wS['totalMrpBaseUnit'] = finalMrp_base_unit;
           wS['totalWholesalePrice'] = finalWholesale_price;
         });
