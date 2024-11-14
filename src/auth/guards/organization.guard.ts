@@ -52,7 +52,9 @@ export class OrganizationGuard implements CanActivate {
 
       if (createWarehouseStockInput) {
         if (!createWarehouseStockInput.length) {
-          throw new BadRequestException('You have to add atleast one stock!');
+          throw new BadRequestException(
+            'You have to add atleast one stock to create a warehouse stock!',
+          );
         }
 
         for (const input of createWarehouseStockInput) {
