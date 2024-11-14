@@ -482,7 +482,7 @@ type Role {
 input SignUpStaffInput {
   confirmationToken: String
   email: String!
-  name: String
+  name: String!
   orgId: String!
   password: String!
   username: String!

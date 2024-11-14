@@ -2,7 +2,7 @@ import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
 export class SignUpStaffInput {
-  @Field({ nullable: true })
+  @Field()
   name: string;
 
   @Field()
