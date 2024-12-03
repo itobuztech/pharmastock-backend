@@ -37,6 +37,8 @@ export class OrganizationResolver {
     name: 'organizations',
     nullable: true,
   })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.ORGANIZATION_MANAGEMENT.CAPABILITIES.VIEW])
   async findAll(
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
