@@ -43,24 +43,36 @@ export class WarehouseStockService {
         status: true,
       };
 
+      if (loggedinUserRole !== 'SUPERADMIN') {
+        whereClause = {
+          ...whereClause,
+          warehouse: {
+            organizationId,
+          },
+        };
+      }
+
       if (searchText) {
-        whereClause.OR = [
-          {
-            warehouse: {
-              name: { contains: searchText, mode: 'insensitive' },
+        whereClause = {
+          ...whereClause,
+          OR: [
+            {
+              warehouse: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-          {
-            SKU: {
-              sku: { contains: searchText, mode: 'insensitive' },
+            {
+              SKU: {
+                sku: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-          {
-            item: {
-              name: { contains: searchText, mode: 'insensitive' },
+            {
+              item: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-        ];
+          ],
+        };
       }
 
       if (filterArgs) {
@@ -191,33 +203,14 @@ export class WarehouseStockService {
       });
 
       // Add organizationId if the user is not SUPERADMIN
-      if (loggedinUserRole !== 'SUPERADMIN') {
-        const warehouseStocksFinal = warehouseStocks.filter(
-          (wS, i) => wS?.warehouse?.organization?.id === organizationId,
-        );
+      warehouseStocks.forEach((wS: any) => {
+        const finalMrp_base_unit = wS?.item?.mrp_base_unit * wS?.final_qty;
+        const finalWholesale_price = wS?.item?.wholesale_price * wS?.final_qty;
 
-        warehouseStocksFinal.forEach((wS: any) => {
-          const finalMrp_base_unit = wS?.item?.mrp_base_unit * wS?.final_qty;
-          const finalWholesale_price =
-            wS?.item?.wholesale_price * wS?.final_qty;
-
-          wS['currency'] = process.env.CURRENCY_TYPE;
-          wS['totalMrpBaseUnit'] = finalMrp_base_unit;
-          wS['totalWholesalePrice'] = finalWholesale_price;
-        });
-
-        warehouseStocks = warehouseStocksFinal;
-      } else {
-        warehouseStocks.forEach((wS: any) => {
-          const finalMrp_base_unit = wS?.item?.mrp_base_unit * wS?.final_qty;
-          const finalWholesale_price =
-            wS?.item?.wholesale_price * wS?.final_qty;
-
-          wS['currency'] = process.env.CURRENCY_TYPE;
-          wS['totalMrpBaseUnit'] = finalMrp_base_unit;
-          wS['totalWholesalePrice'] = finalWholesale_price;
-        });
-      }
+        wS['currency'] = process.env.CURRENCY_TYPE;
+        wS['totalMrpBaseUnit'] = finalMrp_base_unit;
+        wS['totalWholesalePrice'] = finalWholesale_price;
+      });
 
       return { warehouseStocks, total: warehouseStocksCount };
     } catch (error) {

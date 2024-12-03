@@ -40,28 +40,41 @@ export class PharmacyStockService {
         status: true,
       };
 
-      if (pharmacyId) {
+      if (loggedinUserRole !== 'SUPERADMIN') {
         whereClause = {
           ...whereClause,
           pharmacy: {
-            id: pharmacyId,
+            organizationId,
           },
         };
+
+        if (pharmacyId) {
+          whereClause = {
+            ...whereClause,
+            pharmacy: {
+              id: pharmacyId,
+              organizationId,
+            },
+          };
+        }
       }
 
       if (searchText) {
-        whereClause.OR = [
-          {
-            pharmacy: {
-              name: { contains: searchText, mode: 'insensitive' },
+        whereClause = {
+          ...whereClause,
+          OR: [
+            {
+              pharmacy: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-          {
-            item: {
-              name: { contains: searchText, mode: 'insensitive' },
+            {
+              item: {
+                name: { contains: searchText, mode: 'insensitive' },
+              },
             },
-          },
-        ];
+          ],
+        };
       }
 
       if (filterArgs) {
@@ -167,32 +180,13 @@ export class PharmacyStockService {
         ],
       });
 
-      // Add organizationId if the user is not SUPERADMIN
-      if (loggedinUserRole !== 'SUPERADMIN') {
-        const pharmacyStocksFinal = pharmacyStocks.filter(
-          (pS, i) => pS?.pharmacy?.organizationId === organizationId,
-        );
+      pharmacyStocks.forEach((pS: any) => {
+        const finalMrp_base_unit = pS?.item?.mrp_base_unit * pS?.final_qty;
+        const finalWholesale_price = pS?.item?.wholesale_price * pS?.final_qty;
 
-        pharmacyStocksFinal.forEach((pS: any) => {
-          const finalMrp_base_unit = pS?.item?.mrp_base_unit * pS?.final_qty;
-          const finalWholesale_price =
-            pS?.item?.wholesale_price * pS?.final_qty;
-
-          pS['totalMrpBaseUnit'] = finalMrp_base_unit;
-          pS['totalWholesalePrice'] = finalWholesale_price;
-        });
-
-        pharmacyStocks = pharmacyStocksFinal;
-      } else {
-        pharmacyStocks.forEach((pS: any) => {
-          const finalMrp_base_unit = pS?.item?.mrp_base_unit * pS?.final_qty;
-          const finalWholesale_price =
-            pS?.item?.wholesale_price * pS?.final_qty;
-
-          pS['totalMrpBaseUnit'] = finalMrp_base_unit;
-          pS['totalWholesalePrice'] = finalWholesale_price;
-        });
-      }
+        pS['totalMrpBaseUnit'] = finalMrp_base_unit;
+        pS['totalWholesalePrice'] = finalWholesale_price;
+      });
 
       return { pharmacyStocks, total: pharmacyCount };
     } catch (error) {
