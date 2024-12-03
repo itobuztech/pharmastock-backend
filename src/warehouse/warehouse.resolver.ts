@@ -22,6 +22,7 @@ import { TotalCount } from '../pagination/toalCount.entity';
 import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
+import { OrganizationGuard } from 'src/auth/guards/organization.guard';
 
 // Define a new type for the paginated result
 @ObjectType()
@@ -56,7 +57,7 @@ export class WarehouseResolver {
   }
 
   @Query(() => Warehouse, { name: 'warehouse' })
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.VIEW])
   async findOne(@Args('id') id: string): Promise<Warehouse> {
     try {

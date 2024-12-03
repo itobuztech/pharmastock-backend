@@ -108,7 +108,7 @@ export class WarehouseStockResolver {
   }
 
   @Query(() => WarehouseStock, { name: 'warehouseStock' })
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([
     PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
     PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
