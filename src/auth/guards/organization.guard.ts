@@ -51,8 +51,6 @@ export class OrganizationGuard implements CanActivate {
         pharmacyStockId,
       } = ctx.getContext().req.body.variables;
 
-      console.log('pharmacyStockId=', pharmacyStockId);
-
       let organizationId = '';
 
       if (createWarehouseStockInput) {
