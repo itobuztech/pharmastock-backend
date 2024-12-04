@@ -39,12 +39,20 @@ export class UsersResolver {
   @UseGuards(JwtAuthGuard, PermissionsGuardOR)
   @Permissions([PrivilegesList.USER_MANAGEMENT.CAPABILITIES.VIEW])
   findAll(
+    @Context() ctx: any,
     @Args('searchText', { nullable: true }) searchText: string,
     @Args('pagination', { nullable: true }) pagination: Boolean,
     @Args('paginationArgs', { nullable: true }) paginationArgs: PaginationArgs,
   ): Promise<PaginatedUsers> {
     try {
-      return this.usersService.findAll(searchText, pagination, paginationArgs);
+      const user = ctx.req.user;
+
+      return this.usersService.findAll(
+        user,
+        searchText,
+        pagination,
+        paginationArgs,
+      );
     } catch (error) {
       throw new BadRequestException(error);
     }
