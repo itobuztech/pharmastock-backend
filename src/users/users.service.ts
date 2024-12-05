@@ -24,6 +24,7 @@ export class UsersService {
   ) {}
 
   async findAll(
+    user,
     searchText?: string,
     pagination?: Boolean,
     paginationArgs?: PaginationArgs,
@@ -31,6 +32,20 @@ export class UsersService {
     const { skip = 0, take = 10 } = paginationArgs || {};
     try {
       let whereClause: Prisma.UserWhereInput | {} = { status: true };
+
+      const { userId } = user;
+      const { userType } = user.role;
+
+      const organization = await this.prisma.user.findFirst({
+        select: { organizationId: true },
+        where: {
+          id: userId,
+        },
+      });
+
+      if (userType !== 'SUPERADMIN') {
+        whereClause['organizationId'] = organization.organizationId;
+      }
 
       if (searchText) {
         whereClause = {

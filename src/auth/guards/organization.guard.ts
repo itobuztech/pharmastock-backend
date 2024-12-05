@@ -46,6 +46,9 @@ export class OrganizationGuard implements CanActivate {
         createPharmacyStockInput,
         clearancePharmacyStockInput,
         pharmacyId,
+        warehouseId,
+        warehouseStockId,
+        pharmacyStockId,
       } = ctx.getContext().req.body.variables;
 
       let organizationId = '';
@@ -121,13 +124,83 @@ export class OrganizationGuard implements CanActivate {
         }
 
         organizationId = organizationByClearance.id;
+      } else if (warehouseId) {
+        const organizationByWarehouseId =
+          await this.prisma.organization.findFirst({
+            select: { id: true },
+            where: {
+              Warehouse: { some: { id: warehouseId } },
+            },
+          });
+
+        if (!organizationByWarehouseId) {
+          throw new BadRequestException('Warehouse organization not found');
+        }
+
+        organizationId = organizationByWarehouseId.id;
+      } else if (pharmacyId && !clearancePharmacyStockInput) {
+        const organizationByPharmacyId =
+          await this.prisma.organization.findFirst({
+            select: { id: true },
+            where: {
+              Pharmacy: { some: { id: pharmacyId } },
+            },
+          });
+
+        if (!organizationByPharmacyId) {
+          throw new BadRequestException('Pharmacy organization not found');
+        }
+
+        organizationId = organizationByPharmacyId.id;
+      } else if (warehouseStockId) {
+        const warehouseStock = await this.prisma.warehouseStock.findFirst({
+          select: { warehouseId: true },
+          where: {
+            id: warehouseStockId,
+          },
+        });
+
+        const organizationByWarehouseId =
+          await this.prisma.organization.findFirst({
+            select: { id: true },
+            where: {
+              Warehouse: { some: { id: warehouseStock.warehouseId } },
+            },
+          });
+
+        if (!organizationByWarehouseId) {
+          throw new BadRequestException('Warehouse organization not found');
+        }
+
+        organizationId = organizationByWarehouseId.id;
+      } else if (pharmacyStockId) {
+        const pharmacyStock = await this.prisma.pharmacyStock.findFirst({
+          select: { pharmacyId: true },
+          where: {
+            id: pharmacyStockId,
+          },
+        });
+
+        const organizationByPharmacyStockId =
+          await this.prisma.organization.findFirst({
+            select: { id: true },
+            where: {
+              Pharmacy: { some: { id: pharmacyStock.pharmacyId } },
+            },
+          });
+
+        if (!organizationByPharmacyStockId) {
+          throw new BadRequestException('Pharmacy organization not found');
+        }
+
+        organizationId = organizationByPharmacyStockId.id;
       } else {
         throw new BadRequestException('No valid input variables found');
       }
       // Check if the logged-in user's organization matches the found organization
       if (organizationId !== userOrgId) {
         throw new ForbiddenException(
-          'Logged in user organization does not match a Warehouse/Pharmacy organization',
+          'Logged in user organization does not match Warehouse/Pharmacy organization',
         );
       }
 
