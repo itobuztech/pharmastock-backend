@@ -1,10 +1,16 @@
 import * as bcrypt from 'bcrypt';
 import { PrismaClient, UserRole } from '@prisma/client';
-import { PrivilegesList } from '../src/privileges/user-privileges';
 const prisma = new PrismaClient();
 
 async function main() {
   //CREATE UserRoles
+  await prisma.role.deleteMany({});
+  await prisma.user.deleteMany({});
+  await prisma.organization.deleteMany({});
+  await prisma.itemCategory.deleteMany({});
+  await prisma.warehouse.deleteMany({});
+  console.clear();
+
   const roles = await prisma.role.createMany({
     data: [
       {
@@ -48,53 +54,129 @@ async function main() {
       userType: UserRole.ADMIN,
     },
   });
+  const staffRole = await prisma.role.findFirst({
+    where: {
+      userType: UserRole.STAFF,
+    },
+  });
 
-  if (!superAdminRole) {
+  if (!superAdminRole || !adminRole || !staffRole) {
     return;
   }
-  if (!adminRole) {
-    return;
-  }
 
-  const password = await bcrypt.hash('Itobuz#1234', 10);
+  const password = await bcrypt.hash('Itobuz#1234', 10); //Password is same Itobuz#1234 for all default users.
 
-  const organization = await prisma.organization.create({
+  const organization1 = await prisma.organization.create({
     data: {
-      name: 'dymmyOrganization',
-      description: 'Dummy Org one',
+      name: 'MediCare Supplies',
+      description: 'A leading distributor of medical equipment and health supplies, specializing in hospitals and clinics.',
       active: true,
-      address: 'kolkata 567',
-      city: 'Kolkata',
-      country: 'India',
+      address: 'S82, Heathrow Airport Cargo Area, Hounslow, London, TW6 2SB',
+      city: 'Hounslow',
+      country: 'UK',
       contact: '+919073458041',
     },
   });
 
-  //Create OWNER user
-  await prisma.user.create({
-    data: {
-      email: 'palash@itobuz.com',
-      name: 'Admin Creator',
-      password: password,
-      username: 'Palash',
-      role: {
-        connect: { id: superAdminRole.id },
+  //Create users for the organization
+  await prisma.user.createMany({
+    data: [
+      {
+        email: 'admin@itobuz.com',
+        name: 'John Doe',
+        password: password,
+        username: 'john',
+        roleId: superAdminRole.id
       },
-    },
+      {
+        email: 'robert.brown@itobuz.com',
+        name: 'Robert Brown',
+        password: password,
+        username: 'jane',
+        roleId: adminRole.id,
+        organizationId: organization1?.id
+      },
+      {
+        email: 'mark.taylor@itobuz.com',
+        name: 'Robert Brown',
+        password: password,
+        username: 'robbrown01',
+        roleId: staffRole.id,
+        organizationId: organization1?.id
+      }
+    ]
   });
-  await prisma.user.create({
-    data: {
-      email: 'sudeep@itobuz.com',
-      name: 'Admin',
-      password: password,
-      username: 'Sudeep',
-      role: {
-        connect: { id: adminRole.id },
+
+  // Create Item Categories
+  await prisma.itemCategory.createMany({
+    data: [
+      {
+        name: 'Medical Equipment'
       },
-      organization: {
-        connect: { id: organization?.id },
+      {
+        name: 'Pharmaceuticals',
       },
-    },
+      {
+        name: 'Medical Consumables',
+      },
+      {
+        name: 'Diagnostic Tools',
+      },
+      {
+        name: 'Home Healthcare Products',
+      },
+      {
+        name: 'Surgical Supplies',
+      },
+      {
+        name: 'Hospital Furniture',
+      },
+      {
+        name: 'Wound Care Products',
+      },
+      {
+        name: 'Rehabilitation and Therapy Equipment',
+      },
+      {
+        name: 'Incontinence Products',
+      },
+      {
+        name: 'Medical Laboratory Supplies',
+      },
+      {
+        name: 'Infection Control and Sterilization'
+      }
+    ]
+  });
+
+  const category1 = await prisma.itemCategory.findFirst({
+    name: 'Surgical Supplies'
+  });
+
+  const category2 = await prisma.itemCategory.findFirst({
+    name: 'Wound Care Products'
+  });
+
+  const category3 = await prisma.itemCategory.findFirst({
+    name: 'Diagnostic Tools'
+  });
+
+  // Create warehouses
+  await prisma.warehouse.createMany({
+    data: [
+      {
+        name: 'Oldham Warehouse #1',
+        location: 'Oldham',
+        area: '929 square meters',
+        organizationId: organization1.id
+      },
+      {
+        name: 'Bolton',
+        location: 'Industrial base of UK',
+        area: '~1200 square meters',
+        organizationId: organization1.id
+      },
+    ]
   });
 }
 main()

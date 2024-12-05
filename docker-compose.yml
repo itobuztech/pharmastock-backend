@@ -2,6 +2,7 @@ version: '3.7'
 services:
   apiservice: &apiservice
     image: apiservice
+    #command: sh -c "sleep 10 && echo "* * * * * root npm run db:reset && npm run seed >> /var/log/cron.log 2>&1" > /etc/cron.d/resetdb-cron && chmod 0644 /etc/cron.d/resetdb-cron"
     build:
       context: .
       dockerfile: Dockerfile
