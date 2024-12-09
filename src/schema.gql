@@ -8,10 +8,12 @@ type AccountTypeResponse {
 }
 
 enum BaseUnit {
-  KG
-  NUMBER
-  STRIP
-  VIAL
+  Bottle
+  Box
+  Pack
+  Piece
+  Roll
+  Tablet
 }
 
 input BatchStockMovementsInput {

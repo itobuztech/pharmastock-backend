@@ -62,7 +62,6 @@ export class WarehouseService {
               status: true,
             },
           },
-          admin: true,
         },
       };
       if (pagination) {
@@ -76,7 +75,6 @@ export class WarehouseService {
                 status: true,
               },
             },
-            admin: true,
           },
         };
       }
@@ -110,7 +108,6 @@ export class WarehouseService {
             status: true,
           },
         },
-        admin: true,
       },
     });
 
@@ -176,7 +173,6 @@ export class WarehouseService {
         data,
         include: {
           organization: true,
-          admin: true,
         },
       });
 
@@ -215,7 +211,6 @@ export class WarehouseService {
       data,
       include: {
         organization: true,
-        admin: true,
       },
     });
 

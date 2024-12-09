@@ -12,7 +12,7 @@ import { WarehouseStockSearchObject } from '../types/extended-types';
 import { FilterPharmacyStockInputs } from 'src/pharmacyStock/dto/filter-pharmacyStock.input';
 import { AccountService } from '../account/account.service';
 import { generateLotName } from 'src/util/helper';
-import { StockMovementsType } from 'src/types/enums/stockMovementsType.enum';
+import { StockMovementsType } from 'src/types/enums/stock-movements-type.enum';
 
 @Injectable()
 export class WarehouseStockService {
