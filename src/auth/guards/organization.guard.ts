@@ -21,6 +21,8 @@ export class OrganizationGuard implements CanActivate {
       const ctx = GqlExecutionContext.create(context);
       const user = ctx.getContext().req.user;
 
+      if (user.role.userType === 'SUPERADMIN') return true;
+
       // Fetch the user's organization
       const userOrg = await this.prisma.organization.findFirst({
         select: { id: true },

@@ -69,7 +69,8 @@ async function main() {
   const organization1 = await prisma.organization.create({
     data: {
       name: 'MediCare Supplies',
-      description: 'A leading distributor of medical equipment and health supplies, specializing in hospitals and clinics.',
+      description:
+        'A leading distributor of medical equipment and health supplies, specializing in hospitals and clinics.',
       active: true,
       address: 'S82, Heathrow Airport Cargo Area, Hounslow, London, TW6 2SB',
       city: 'Hounslow',
@@ -86,7 +87,7 @@ async function main() {
         name: 'John Doe',
         password: password,
         username: 'john',
-        roleId: superAdminRole.id
+        roleId: superAdminRole.id,
       },
       {
         email: 'robert.brown@itobuz.com',
@@ -94,7 +95,7 @@ async function main() {
         password: password,
         username: 'jane',
         roleId: adminRole.id,
-        organizationId: organization1?.id
+        organizationId: organization1?.id,
       },
       {
         email: 'mark.taylor@itobuz.com',
@@ -102,16 +103,16 @@ async function main() {
         password: password,
         username: 'robbrown01',
         roleId: staffRole.id,
-        organizationId: organization1?.id
-      }
-    ]
+        organizationId: organization1?.id,
+      },
+    ],
   });
 
   // Create Item Categories
   await prisma.itemCategory.createMany({
     data: [
       {
-        name: 'Medical Equipment'
+        name: 'Medical Equipment',
       },
       {
         name: 'Pharmaceuticals',
@@ -144,22 +145,22 @@ async function main() {
         name: 'Medical Laboratory Supplies',
       },
       {
-        name: 'Infection Control and Sterilization'
-      }
-    ]
+        name: 'Infection Control and Sterilization',
+      },
+    ],
   });
 
-  const category1 = await prisma.itemCategory.findFirst({
-    name: 'Surgical Supplies'
-  });
+  // const category1 = await prisma.itemCategory.findFirst({
+  //   name: 'Surgical Supplies'
+  // });
 
-  const category2 = await prisma.itemCategory.findFirst({
-    name: 'Wound Care Products'
-  });
+  // const category2 = await prisma.itemCategory.findFirst({
+  //   name: 'Wound Care Products'
+  // });
 
-  const category3 = await prisma.itemCategory.findFirst({
-    name: 'Diagnostic Tools'
-  });
+  // const category3 = await prisma.itemCategory.findFirst({
+  //   name: 'Diagnostic Tools'
+  // });
 
   // Create warehouses
   await prisma.warehouse.createMany({
@@ -168,15 +169,15 @@ async function main() {
         name: 'Oldham Warehouse #1',
         location: 'Oldham',
         area: '929 square meters',
-        organizationId: organization1.id
+        organizationId: organization1.id,
       },
       {
         name: 'Bolton',
         location: 'Industrial base of UK',
         area: '~1200 square meters',
-        organizationId: organization1.id
+        organizationId: organization1.id,
       },
-    ]
+    ],
   });
 }
 main()

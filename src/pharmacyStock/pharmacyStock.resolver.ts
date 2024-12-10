@@ -69,7 +69,7 @@ export class PharmacyStockResolver {
     name: 'pharmacyStocksByPharmacy',
     nullable: true,
   })
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([
     PrivilegesList.STOCK_MANAGEMENT_ADMIN.CAPABILITIES.VIEW,
     PrivilegesList.STOCK_MANAGEMENT_STAFF.CAPABILITIES.VIEW,
