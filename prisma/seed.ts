@@ -139,8 +139,9 @@ export async function seedData() {
   });
   await prisma.organization.create({
     data: {
-      name: 'MediWorld Distributors',
-      description: 'Global leaders in medical product distribution.',
+      name: 'MediCare Supplies',
+      description:
+        'A leading distributor of medical equipment and health supplies, specializing in hospitals and clinics.',
       active: true,
       address: '50 Marina Bay Sands',
       city: 'Singapore',
