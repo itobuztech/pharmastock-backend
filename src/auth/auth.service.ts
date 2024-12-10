@@ -183,6 +183,7 @@ export class AuthService {
     const { email, id, name } = user;
 
     const confirmationToken = await generateToken();
+
     const passwordText = await generateInvitePassword();
 
     const password = await bcrypt.hash(passwordText, 10);
