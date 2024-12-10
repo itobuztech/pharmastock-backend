@@ -11,7 +11,7 @@ import { PaginationArgs } from '../pagination/pagination.dto';
 import { FilterStockMovementsInputs } from './dto/filter-stockMovements.input';
 import { StockMovementsByBatch } from './entities/stockMovementByBatch.entity';
 import { StockMovementsByLotName } from './entities/stockMovementByLotName.entity';
-import { StockMovementsType } from 'src/types/enums/stockMovementsType.enum';
+import { StockMovementsType } from 'src/types/enums/stock-movements-type.enum';
 import { StockMovementsByLot } from './entities/stockMovementByLot.entity';
 
 @Injectable()

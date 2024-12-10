@@ -11,7 +11,7 @@ import { FilterPharmacyStockInputs } from './dto/filter-pharmacyStock.input';
 import { AccountService } from '../account/account.service';
 import { ClearancePharmacyStockInput } from './dto/clearance-pharmacyStock.input';
 import { generateLotName } from 'src/util/helper';
-import { StockMovementsType } from 'src/types/enums/stockMovementsType.enum';
+import { StockMovementsType } from 'src/types/enums/stock-movements-type.enum';
 
 @Injectable()
 export class PharmacyStockService {

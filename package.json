@@ -20,7 +20,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenv -e .env.test -- jest --verbose --config ./test/jest-e2e.json",
     "seed": "ts-node --transpile-only prisma/seed.ts",
-    "db:reset": "npx prisma migrate reset --force"
+    "db:reset": "npx prisma migrate reset --force",
+    "cronJob": "ts-node scheduler.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.10.4",
@@ -33,6 +34,7 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.3.8",
+    "@nestjs/schedule": "^4.1.1",
     "@nestjs/throttler": "^5.1.2",
     "@prisma/client": "^5.16.1",
     "@sentry/hub": "^7.114.0",

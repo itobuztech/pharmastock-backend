@@ -1,5 +1,5 @@
 import { Field, ID, InputType, Int } from '@nestjs/graphql';
-import { StockMovementsType } from '../../types/enums/stockMovementsType.enum';
+import { StockMovementsType } from '../../types/enums/stock-movements-type.enum';
 
 @InputType()
 export class FilterStockMovementsInputs {
