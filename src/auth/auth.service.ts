@@ -16,7 +16,7 @@ import {
 } from '../privileges/user-privileges';
 
 import { EmailService } from '../email/email.service';
-import { generateToken } from '../util/helper';
+import { generateInvitePassword, generateToken } from '../util/helper';
 import {
   ForgotPasswordConfirmationInput,
   ForgotPasswordInput,
@@ -183,11 +183,18 @@ export class AuthService {
     const { email, id, name } = user;
 
     const confirmationToken = await generateToken();
+
+    const passwordText = await generateInvitePassword();
+
+    const password = await bcrypt.hash(passwordText, 10);
+
     const subject = 'Forgot Password Request!';
     const body = `<p>Hello ${name}</p>
-        <p>We received a request to reset the password for your [Service Name] account. To ensure the security of your account, please click the link below to set a new password:.</p> 
-        <p>By clicking on this link ${process.env.BASE_URL}/set-password?confirmation_token=${confirmationToken}</p> 
-        <p>Thanks</p>`;
+        <p>We received a request to reset the password for your PharmaStock account. To ensure the security of your account, please click the link below to set a new password:</p> 
+        <a href="${process.env.BASE_URL}/set-password?confirmation_token=${confirmationToken}">Set Your Password</a>
+        <p>Temporary Password: ${passwordText}</p>
+        <p>Thank you,<br>The PharmaStock Team</p>
+        `;
 
     const emailSent = await this.emailService.run(email, subject, body);
 
@@ -200,6 +207,7 @@ export class AuthService {
     try {
       await this.usersService.updateUser(id, {
         emailConfirmationToken: confirmationToken,
+        password,
       });
     } catch (error) {
       throw new InternalServerErrorException(
