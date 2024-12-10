@@ -3,10 +3,12 @@ import { NestFactory } from '@nestjs/core';
 import { PrismaClient, UserRole } from '@prisma/client';
 
 import { BaseUnit } from '../src/items/base-unit.enum';
+console.log('BaseUnit=', BaseUnit);
+
 import { StockMovementsType } from '../src/types/enums/stock-movements-type.enum';
-import { AppModule } from '../src/app.module';
-import { StockMovementService } from '../src/stockMovement/stockMovement.service';
-console.log('stockMovementService=', StockMovementService);
+// import { AppModule } from '../src/app.module';
+// import { StockMovementService } from '../src/stockMovement/stockMovement.service';
+// console.log('stockMovementService=', StockMovementService);
 
 console.log('gg');
 
@@ -428,262 +430,262 @@ export async function seedData() {
     },
   });
 
-  // const itemOne = await prisma.item.create({
-  //   data: {
-  //     name: 'Blood Pressure Monitor',
-  //     baseUnit: BaseUnit.Piece,
-  //     instructions: 'Use on the wrist for accurate measurements.',
-  //     mrp_base_unit: 1500,
-  //     wholesale_price: 1200,
-  //     hsn_code: '9018',
-  //     status: true,
-  //   },
-  // });
-  // const itemTwo = await prisma.item.create({
-  //   data: {
-  //     name: 'Paracetamol 500mg',
-  //     baseUnit: BaseUnit.Tablet,
-  //     instructions: 'Take 1 tablet every 4-6 hours as needed.',
-  //     mrp_base_unit: 50,
-  //     wholesale_price: 35,
-  //     hsn_code: '3004',
-  //     status: true,
-  //   },
-  // });
-  // const itemThree = await prisma.item.create({
-  //   data: {
-  //     name: 'Bandages 5m',
-  //     baseUnit: BaseUnit.Roll,
-  //     instructions: 'Apply to wounds for protection.',
-  //     mrp_base_unit: 80,
-  //     wholesale_price: 60,
-  //     hsn_code: '3005',
-  //     status: true,
-  //   },
-  // });
-  // const itemFour = await prisma.item.create({
-  //   data: {
-  //     name: 'Hand Sanitizer 200ml',
-  //     baseUnit: BaseUnit.Bottle,
-  //     instructions: 'Apply a small amount on hands and rub thoroughly.',
-  //     mrp_base_unit: 120,
-  //     wholesale_price: 90,
-  //     hsn_code: '3808',
-  //     status: true,
-  //   },
-  // });
-  // const itemFive = await prisma.item.create({
-  //   data: {
-  //     name: 'Cough Syrup 100ml',
-  //     baseUnit: BaseUnit.Bottle,
-  //     instructions: 'Take 1 tablespoon every 4 hours.',
-  //     mrp_base_unit: 150,
-  //     wholesale_price: 100,
-  //     hsn_code: '3004',
-  //     status: true,
-  //   },
-  // });
-  // const itemSix = await prisma.item.create({
-  //   data: {
-  //     name: 'Thermometer Digital',
-  //     baseUnit: BaseUnit.Piece,
-  //     instructions: 'Place under the tongue for 1 minute for accurate reading.',
-  //     mrp_base_unit: 500,
-  //     wholesale_price: 400,
-  //     hsn_code: '9025',
-  //     status: true,
-  //   },
-  // });
-  // const itemSeven = await prisma.item.create({
-  //   data: {
-  //     name: 'Antiseptic Solution 100ml',
-  //     baseUnit: BaseUnit.Bottle,
-  //     instructions: 'Apply to the affected area twice daily.',
-  //     mrp_base_unit: 120,
-  //     wholesale_price: 90,
-  //     hsn_code: '3002',
-  //     status: true,
-  //   },
-  // });
-  // const itemEight = await prisma.item.create({
-  //   data: {
-  //     name: 'Glucometer',
-  //     baseUnit: BaseUnit.Piece,
-  //     instructions: 'Use test strips to check blood sugar levels.',
-  //     mrp_base_unit: 2000,
-  //     wholesale_price: 1800,
-  //     hsn_code: '9019',
-  //     status: true,
-  //   },
-  // });
-  // const itemNine = await prisma.item.create({
-  //   data: {
-  //     name: 'Cotton Swabs 100 pcs',
-  //     baseUnit: BaseUnit.Piece,
-  //     instructions: 'Use for cleaning wounds or applying ointments.',
-  //     mrp_base_unit: 150,
-  //     wholesale_price: 100,
-  //     hsn_code: '3003',
-  //     status: true,
-  //   },
-  // });
-  // const itemTen = await prisma.item.create({
-  //   data: {
-  //     name: 'Vitamin C 1000mg',
-  //     baseUnit: BaseUnit.Tablet,
-  //     instructions: 'Take 1 tablet daily after a meal.',
-  //     mrp_base_unit: 350,
-  //     wholesale_price: 250,
-  //     hsn_code: '3001',
-  //     status: true,
-  //   },
-  // });
-  // const itemEleven = await prisma.item.create({
-  //   data: {
-  //     name: 'Hand Gloves Pack (10 pairs)',
-  //     baseUnit: BaseUnit.Pack,
-  //     instructions: 'Wear gloves to protect hands from contaminants.',
-  //     mrp_base_unit: 250,
-  //     wholesale_price: 200,
-  //     hsn_code: '4015',
-  //     status: true,
-  //   },
-  // });
-  // const itemTwelve = await prisma.item.create({
-  //   data: {
-  //     name: 'Surgical Mask (Box of 50)',
-  //     baseUnit: BaseUnit.Box,
-  //     instructions:
-  //       'Wear mask to cover nose and mouth during medical procedures.',
-  //     mrp_base_unit: 400,
-  //     wholesale_price: 350,
-  //     hsn_code: '3926',
-  //     status: true,
-  //   },
-  // });
-  // const itemThirteen = await prisma.item.create({
-  //   data: {
-  //     name: 'Pain Relief Spray 150ml',
-  //     baseUnit: BaseUnit.Bottle,
-  //     instructions: 'Spray on affected area and massage gently.',
-  //     mrp_base_unit: 250,
-  //     wholesale_price: 200,
-  //     hsn_code: '3004',
-  //     status: true,
-  //   },
-  // });
-  // const itemFourteen = await prisma.item.create({
-  //   data: {
-  //     name: 'First Aid Kit',
-  //     baseUnit: BaseUnit.Piece,
-  //     instructions: 'Use for emergency treatment of minor injuries.',
-  //     mrp_base_unit: 1500,
-  //     wholesale_price: 1300,
-  //     hsn_code: '3401',
-  //     status: true,
-  //   },
-  // });
-  // const itemFifteen = await prisma.item.create({
-  //   data: {
-  //     name: 'Face Shield',
-  //     baseUnit: BaseUnit.Piece,
-  //     instructions: 'Wear for protection against droplets and splashes.',
-  //     mrp_base_unit: 350,
-  //     wholesale_price: 300,
-  //     hsn_code: '3926',
-  //     status: true,
-  //   },
-  // });
+  const itemOne = await prisma.item.create({
+    data: {
+      name: 'Blood Pressure Monitor',
+      baseUnit: BaseUnit.Piece,
+      instructions: 'Use on the wrist for accurate measurements.',
+      mrp_base_unit: 1500,
+      wholesale_price: 1200,
+      hsn_code: '9018',
+      status: true,
+    },
+  });
+  const itemTwo = await prisma.item.create({
+    data: {
+      name: 'Paracetamol 500mg',
+      baseUnit: BaseUnit.Tablet,
+      instructions: 'Take 1 tablet every 4-6 hours as needed.',
+      mrp_base_unit: 50,
+      wholesale_price: 35,
+      hsn_code: '3004',
+      status: true,
+    },
+  });
+  const itemThree = await prisma.item.create({
+    data: {
+      name: 'Bandages 5m',
+      baseUnit: BaseUnit.Roll,
+      instructions: 'Apply to wounds for protection.',
+      mrp_base_unit: 80,
+      wholesale_price: 60,
+      hsn_code: '3005',
+      status: true,
+    },
+  });
+  const itemFour = await prisma.item.create({
+    data: {
+      name: 'Hand Sanitizer 200ml',
+      baseUnit: BaseUnit.Bottle,
+      instructions: 'Apply a small amount on hands and rub thoroughly.',
+      mrp_base_unit: 120,
+      wholesale_price: 90,
+      hsn_code: '3808',
+      status: true,
+    },
+  });
+  const itemFive = await prisma.item.create({
+    data: {
+      name: 'Cough Syrup 100ml',
+      baseUnit: BaseUnit.Bottle,
+      instructions: 'Take 1 tablespoon every 4 hours.',
+      mrp_base_unit: 150,
+      wholesale_price: 100,
+      hsn_code: '3004',
+      status: true,
+    },
+  });
+  const itemSix = await prisma.item.create({
+    data: {
+      name: 'Thermometer Digital',
+      baseUnit: BaseUnit.Piece,
+      instructions: 'Place under the tongue for 1 minute for accurate reading.',
+      mrp_base_unit: 500,
+      wholesale_price: 400,
+      hsn_code: '9025',
+      status: true,
+    },
+  });
+  const itemSeven = await prisma.item.create({
+    data: {
+      name: 'Antiseptic Solution 100ml',
+      baseUnit: BaseUnit.Bottle,
+      instructions: 'Apply to the affected area twice daily.',
+      mrp_base_unit: 120,
+      wholesale_price: 90,
+      hsn_code: '3002',
+      status: true,
+    },
+  });
+  const itemEight = await prisma.item.create({
+    data: {
+      name: 'Glucometer',
+      baseUnit: BaseUnit.Piece,
+      instructions: 'Use test strips to check blood sugar levels.',
+      mrp_base_unit: 2000,
+      wholesale_price: 1800,
+      hsn_code: '9019',
+      status: true,
+    },
+  });
+  const itemNine = await prisma.item.create({
+    data: {
+      name: 'Cotton Swabs 100 pcs',
+      baseUnit: BaseUnit.Piece,
+      instructions: 'Use for cleaning wounds or applying ointments.',
+      mrp_base_unit: 150,
+      wholesale_price: 100,
+      hsn_code: '3003',
+      status: true,
+    },
+  });
+  const itemTen = await prisma.item.create({
+    data: {
+      name: 'Vitamin C 1000mg',
+      baseUnit: BaseUnit.Tablet,
+      instructions: 'Take 1 tablet daily after a meal.',
+      mrp_base_unit: 350,
+      wholesale_price: 250,
+      hsn_code: '3001',
+      status: true,
+    },
+  });
+  const itemEleven = await prisma.item.create({
+    data: {
+      name: 'Hand Gloves Pack (10 pairs)',
+      baseUnit: BaseUnit.Pack,
+      instructions: 'Wear gloves to protect hands from contaminants.',
+      mrp_base_unit: 250,
+      wholesale_price: 200,
+      hsn_code: '4015',
+      status: true,
+    },
+  });
+  const itemTwelve = await prisma.item.create({
+    data: {
+      name: 'Surgical Mask (Box of 50)',
+      baseUnit: BaseUnit.Box,
+      instructions:
+        'Wear mask to cover nose and mouth during medical procedures.',
+      mrp_base_unit: 400,
+      wholesale_price: 350,
+      hsn_code: '3926',
+      status: true,
+    },
+  });
+  const itemThirteen = await prisma.item.create({
+    data: {
+      name: 'Pain Relief Spray 150ml',
+      baseUnit: BaseUnit.Bottle,
+      instructions: 'Spray on affected area and massage gently.',
+      mrp_base_unit: 250,
+      wholesale_price: 200,
+      hsn_code: '3004',
+      status: true,
+    },
+  });
+  const itemFourteen = await prisma.item.create({
+    data: {
+      name: 'First Aid Kit',
+      baseUnit: BaseUnit.Piece,
+      instructions: 'Use for emergency treatment of minor injuries.',
+      mrp_base_unit: 1500,
+      wholesale_price: 1300,
+      hsn_code: '3401',
+      status: true,
+    },
+  });
+  const itemFifteen = await prisma.item.create({
+    data: {
+      name: 'Face Shield',
+      baseUnit: BaseUnit.Piece,
+      instructions: 'Wear for protection against droplets and splashes.',
+      mrp_base_unit: 350,
+      wholesale_price: 300,
+      hsn_code: '3926',
+      status: true,
+    },
+  });
 
-  // // Establish relations between items and categories
-  // const itemCategoryRelations = await prisma.itemCategoryRelation.createMany({
-  //   data: [
-  //     // Medical Equipment
-  //     {
-  //       itemId: itemOne.id, // Blood Pressure Monitor
-  //       itemCategoryId: categoryOne.id, // Medical Equipment
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemSix.id, // Thermometer Digital
-  //       itemCategoryId: categoryOne.id, // Medical Equipment
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemEight.id, // Glucometer
-  //       itemCategoryId: categoryOne.id, // Medical Equipment
-  //       status: true,
-  //     },
+  // Establish relations between items and categories
+  const itemCategoryRelations = await prisma.itemCategoryRelation.createMany({
+    data: [
+      // Medical Equipment
+      {
+        itemId: itemOne.id, // Blood Pressure Monitor
+        itemCategoryId: categoryOne.id, // Medical Equipment
+        status: true,
+      },
+      {
+        itemId: itemSix.id, // Thermometer Digital
+        itemCategoryId: categoryOne.id, // Medical Equipment
+        status: true,
+      },
+      {
+        itemId: itemEight.id, // Glucometer
+        itemCategoryId: categoryOne.id, // Medical Equipment
+        status: true,
+      },
 
-  //     // Pharmaceuticals
-  //     {
-  //       itemId: itemTwo.id, // Paracetamol 500mg
-  //       itemCategoryId: categoryTwo.id, // Pharmaceuticals
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemFive.id, // Cough Syrup 100ml
-  //       itemCategoryId: categoryTwo.id, // Pharmaceuticals
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemThirteen.id, // Pain Relief Spray 150ml
-  //       itemCategoryId: categoryTwo.id, // Pharmaceuticals
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemTen.id, // Vitamin C 1000mg
-  //       itemCategoryId: categoryTwo.id, // Pharmaceuticals
-  //       status: true,
-  //     },
+      // Pharmaceuticals
+      {
+        itemId: itemTwo.id, // Paracetamol 500mg
+        itemCategoryId: categoryTwo.id, // Pharmaceuticals
+        status: true,
+      },
+      {
+        itemId: itemFive.id, // Cough Syrup 100ml
+        itemCategoryId: categoryTwo.id, // Pharmaceuticals
+        status: true,
+      },
+      {
+        itemId: itemThirteen.id, // Pain Relief Spray 150ml
+        itemCategoryId: categoryTwo.id, // Pharmaceuticals
+        status: true,
+      },
+      {
+        itemId: itemTen.id, // Vitamin C 1000mg
+        itemCategoryId: categoryTwo.id, // Pharmaceuticals
+        status: true,
+      },
 
-  //     // Personal Care
-  //     {
-  //       itemId: itemFour.id, // Hand Sanitizer 200ml
-  //       itemCategoryId: categoryThree.id, // Personal Care
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemNine.id, // Cotton Swabs 100 pcs
-  //       itemCategoryId: categoryThree.id, // Personal Care
-  //       status: true,
-  //     },
+      // Personal Care
+      {
+        itemId: itemFour.id, // Hand Sanitizer 200ml
+        itemCategoryId: categoryThree.id, // Personal Care
+        status: true,
+      },
+      {
+        itemId: itemNine.id, // Cotton Swabs 100 pcs
+        itemCategoryId: categoryThree.id, // Personal Care
+        status: true,
+      },
 
-  //     // Medical Consumables
-  //     {
-  //       itemId: itemThree.id, // Bandages 5m
-  //       itemCategoryId: categoryFour.id, // Medical Consumables
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemSeven.id, // Antiseptic Solution 100ml
-  //       itemCategoryId: categoryFour.id, // Medical Consumables
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemEleven.id, // Hand Gloves Pack (10 pairs)
-  //       itemCategoryId: categoryFour.id, // Medical Consumables
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemTwelve.id, // Surgical Mask (Box of 50)
-  //       itemCategoryId: categoryFour.id, // Medical Consumables
-  //       status: true,
-  //     },
+      // Medical Consumables
+      {
+        itemId: itemThree.id, // Bandages 5m
+        itemCategoryId: categoryFour.id, // Medical Consumables
+        status: true,
+      },
+      {
+        itemId: itemSeven.id, // Antiseptic Solution 100ml
+        itemCategoryId: categoryFour.id, // Medical Consumables
+        status: true,
+      },
+      {
+        itemId: itemEleven.id, // Hand Gloves Pack (10 pairs)
+        itemCategoryId: categoryFour.id, // Medical Consumables
+        status: true,
+      },
+      {
+        itemId: itemTwelve.id, // Surgical Mask (Box of 50)
+        itemCategoryId: categoryFour.id, // Medical Consumables
+        status: true,
+      },
 
-  //     // First Aid
-  //     {
-  //       itemId: itemFourteen.id, // First Aid Kit
-  //       itemCategoryId: categorySix.id, // First Aid
-  //       status: true,
-  //     },
-  //     {
-  //       itemId: itemNine.id, // Cotton Swabs 100 pcs (also related to First Aid)
-  //       itemCategoryId: categorySix.id, // First Aid
-  //       status: true,
-  //     },
-  //   ],
-  // });
+      // First Aid
+      {
+        itemId: itemFourteen.id, // First Aid Kit
+        itemCategoryId: categorySix.id, // First Aid
+        status: true,
+      },
+      {
+        itemId: itemNine.id, // Cotton Swabs 100 pcs (also related to First Aid)
+        itemCategoryId: categorySix.id, // First Aid
+        status: true,
+      },
+    ],
+  });
 
   // // Create warehouse stock
   // const warehouseStocksCreation =

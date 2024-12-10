@@ -180,7 +180,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const { email, id, name } = user;
+    const { email, id } = user;
 
     const confirmationToken = await generateToken();
 
@@ -189,7 +189,7 @@ export class AuthService {
     const password = await bcrypt.hash(passwordText, 10);
 
     const subject = 'Forgot Password Request!';
-    const body = `<p>Hello ${name}</p>
+    const body = `<p>Hello</p>
         <p>We received a request to reset the password for your PharmaStock account. To ensure the security of your account, please click the link below to set a new password:</p> 
         <a href="${process.env.BASE_URL}/set-password?confirmation_token=${confirmationToken}">Set Your Password</a>
         <p>Temporary Password: ${passwordText}</p>
