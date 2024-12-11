@@ -450,6 +450,7 @@ type Query {
   organizationByName(name: String!): Organization!
   organizations(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedOrganizations
   pharmacies(pagination: Boolean, paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacies
+  pharmaciesByOrganization(organizationId: String!): [pharmaciesByOrganization!]
   pharmacy(id: String!): Pharmacy!
   pharmacyStocksByPharmacy(paginationArgs: PaginationArgs, pharmacyId: String!): PaginatedPharmacyStocks
   pharmacyStocksItems(paginationArgs: PaginationArgs, searchText: String): PaginatedPharmacyStockItem!
@@ -687,4 +688,9 @@ enum inviteUserRole {
 input itemObjs {
   itemId: String!
   qty: Float!
+}
+
+type pharmaciesByOrganization {
+  id: String!
+  name: String!
 }

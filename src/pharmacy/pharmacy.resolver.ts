@@ -13,23 +13,19 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { BadRequestException, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Pharmacy } from './entities/pharmacy.entity';
+import {
+  PaginatedPharmacies,
+  pharmaciesByOrganization,
+  Pharmacy,
+} from './entities/pharmacy.entity';
 import { UserRole } from '@prisma/client';
 import { UpdatePharmacyInput } from './dto/update-pharmacy.input';
 import { DeletePharmacyInput } from './dto/delete-pharmacy.input';
 import { PaginationArgs } from '../pagination/pagination.dto';
-import { TotalCount } from '../pagination/toalCount.entity';
 import { PermissionsGuardOR } from '../auth/guards/permissions-or.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PrivilegesList } from '../privileges/user-privileges';
 import { OrganizationGuard } from 'src/auth/guards/organization.guard';
-
-// Define a new type for the paginated result
-@ObjectType()
-class PaginatedPharmacies extends TotalCount {
-  @Field(() => [Pharmacy])
-  pharmacies: Pharmacy[];
-}
 
 @Resolver(() => Pharmacy)
 export class PharmacyResolver {
@@ -53,6 +49,26 @@ export class PharmacyResolver {
         searchText,
         pagination,
         paginationArgs,
+      );
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
+  @Query(() => [pharmaciesByOrganization], {
+    name: 'pharmaciesByOrganization',
+    nullable: true,
+  })
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.VIEW])
+  async pharmaciesByOrganizationRes(
+    @Context() ctx: any,
+    @Args('organizationId') organizationId: string,
+  ): Promise<pharmaciesByOrganization[]> {
+    try {
+      return await this.pharmacyService.pharmaciesByOrganizationSer(
+        ctx,
+        organizationId,
       );
     } catch (e) {
       throw new BadRequestException(e);

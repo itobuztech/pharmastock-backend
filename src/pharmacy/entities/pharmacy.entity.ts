@@ -4,6 +4,7 @@ import {
   Organization as OrganizationDB,
 } from '@prisma/client';
 import { Organization } from '../../organization/entities/organization.entity';
+import { TotalCount } from 'src/pagination/toalCount.entity';
 
 @ObjectType()
 export class Pharmacy {
@@ -30,4 +31,20 @@ export class Pharmacy {
 
   @Field(() => Date, { nullable: true })
   updatedAt: PharmacyDB['updatedAt'] | null;
+}
+
+@ObjectType()
+export class pharmaciesByOrganization {
+  @Field(() => String)
+  id: PharmacyDB['id'];
+
+  @Field(() => String)
+  name: PharmacyDB['name'];
+}
+
+// Define a new type for the paginated result
+@ObjectType()
+export class PaginatedPharmacies extends TotalCount {
+  @Field(() => [Pharmacy])
+  pharmacies: Pharmacy[];
 }
