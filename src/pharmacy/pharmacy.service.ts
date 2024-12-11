@@ -6,6 +6,7 @@ import { PaginationArgs } from 'src/pagination/pagination.dto';
 import { Prisma } from '@prisma/client';
 import { PharmacySearchObject } from '../types/extended-types';
 import { AccountService } from '../account/account.service';
+import { pharmaciesByOrganization } from './entities/pharmacy.entity';
 
 @Injectable()
 export class PharmacyService {
@@ -92,6 +93,30 @@ export class PharmacyService {
       });
 
       return { pharmacies, total: pharmacyCount };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async pharmaciesByOrganizationSer(
+    ctx,
+    organizationId: string,
+  ): Promise<pharmaciesByOrganization[]> {
+    try {
+      const Pharmacy = await this.prisma.pharmacy.findMany({
+        select: { id: true, name: true },
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+          {
+            createdAt: 'asc',
+          },
+        ],
+        where: { organizationId, status: true },
+      });
+
+      return Pharmacy;
     } catch (error) {
       throw error;
     }
