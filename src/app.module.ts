@@ -6,6 +6,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import {
   GraphqlInterceptor,
   SentryModule,
@@ -25,6 +26,7 @@ import { ItemCategoryModule } from './itemCategories/itemCategory.module';
 import { PharmacyStockModule } from './pharmacyStock/pharmacyStock.module';
 import { StockMovementModule } from './stockMovement/stockMovement.module';
 import { EmailModule } from './email/email.module';
+import { SchedulerService } from 'scheduler';
 
 const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
 
@@ -33,6 +35,7 @@ let providerArr: any = [
     provide: APP_INTERCEPTOR,
     useFactory: () => new GraphqlInterceptor(),
   },
+  SchedulerService,
 ];
 if (env !== 'development') {
   providerArr.push({
@@ -84,6 +87,7 @@ dotenv.config({ path: join(process.cwd(), `.env.${env}`) });
       environment: process.env.APP_ENV,
       logLevels: ['debug'],
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: providerArr,

@@ -4,7 +4,7 @@ import { resetDatabase, seedData } from './prisma/seed'; // Adjust import as per
 
 @Injectable()
 export class SchedulerService {
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_DAY_AT_11AM)
   async handleDailyReset() {
     console.log('Starting daily reset...');
     try {
