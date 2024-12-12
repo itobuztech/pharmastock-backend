@@ -83,7 +83,7 @@ export class WarehouseResolver {
   }
 
   @Mutation(() => Warehouse)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([PrivilegesList.WAREHOUSE_MANAGEMENT.CAPABILITIES.EDIT])
   async updateWarehouse(
     @Args('updateWarehouseInput')
