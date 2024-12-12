@@ -51,6 +51,8 @@ export class OrganizationGuard implements CanActivate {
         warehouseId,
         warehouseStockId,
         pharmacyStockId,
+        updatePharmacyInput,
+        updateWarehouseInput,
       } = ctx.getContext().req.body.variables;
 
       let organizationId = '';
@@ -196,6 +198,34 @@ export class OrganizationGuard implements CanActivate {
         }
 
         organizationId = organizationByPharmacyStockId.id;
+      } else if (updatePharmacyInput?.id) {
+        const id = updatePharmacyInput?.id;
+
+        const organization = await this.prisma.pharmacy.findFirst({
+          select: { organizationId: true },
+          where: {
+            id,
+          },
+        });
+
+        organizationId = organization.organizationId;
+        if (!organizationId) {
+          throw new BadRequestException('Pharmacy organization not found');
+        }
+      } else if (updateWarehouseInput?.id) {
+        const id = updateWarehouseInput?.id;
+
+        const organization = await this.prisma.warehouse.findFirst({
+          select: { organizationId: true },
+          where: {
+            id,
+          },
+        });
+
+        organizationId = organization.organizationId;
+        if (!organizationId) {
+          throw new BadRequestException('Warehouse organization not found');
+        }
       } else {
         throw new BadRequestException('No valid input variables found');
       }

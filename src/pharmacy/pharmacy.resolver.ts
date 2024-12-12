@@ -102,14 +102,16 @@ export class PharmacyResolver {
   }
 
   @Mutation(() => Pharmacy)
-  @UseGuards(JwtAuthGuard, PermissionsGuardOR)
+  @UseGuards(JwtAuthGuard, PermissionsGuardOR, OrganizationGuard)
   @Permissions([PrivilegesList.PHARMACY_MANAGEMENT.CAPABILITIES.EDIT])
   async updatePharmacy(
     @Args('updatePharmacyInput')
     updatePharmacyInput: UpdatePharmacyInput,
   ): Promise<Pharmacy> {
     try {
+      console.log('updatePharmacyInput=', updatePharmacyInput);
       const { id, ...data } = updatePharmacyInput;
+
       return await this.pharmacyService.updatePharmacy(id, data);
     } catch (error) {
       throw new BadRequestException(error);
