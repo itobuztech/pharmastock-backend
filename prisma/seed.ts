@@ -40,8 +40,8 @@ export async function seedData() {
         description: 'Admin made by super admin',
         userType: UserRole.ADMIN,
         privileges: [
-          101, 102, 111, 151, 152, 153, 154, 161, 171, 181, 182, 183, 184, 191,
-          192, 193, 194, 211,
+          101, 102, 111, 141, 151, 152, 153, 154, 161, 171, 181, 182, 183, 184,
+          191, 192, 193, 194, 211,
         ],
       },
       {
