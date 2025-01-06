@@ -21,7 +21,11 @@
     "test:e2e": "dotenv -e .env.test -- jest --verbose --config ./test/jest-e2e.json",
     "seed": "ts-node --transpile-only prisma/seed.ts",
     "db:reset": "npx prisma migrate reset --force",
-    "cronJob": "ts-node scheduler.ts"
+    "cronJob": "ts-node scheduler.ts",
+    "prisma": "prisma",
+    "db:seed": "npm run tsx src/seed/index.ts",
+    "db:push": "npm run prisma -- db push",
+    "prisma:generate": "npm run prisma -- generate"
   },
   "dependencies": {
     "@apollo/server": "^4.10.4",
