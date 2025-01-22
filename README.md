@@ -123,3 +123,5 @@ The protect an API route from a specific user Permission, you can use a **Permis
 You need to have `dotenv` installed globally. Create a separate database for testing and update in the **.env.test** accordingly.
 Run `dotenv -e .env.test -- npx prisma migrate dev` and `dotenv -e .env.test -- npx prisma db seed` to create the tables and populate the test database. Run migrations using `yarn run test:e2e`.
 
+### Frontend repo link:
+https://github.com/itobuztech/pharmastock-frontend 
