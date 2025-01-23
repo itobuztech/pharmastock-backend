@@ -11,9 +11,9 @@ This template uses:
 - Apollo Server
 - Passport-JWT
 
-
 ### Frontend repo link:
-https://github.com/itobuztech/pharmastock-frontend 
+
+https://github.com/itobuztech/pharmastock-frontend
 
 ## Setup
 
@@ -54,11 +54,11 @@ Running this mutation will create a new entry in the Users table **if the email 
 The default Role will be set as USER. you can change this by creating a new role in the `roles` table and changing the default role in the `create` method of the `users.service.ts` file.
 
 ```js
-  const defaultRole = await this.prisma.role.findFirst({
-    select: {
-      id: true,
-    }
-  });
+const defaultRole = await this.prisma.role.findFirst({
+  select: {
+    id: true,
+  },
+});
 ```
 
 To login a user:
@@ -107,11 +107,9 @@ Only a user with the OWNER role can access this endpoint.
   }
 ```
 
-
 ## Permissions Guards
 
 The protect an API route from a specific user Permission, you can use a **PermissionsAND** or **PermissionsOR** guard. These guards check if the user has the correct privilege to access the specified resolver.
-
 
 ```js
   @Query(() => User, { name: 'account' })
@@ -122,7 +120,25 @@ The protect an API route from a specific user Permission, you can use a **Permis
   }
 ```
 
-##  E2E Tests:
+## E2E Tests:
 
 You need to have `dotenv` installed globally. Create a separate database for testing and update in the **.env.test** accordingly.
 Run `dotenv -e .env.test -- npx prisma migrate dev` and `dotenv -e .env.test -- npx prisma db seed` to create the tables and populate the test database. Run migrations using `yarn run test:e2e`.
+
+## DEMO URL AND CREDENTIAL:
+
+https://pharmastock.x-studio.io/login
+
+### Admin Credential
+
+```
+Email = sudeepAdmin.healthfirst@itobuz.com
+Password = Itobuz#1234
+```
+
+### Staff Credential
+
+```
+Email = aliceStaff.healthfirst@itobuz.com
+Password = Itobuz#1234
+```
