@@ -1,4 +1,4 @@
-# NestJS Authentication and Role Based Access Control with GraphQL example
+# Pharmacy Management System
 
 [![License](https://img.shields.io/github/license/saluki/nestjs-template.svg)](https://github.com/pgm-arthtemm/nestjs-auth-rbac-starter/blob/main/LICENSE)
 
